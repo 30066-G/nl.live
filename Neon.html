@@ -58,6 +58,7 @@ html, body {
 }
 .scene {
     perspective: 1200px;
+    overflow: visible;
 }
 
 /* Clock */
@@ -106,7 +107,7 @@ html, body {
 /* Brand */
 .brand-name {
     position: absolute;
-    top: 63%;
+    bottom: -25px;
     left: 50%;
     transform: translate(-50%, -50%);
     color: var(--sense-green);
@@ -316,8 +317,8 @@ scene.addEventListener('mousemove', (e) => {
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
 
-    targetY = (x - centerX) / centerX * 14; 
-    targetX = -(y - centerY) / centerY * 14; 
+    targetY = (x - centerX) / centerX * 9; 
+    targetX = -(y - centerY) / centerY * 9; 
 });
 
 scene.addEventListener('mouseleave', () => {
@@ -326,8 +327,8 @@ scene.addEventListener('mouseleave', () => {
 });
 
 function animate3D() {
-    currentX += (targetX - currentX) * 0.09;
-    currentY += (targetY - currentY) * 0.09;
+    currentX += (targetX - currentX) * 0.03;
+    currentY += (targetY - currentY) * 0.03;
 
     clock.style.transform = `
         rotateX(${currentX}deg)
