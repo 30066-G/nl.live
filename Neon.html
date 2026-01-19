@@ -106,7 +106,7 @@ html, body {
 /* Brand */
 .brand-name {
     position: absolute;
-    top: 93%;
+    top: 63%;
     left: 50%;
     transform: translate(-50%, -50%);
     color: var(--sense-green);
@@ -185,9 +185,13 @@ html, body {
     box-shadow: 0 0 12px var(--sense-blue);
 }/* Tagline */
 .tagline {
-    margin-top: 30px;
-    color: #fff;
-    opacity: 0.8;
+    margin-top: 20px;      
+    color: #fff;            
+    opacity: 0.85;         
+    font-size: 14px;        
+    letter-spacing: 2px;   
+    text-align: center;    
+    width: 100%;        
 }
 /* Mobile */
 @media (max-width:600px){
@@ -316,8 +320,8 @@ scene.addEventListener('mousemove', (e) => {
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
 
-    targetY = (x - centerX) / centerX * 14; 
-    targetX = -(y - centerY) / centerY * 14; 
+    targetY = (x - centerX) / centerX * 18; 
+    targetX = -(y - centerY) / centerY * 18; 
 });
 
 scene.addEventListener('mouseleave', () => {
