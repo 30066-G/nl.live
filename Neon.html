@@ -57,7 +57,7 @@ html, body {
     transition: 3s ease;
 }
 .scene {
-    perspective: 900px;
+    perspective: 1200px;
 }
 
 /* Clock */
@@ -195,16 +195,7 @@ html, body {
     .title { font-size:24px; letter-spacing:8px; }
     .number { font-size:16px; }
 }
-.gyro-btn {
-    margin-top: 20px;
-    background: transparent;
-    border: 1px solid rgba(178,242,187,0.5);
-    color: var(--sense-green);
-    padding: 8px 18px;
-    font-family: inherit;
-    letter-spacing: 2px;
-    cursor: pointer;
-}
+
 body {
     opacity: 0;
     transition: opacity 3s ease-in;
@@ -243,7 +234,6 @@ body.loaded {
         <div class="hand second" id="second"></div>
     </div>
     <div class="tagline">The instinct of Sensation</div>
-    <button id="enable-gyro" class="gyro-btn">Enable harmony</button>
 </div>
 <script>
 /* Smooth clock */
@@ -326,8 +316,8 @@ scene.addEventListener('mousemove', (e) => {
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
 
-    targetY = (x - centerX) / centerX * 12; // left/right
-    targetX = -(y - centerY) / centerY * 12; // up/down
+    targetY = (x - centerX) / centerX * 14; 
+    targetX = -(y - centerY) / centerY * 14; 
 });
 
 scene.addEventListener('mouseleave', () => {
@@ -336,8 +326,8 @@ scene.addEventListener('mouseleave', () => {
 });
 
 function animate3D() {
-    currentX += (targetX - currentX) * 0.08;
-    currentY += (targetY - currentY) * 0.08;
+    currentX += (targetX - currentX) * 0.09;
+    currentY += (targetY - currentY) * 0.09;
 
     clock.style.transform = `
         rotateX(${currentX}deg)
