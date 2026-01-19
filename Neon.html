@@ -21,7 +21,7 @@ html, body {
     display: flex;
     justify-content: center;
     align-items: center;
-    perspective: 1200px;
+    perspective: 1500px;
 }
 #vanta-bg { position: fixed; inset: 0; z-index: 0; opacity: 0.35; pointer-events: none; }
 #particles-stars { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
@@ -30,35 +30,26 @@ html, body {
     height: 400px;
     position: relative;
     z-index: 10;
-    transition: transform 0.1s ease-out;
     transform-style: preserve-3d;
+    transition: transform 0.1s ease-out;
 }
 .clock-container {
     width: 100%;
     height: 100%;
     position: relative;
     border-radius: 50%;
-    background: rgba(10, 10, 10, 0.9);
-    border: 2px solid rgba(200, 170, 90, 0.38);
+    background: rgba(20, 20, 20, 0.85);
+    border: 2px solid rgba(200, 170, 90, 0.3);
     transform-style: preserve-3d;
-    box-shadow: 0 50px 100px rgba(0,0,0,0.8);
-}
-.clock-container::before {
-    content: '';
-    position: absolute;
-    inset: -2px;
-    border-radius: 50%;
-    border: 8px solid #1a1a1a;
-    transform: translateZ(-20px);
-    filter: blur(2px);
+    box-shadow: 0 40px 80px rgba(0,0,0,0.9);
 }
 .glass-cover {
     position: absolute;
     inset: 0;
     border-radius: 50%;
-    background: rgba(255,255,255,0.05);
+    background: rgba(255,255,255,0.03);
     backdrop-filter: blur(2px);
-    transform: translateZ(35px);
+    transform: translateZ(40px);
     pointer-events: none;
     border: 1px solid rgba(255,255,255,0.1);
 }
@@ -71,50 +62,64 @@ html, body {
 .core-text {
     position: absolute;
     top: 50%; left: 50%;
-    transform: translate(-50%, -50%) translateZ(-5px);
-    font-size: 27px;
-    letter-spacing: 3px;
-    color: #000;
-    text-shadow: 0 0 7px #00ff88;
-    opacity: 0.8;
+    transform: translate(-50%, -50%) translateZ(-2px);
+    font-size: 26px;
+    letter-spacing: 4px;
+    color: rgba(0, 255, 136, 0.5);
+    text-shadow: 0 0 10px rgba(0,255,136,0.3);
 }
 .brand-name {
     position: absolute;
     top: 65%; left: 50%;
-    transform: translate(-50%, -50%) translateZ(15px);
+    transform: translate(-50%, -50%) translateZ(12px);
     color: var(--sense-green);
-    font-size: 13px;
-    letter-spacing: 7px;
+    font-size: 12px;
+    letter-spacing: 6px;
     text-transform: uppercase;
+    opacity: 0.7;
 }
-.hand { position: absolute; bottom: 50%; left: 50%; transform-origin: bottom; }
-.hour { width: 6px; height: 100px; background: rgba(241,245,249,0.5); transform: translateX(-50%) translateZ(20px); }
-.minute { width: 4px; height: 140px; background: var(--sense-red); transform: translateX(-50%) translateZ(25px); }
-.second { width: 2px; height: 160px; background: var(--sense-blue); transform: translateX(-50%) translateZ(30px); }
+.hand { 
+    position: absolute; 
+    bottom: 50%; 
+    left: 50%; 
+    transform-origin: bottom center;
+}
+.hour { width: 6px; height: 100px; background: rgba(241,245,249,0.4); z-index: 3; }
+.minute { width: 4px; height: 130px; background: var(--sense-red); z-index: 4; }
+.second { width: 2px; height: 150px; background: var(--sense-blue); z-index: 5; }
+
 .number {
     position: absolute;
     width: 100%; height: 100%;
     text-align: center;
-    font-size: 24px;
+    font-size: 22px;
     font-weight: bold;
-    padding: 20px;
+    padding: 25px;
     box-sizing: border-box;
     color: #f1f5f9;
     transform-style: preserve-3d;
 }
-.n12{transform:rotate(0) translateZ(15px)}
-.n1{transform:rotate(-30deg) translateZ(15px)} .n1 div{transform:rotate(30deg)}
-.n2{transform:rotate(-60deg) translateZ(15px)} .n2 div{transform:rotate(60deg)}
-.n3{transform:rotate(-90deg) translateZ(15px)} .n3 div{transform:rotate(90deg)}
-.n4{transform:rotate(-120deg) translateZ(15px)} .n4 div{transform:rotate(120deg)}
-.n5{transform:rotate(-150deg) translateZ(15px)} .n5 div{transform:rotate(150deg)}
-.nƐ3{transform:rotate(-180deg) translateZ(15px)} .nƐ3 div{transform:rotate(180deg)}
-.n7{transform:rotate(-210deg) translateZ(15px)} .n7 div{transform:rotate(210deg)}
-.n8{transform:rotate(-240deg) translateZ(15px)} .n8 div{transform:rotate(240deg)}
-.n9{transform:rotate(-270deg) translateZ(15px)} .n9 div{transform:rotate(270deg)}
-.n10{transform:rotate(-300deg) translateZ(15px)} .n10 div{transform:rotate(300deg)}
-.n11{transform:rotate(-330deg) translateZ(15px)} .n11 div{transform:rotate(330deg)}
-.tagline { margin-top: 50px; color: #fff; opacity: 0.8; z-index: 20; }
+.n12{transform:rotate(0) translateZ(15px)} .n12 div{transform:rotate(0)}
+.n1{transform:rotate(30deg) translateZ(15px)} .n1 div{transform:rotate(-30deg)}
+.n2{transform:rotate(60deg) translateZ(15px)} .n2 div{transform:rotate(-60deg)}
+.n3{transform:rotate(90deg) translateZ(15px)} .n3 div{transform:rotate(-90deg)}
+.n4{transform:rotate(120deg) translateZ(15px)} .n4 div{transform:rotate(-120deg)}
+.n5{transform:rotate(150deg) translateZ(15px)} .n5 div{transform:rotate(-150deg)}
+.nƐ3{transform:rotate(180deg) translateZ(15px)} .nƐ3 div{transform:rotate(-180deg)}
+.n7{transform:rotate(210deg) translateZ(15px)} .n7 div{transform:rotate(-210deg)}
+.n8{transform:rotate(240deg) translateZ(15px)} .n8 div{transform:rotate(-240deg)}
+.n9{transform:rotate(270deg) translateZ(15px)} .n9 div{transform:rotate(-270deg)}
+.n10{transform:rotate(300deg) translateZ(15px)} .n10 div{transform:rotate(-300deg)}
+.n11{transform:rotate(330deg) translateZ(15px)} .n11 div{transform:rotate(-330deg)}
+
+.tagline { margin-top: 40px; color: #fff; opacity: 0.6; font-size: 14px; letter-spacing: 2px; }
+
+@media (max-width: 500px) {
+    .scene { width: 300px; height: 300px; }
+    .hour { height: 70px; }
+    .minute { height: 100px; }
+    .second { height: 115px; }
+}
 </style>
 </head>
 <body>
@@ -138,9 +143,9 @@ html, body {
             <div class="number n9"><div>9</div></div>
             <div class="number n10"><div>10</div></div>
             <div class="number n11"><div>11</div></div>
-            <div class="hand hour" id="hour"></div>
-            <div class="hand minute" id="minute"></div>
-            <div class="hand second" id="second"></div>
+            <div id="hour-hand" class="hand hour"></div>
+            <div id="minute-hand" class="hand minute"></div>
+            <div id="second-hand" class="hand second"></div>
         </div>
     </div>
 </div>
@@ -148,19 +153,18 @@ html, body {
 <script>
 const scene = document.getElementById('clock-scene');
 document.addEventListener('mousemove', (e) => {
-    let xAxis = (window.innerWidth / 2 - e.pageX) / 12;
-    let yAxis = (window.innerHeight / 2 - e.pageY) / 12;
-    scene.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
+    let xAxis = (window.innerWidth / 2 - e.pageX) / 15;
+    let yAxis = (window.innerHeight / 2 - e.pageY) / 15;
+    scene.style.transform = `rotateY(${xAxis}deg) rotateX(${-yAxis}deg)`;
 });
 function updateClock() {
     const now = new Date();
-    const ms = now.getMilliseconds();
-    const s = now.getSeconds() + ms / 1000;
+    const s = now.getSeconds() + now.getMilliseconds() / 1000;
     const m = now.getMinutes() + s / 60;
     const h = (now.getHours() % 12) + m / 60;
-    document.getElementById('second').style.transform = `translateX(-50%) translateZ(30px) rotate(${-s*6}deg)`;
-    document.getElementById('minute').style.transform = `translateX(-50%) translateZ(25px) rotate(${-m*6}deg)`;
-    document.getElementById('hour').style.transform   = `translateX(-50%) translateZ(20px) rotate(${-h*30}deg)`;
+    document.getElementById('second-hand').style.transform = `translateX(-50%) translateZ(32px) rotate(${s * 6}deg)`;
+    document.getElementById('minute-hand').style.transform = `translateX(-50%) translateZ(25px) rotate(${m * 6}deg)`;
+    document.getElementById('hour-hand').style.transform = `translateX(-50%) translateZ(18px) rotate(${h * 30}deg)`;
     requestAnimationFrame(updateClock);
 }
 updateClock();
@@ -172,17 +176,16 @@ VANTA.FOG({
     midtoneColor: 0xb2f2bb,
     lowlightColor: 0x0b132b,
     baseColor: 0x000000,
-    blurFactor: 0.39,
-    speed: 0.4,
-    zoom: 1.15
+    blurFactor: 0.35,
+    speed: 0.5
 });
 particlesJS("particles-stars", {
     particles: {
-        number: { value: 72, density: { enable: true, value_area: 800 } },
+        number: { value: 60, density: { enable: true, value_area: 800 } },
         color: { value: "#ffffff" },
-        opacity: { value: 0.6, random: true },
-        size: { value: 1.5, random: true },
-        move: { enable: true, speed: 0.2 },
+        opacity: { value: 0.5, random: true },
+        size: { value: 1.2, random: true },
+        move: { enable: true, speed: 0.3 },
         line_linked: { enable: false }
     }
 });
