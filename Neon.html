@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar">
 <head>
 <meta charset="UTF-8">
 <title>A(See(n)see)Z</title>
@@ -187,7 +187,7 @@ html, body {
 }/* Tagline */
 .tagline {
     margin-top: 33px;      
-    color: #ffffff;            
+    color: #fff;            
     opacity: 0.85;         
     font-size: 14px;        
     letter-spacing: 2px;   
@@ -255,6 +255,18 @@ function updateClock() {
     requestAnimationFrame(updateClock);
 }
 updateClock();
+/* Idle interaction */
+let idle;
+function resetIdle(){
+    clearTimeout(idle);
+    document.body.classList.remove('idle');
+    idle = setTimeout(()=>document.body.classList.add('idle'),10000);
+}
+['mousemove','touchstart','keydown'].forEach(e =>
+    document.addEventListener(e, resetIdle)
+);
+resetIdle();
+
 </script>
 <script>
 VANTA.FOG({
@@ -268,9 +280,9 @@ VANTA.FOG({
     midtoneColor: 0xb2f2bb,
     lowlightColor: 0x0b132b,
     baseColor: 0x000000,
-    blurFactor: 0.24,
+    blurFactor: 0.14,
     speed: 0.4,
-    zoom: 1.14
+    zoom: 1.15
 });
 particlesJS("particles-stars", {
     particles: {
@@ -320,8 +332,8 @@ scene.addEventListener('mouseleave', () => {
 });
 
 function animate3D() {
-    currentX += (targetX - currentX) * 0.07;
-    currentY += (targetY - currentY) * 0.08;
+    currentX += (targetX - currentX) * 0.7;
+    currentY += (targetY - currentY) * 0.8;
 
     clock.style.transform = `
         rotateX(${currentX}deg)
@@ -347,8 +359,9 @@ scene.addEventListener('touchmove', e => {
     const t = e.touches[0];
     const dx = t.clientX - touchX;
     const dy = t.clientY - touchY;
-    targetY = dx * 0.07;
-    targetX = -dy * 0.06;
+
+    targetY = dx * 0.11;
+    targetX = -dy * 0.10;
 });
 </script>
 </body>
