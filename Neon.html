@@ -80,6 +80,36 @@ html, body {
     animation: energyPulse 6s ease-in-out infinite;
     z-index: -1;
 }
+.energy-ring {
+    --ring-scale: 1;
+    position: absolute;
+    width: 420px;
+    height: 420px;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
+    border: 2px solid rgba(178,242,187,0.75);
+    box-shadow:
+        0 0 18px rgba(178,242,187,0.95),
+        0 0 45px rgba(178,242,187,0.65),
+        0 0 90px rgba(178,242,187,0.35);
+    filter: blur(0.3px);
+    animation:
+        ringSpin 60s linear infinite,
+        ringPulse 4.5s ease-in-out infinite;
+    transform: rotate(var(--ring-rot, 0deg)) scale(var(--ring-scale));
+}
+.energy-ring::after {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.65);
+    box-shadow:
+        0 0 12px rgba(255,255,255,0.8),
+        0 0 25px rgba(178,242,187,0.9);
+    opacity: 0.85;
+}
 /* Clock */
 .clock-container {
     transform-style: preserve-3d;
@@ -243,6 +273,26 @@ html, body {
     .number { font-size:16px; }
 }
 
+@keyframes ringSpin {
+    from { --ring-rot: 0deg; }
+    to   { --ring-rot: 360deg; }
+}
+
+@keyframes ringPulse {
+    0%   { --ring-scale: 0.992; opacity: 0.55; }
+    50%  { --ring-scale: 1.01;  opacity: 0.95; }
+    100% { --ring-scale: 0.992; opacity: 0.55; }
+}
+@media (max-width:600px){
+    .energy-ring {
+        width: 290px;
+        height: 290px;
+        border-width: 1.5px;
+        animation:
+            ringSpin 80s linear infinite,
+            ringPulse 5.5s ease-in-out infinite;
+    }
+}
 body {
     opacity: 0;
     transition: opacity 3s ease-in;
@@ -261,6 +311,7 @@ body.loaded {
 <div class="main-content">
     <div class="scene">
     <div class="energy-glow"></div>
+    <div class="energy-ring"></div>
     <div class="clock-container">
         <div class="glass-cover"></div>
         <div class="brand-name">Seensee</div>
@@ -310,9 +361,9 @@ VANTA.FOG({
     midtoneColor: 0xb2f2bb,
     lowlightColor: 0x0b132b,
     baseColor: 0x000000,
-    blurFactor: 0.14,
+    blurFactor: 0.24,
     speed: 0.4,
-    zoom: 1.15
+    zoom: 1.14
 });
 particlesJS("particles-stars", {
     particles: {
