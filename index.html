@@ -307,7 +307,7 @@ particlesJS("particles-stars", {
             random: true,
             anim: { enable: true, speed: 2, size_min: 0.5, sync: false }
         },
-        move: { enable: true, speed: 0.2, direction: "none", random: true },
+        move: { enable: true, speed: 2.4, direction: "none", random: true },
         line_linked: { enable: false }
     },
     retina_detect: true
@@ -341,8 +341,8 @@ scene.addEventListener('mouseleave', () => {
 });
 
 function animate3D() {
-    currentX += (targetX - currentX) * 0.7;
-    currentY += (targetY - currentY) * 0.8;
+    currentX += (targetX - currentX) * 0.07;
+    currentY += (targetY - currentY) * 0.08;
 
     clock.style.transform = `
         rotateX(${currentX}deg)
