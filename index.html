@@ -251,19 +251,27 @@ body.loaded {
     <div class="tagline">The instinct of Sensation</div>
 </div>
 <script>
-/* Smooth clock */
 const hour = document.getElementById('hour');
-const n1 = hour.querySelector('.n1'); 
+const n1 = hour.querySelector('.n1');
+const minute = document.getElementById('minute');
+const second = document.getElementById('second');
 function updateClock() {
     const now = new Date();
     const ms = now.getMilliseconds();
     const s = now.getSeconds() + ms / 1000;
     const m = now.getMinutes() + s / 60;
-    const h = (now.getHours() % 12) + m / 60;
-    hour.style.transform = `translateX(-50%) rotate(${-h*30 + 30}deg)`;
-    n1.style.transform = `translateX(-50%) rotate(${h*30 - 30}deg)`;
-    second.style.transform = `translateX(-50%) rotate(${-s*6 - 30}deg)`;
-    minute.style.transform = `translateX(-50%) rotate(${-m*6 - 45}deg)`;
+    let h = now.getHours() % 12 + m / 60;
+    let displayHour = (h + 2) % 12;
+    hour.style.transform = `translateX(-50%) rotate(${-displayHour*30}deg)`;
+    minute.style.transform = `translateX(-50%) rotate(${-m*6}deg)`;
+    second.style.transform = `translateX(-50%) rotate(${-s*6}deg)`;
+    if (Math.floor(h) === 10 || Math.floor(h) === 11 || Math.floor(h) === 0) {
+        n1.style.display = 'block';
+        n1.style.transform = `translateX(-50%) rotate(${displayHour*30}deg)`; // يظل أفقي
+    } else {
+        n1.style.display = 'none';
+    }
+
     requestAnimationFrame(updateClock);
 }
 updateClock();
