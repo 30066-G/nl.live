@@ -262,8 +262,8 @@ function updateClock() {
     const h = (now.getHours() % 12) + m / 60;
     hour.style.transform = `translateX(-50%) rotate(${-h*30 + 30}deg)`;
     n1.style.transform = `translateX(-50%) rotate(${h*30 - 30}deg)`;
-    second.style.transform = `translateX(-50%) rotate(${-s*6 + 30}deg)`;
-    minute.style.transform = `translateX(-50%) rotate(${-m*6 + 30}deg)`;
+    second.style.transform = `translateX(-50%) rotate(${-s*6 - 30}deg)`;
+    minute.style.transform = `translateX(-50%) rotate(${-m*6 - 30}deg)`;
     requestAnimationFrame(updateClock);
 }
 updateClock();
@@ -293,8 +293,8 @@ VANTA.FOG({
     lowlightColor: 0x0b132b,
     baseColor: 0x000000,
     blurFactor: 0.14,
-    speed: 0.4,
-    zoom: 1.15
+    speed: 1.4,
+    zoom: 3.1
 });
 particlesJS("particles-stars", {
     particles: {
