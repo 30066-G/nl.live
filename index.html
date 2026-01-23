@@ -168,11 +168,17 @@ html, body {
 }
 .n1 {
     position: absolute;
-    top: -20px; 
+    top: 0;
     left: 50%;
-    transform: translateX(-50%);
-    font-size: 18px;
+    transform: translateX(-50%) rotate(0deg);
+    font-size: 24px;
     color: var(--sense-green);
+    white-space: nowrap;
+}
+.n1 div {
+    display: inline-block;
+    padding: 0 6px;
+    border-top: 2px solid var(--sense-green);
 }
 .hour {
     width: 6px;
