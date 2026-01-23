@@ -166,11 +166,8 @@ html, body {
     border-radius: 10px;
     transform: translateZ(20px);
 }
-.hour {
-    width: 6px;
-    height: 100px;
-    background: rgba(241,245,249,0.25);
-    box-shadow: 0 0 10px rgba(241,245,249,0.3); 
+.n1 div {
+    transition: transform 0.1s linear;
 }
 .minute {
     width: 4px;
@@ -244,13 +241,14 @@ body.loaded {
 /* Smooth clock */
 function updateClock() {
     const now = new Date();
+    const n1 = document.querySelector('.n1');
     const ms = now.getMilliseconds();
     const s = now.getSeconds() + ms / 1000;
     const m = now.getMinutes() + s / 60;
     const h = (now.getHours() % 12) + m / 60;
 second.style.transform = `translateX(-50%) rotate(${-s*6 + 30}deg)`;
 minute.style.transform = `translateX(-50%) rotate(${-m*6 + 30}deg)`;
-hour.style.transform   = `translateX(-50%) rotate(${-h*30 + 30}deg)`;  
+n1.style.transform = `rotate(${-h*30 + 30}deg) translate(-50%, -180px)`;
   requestAnimationFrame(updateClock);
 }
 updateClock();
