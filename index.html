@@ -232,8 +232,8 @@ body.loaded {
         <div class="glass-cover"></div>
         <div class="brand-name">SEENƧƎƎ</div>
         <div class="center-dot"></div>
-        <div class="number n2"><div>2</div></div>
-        <div class="number n3"><div>1</div></div>
+        <div class="number n2"><div>)</div></div>
+        <div class="number n3"><div>(</div></div>
         <div class="number n4"><div>0</div></div>
         <div class="number n5"><div>9</div></div>
         <div class="number n6"><div>8</div></div>
@@ -268,6 +268,13 @@ function updateClock() {
 let displayHour = Math.floor(h);
 if (displayHour === 0) displayHour = 12;
 n1.innerText = displayHour;
+if (displayHour === 1) {
+    n1.style.fontWeight = '900';
+    n1.style.letterSpacing = '2px';
+} else {
+    n1.style.fontWeight = 'bold';
+    n1.style.letterSpacing = 'normal';
+}
 n1.style.opacity = (displayHour >= 10 || displayHour <= 4) ? 1 : 0;    requestAnimationFrame(updateClock);
 }
 updateClock();
