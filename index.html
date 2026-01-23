@@ -174,9 +174,8 @@ function updateClock() {
     const m = now.getMinutes() + s / 60;
     const h = (now.getHours() % 12) + m / 60;
     second.style.transform = `translateX(-50%) rotate(${s*30}deg)`; // كل رقم يمثل 30°
-    minute.style.transform = `translateX(-50%) rotate(${(m - 5)*6}deg)`;
+    minute.style.transform = `translateX(-50%) rotate(${m*6 - 30}deg)`;
     hour.style.transform   = `translateX(-50%) rotate(${h*30}deg)`; // 360/12 = 30° لكل ساعة
-
     requestAnimationFrame(updateClock);
 }
 updateClock();
