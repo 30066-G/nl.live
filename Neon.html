@@ -18,13 +18,9 @@ html, body {
     background: #000;
     font-family: 'Courier New', monospace;
     overflow: hidden;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
 }
 #vanta-bg {
-    position: fixed;
+    position: absolute;
     inset: 0;
     z-index: 0;
     opacity: 0.35;
@@ -32,7 +28,7 @@ html, body {
     pointer-events: none;
 }
 #particles-stars {
-    position: fixed;
+    position: absolute;
     inset: 0;
     z-index: 0;
     pointer-events: none;
@@ -40,7 +36,7 @@ html, body {
 /* Main content */
 .main-content {
     position: relative;
-    z-index: 0;
+    z-index: 2;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -210,10 +206,16 @@ body {
 body.loaded {
     opacity: 1;
 }
-
+.viewport {
+    position: fixed;
+    inset: 0;
+    transform: scale(1.18); 
+    transform-origin: center;
+}
 </style>
 </head>
 <body>
+<div class="viewport">
 <div id="vanta-bg"></div> 
 <div id="particles-stars"></div>
 <div id="particles-movement"></div>
@@ -282,7 +284,7 @@ VANTA.FOG({
     baseColor: 0x000000,
     blurFactor: 0.14,
     speed: 0.4,
-    zoom: 1.15
+    zoom: 1.4
 });
 particlesJS("particles-stars", {
     particles: {
