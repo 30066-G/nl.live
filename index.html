@@ -272,23 +272,10 @@ function updateClock() {
     else if (h < 2.85) n1.innerText = '2';
     else if (h < 3.42) n1.innerText = '3';
     else if (h <= 4) n1.innerText = '4';
-    else n1.style.opacity = 0;
     n1.style.opacity = (h <= 4) ? 1 : 0;
     requestAnimationFrame(updateClock);
 }
 updateClock();
-/* Idle interaction */
-let idle;
-function resetIdle(){
-    clearTimeout(idle);
-    document.body.classList.remove('idle');
-    idle = setTimeout(()=>document.body.classList.add('idle'),10000);
-}
-['mousemove','touchstart','keydown'].forEach(e =>
-    document.addEventListener(e, resetIdle)
-);
-resetIdle();
-
 </script>
 <script>
 VANTA.FOG({
