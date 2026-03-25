@@ -95,22 +95,23 @@ body::before {
     position: fixed;
     top: 20px;
     left: 20px;
-    width: 320px;
-    background: rgba(0, 15, 0, 0.92); 
+    width: 350px;
+    min-height: 220px;
+    background: rgba(0, 15, 0, 0.92);
     color: #00ff41;
     padding: 20px;
     font-family: 'Courier New', Courier, monospace;
-    font-size: 14px;
+    font-size: 13px;
     border: 1px solid #00ff41;
-    box-shadow: 0 0 10px rgba(0, 255, 65, 0.2);
-    line-height: 1.5;
+    box-shadow: 0 0 15px rgba(0, 255, 65, 0.2);
+    line-height: 1.6;
     z-index: 9999;
-    min-height: 200px;
+    border-radius: 4px;
 }
 
 #terminal-console::after {
     content: "_";
-    animation: blink 1s step-end infinite;
+    animation: blink 0.8s step-end infinite;
 }
 
 @keyframes blink {
@@ -172,7 +173,7 @@ body::before {
 }
 
 input, select {
-    width: 45%;
+    width: 78%;
     padding: 12px;
     border: 1px solid #00ff41;        
     font-family: inherit;
@@ -285,20 +286,19 @@ h2 {
     </div>
 </div>
 <script>
-const consoleElement = document.getElementById('terminal-console');
-
+const consoleBox = document.getElementById('terminal-console');
 
 const scripts = [
     "---------------------------------",
-    "> GEBRUIKSVOORWAARDEN (STADSCHAT):",
-    "- Respecteer alle bewoners in de straten.",
-    "- Geen spam of ongepaste taal toegestaan.",
-    "- Volg de aanwijzingen van de moderators.",
-    "- Misbruik van scripts leidt tot een ban.",
-    "- Privacy van gebruikers is heilig.",
+    "> GEBRUIKSVOORWAARDEN:",
+    "- Respecteer alle gebruikers op straat.",
+    "- Geen spam of ongepast gedrag.",
+    "- Volg de regels van de stadsserver.",
+    "- Misbruik wordt direct gerapporteerd.",
+    "- Privacy van data is strikt beveiligd.",
     "---------------------------------",
-    "> Systeem is gereed. Voer je naam in...",
-    "> Welkom bij de toekomst van live."
+    "> Systeem gereed. Voer je naam in...",
+    "> Welkom bij de toekomst van nl.live."
 ];
 
 let lineIndex = 0;
@@ -307,19 +307,18 @@ function startTyping() {
     if (lineIndex < scripts.length) {
         let currentLine = scripts[lineIndex];
         if (charIndex < currentLine.length) {
-            consoleElement.innerHTML += currentLine.charAt(charIndex);
+            consoleBox.innerHTML += currentLine.charAt(charIndex);
             charIndex++;
-            setTimeout(startTyping, 100); 
+            setTimeout(startTyping, 78); 
         } else {
-            consoleElement.innerHTML += "<br>";
+            consoleBox.innerHTML += "<br>";
             lineIndex++;
             charIndex = 0;
             setTimeout(startTyping, 1000); 
         }
     }
 }
-
-window.onload = startTyping;
+window.addEventListener('load', startTyping);
 </script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
