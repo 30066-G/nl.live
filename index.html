@@ -11,7 +11,7 @@
 <meta name="theme-color" content="#000000">
 <link rel="canonical" href="https://nl.live/">
 <link rel="icon" type="image/gif" href="121.GIF">
-   <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="apple-touch-icon" href="121.GIF">
 <link rel="apple-touch-icon" href="121.GIF">
@@ -110,6 +110,8 @@ body::before {
     max-width: 400px;
     display: flex;
     flex-direction: column;
+    background: rgba(0, 20, 0, 0.85); 
+    border: 1px solid #00ff41;       
     border-radius: 8px;
     box-shadow: 0 0 20px rgba(0,255,65,0.5);
     padding: 15px;
@@ -147,7 +149,8 @@ body::before {
 input, select {
     width: 100%;
     padding: 12px;
-    background: rgba(0,0,0,0.9);
+    background: rgba(0, 20, 0, 0.85); 
+    border: 1px solid #00ff41;        
     font-family: inherit;
     outline: none;
     box-sizing: border-box;
@@ -156,6 +159,8 @@ input, select {
 
 input:focus, select:focus {
     box-shadow: var(--neon-shadow);
+    background: rgba(0, 20, 0, 0.85);
+    border: 1px solid #00ff41;       
     border-color: var(--neon);
 }
 
