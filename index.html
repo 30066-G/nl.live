@@ -364,8 +364,6 @@ nlCities.sort((a, b) => a.name.localeCompare(b.name)).forEach(city => {
 // استرجاع الاسم المحفوظ إن وجد
 let savedNick = localStorage.getItem("a0z_nick_v6");
 if(savedNick) document.getElementById("nick-input").value = savedNick;
-
- // 1. قاعدة بيانات الشوارع (Doetinchem)
 const streetData = {
   "Doetinchem": {
     "KAPOENIESTRAAT": { lat: 51.9658, lon: 6.2882 },
@@ -430,7 +428,7 @@ window.boot = () => {
             const target = streetData[cityName][street];
             const dist = getDistance(uLat, uLon, target.lat, target.lon);
             
-            if (dist > 366) {
+            if (dist > 309) {
                 return alert(`ACCESS DENIED: Je bent ${Math.round(dist)}m verwijderd. Je moet in de buurt van ${street} zijn.`);
             }
         }
