@@ -4,10 +4,6 @@
 
 <h1 align="center">NL.LIVE - Live Chat Nederland</h1>
 
-<p align="center">
-  <img src="matrix.gif" alt="Matrix Animation" width="400">
-</p>
-
 ## Over NL.LIVE
 NL.LIVE is de realtime chat hub voor alle steden in Nederland. Praat live met mensen in jouw stad zoals Amsterdam, Rotterdam, Utrecht en meer.
 
