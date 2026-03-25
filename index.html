@@ -391,7 +391,6 @@ function startRadar(zID, myNick) {
     onValue(onlineList, (s) => {
         document.getElementById("online-count").textContent = `👥 ${s.val() ? Object.keys(s.val()).length : 0} ONLINE`;
     });
-
     const today = new Date().toISOString().slice(0, 10).replace(/-/g, '');
     const usageRef = ref(db, `v6_usage/${myNick}/${today}`);
     onValue(usageRef, (s) => {
