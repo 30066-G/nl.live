@@ -108,7 +108,7 @@ body::before {
     min-height: 220px;
     padding: 20px;
     font-family: 'Courier New', Courier, monospace;
-    font-size: 22px;
+    font-size: 13px;
     line-height: 1.6;
     z-index: 9999;
     border-radius: 4px;
@@ -123,7 +123,7 @@ body::before {
 }
 
 @keyframes blink {
-    50% { opacity: 0.9; }
+    50% { opacity: 0.7; }
 }
 
 .container {
@@ -309,6 +309,9 @@ const consoleBox = document.getElementById('terminal-console');
 
 const scripts = [
     "   `--------`       ",
+    "   `--------`       ",
+    "   `--------`       ",
+    "   `--------`       ",
     "> GEBRUIKSVOORWAARDEN:",
     "- Respecteer alle gebruikers op straat.",
     "- Geen spam of ongepast gedrag.",
@@ -328,7 +331,7 @@ function startTyping() {
         if (charIndex < currentLine.length) {
             consoleBox.innerHTML += currentLine.charAt(charIndex);
             charIndex++;
-            setTimeout(startTyping, 69); 
+            setTimeout(startTyping, 120); 
         } else {
             consoleBox.innerHTML += "<br>";
             lineIndex++;
@@ -618,14 +621,14 @@ document.getElementById("back-btn").onclick = () => {
 const canvas = document.getElementById('matrix-canvas');
 const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-const chars = "01"; const fontSize = 27;
+const chars = "01"; const fontSize = 33;
 const drops = Array(Math.floor(canvas.width / fontSize)).fill(1);
 function drawMatrix() {
     ctx.fillStyle = "rgba(0, 0, 0, 0.1)"; ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = "#00ff41";
     drops.forEach((y, i) => {
         ctx.fillText(chars[Math.floor(Math.random() * chars.length)], i * fontSize, y * fontSize);
-        if (y * fontSize > canvas.height && Math.random() > 0.98) drops[i] = 0;
+        if (y * fontSize > canvas.height && Math.random() > 2) drops[i] = 0;
         drops[i]++;
     });
 }
