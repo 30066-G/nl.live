@@ -232,6 +232,7 @@ h2 {
     <button onclick="boot()" style="margin-top: 15px;">Klik Chat</button>
 </div>
     <div id="chat-ui" class="box" style="display:none;"> <div style="display:flex; justify-content:space-between; font-size:11px; border-bottom: 1px solid var(--neon); padding-bottom: 5px; width: 100%;">
+      <button id="back-btn" style="background:transparent; color:var(--neon); border:1px solid var(--neon); padding:5px 10px; font-size:10px; margin-bottom:10px; width:fit-content;">⬅ BACK</button>
             <span id="zone-display">Z: SCANNING</span>
             <span id="online-count">nl 0 live</span>
         </div>
@@ -506,6 +507,11 @@ function startRadar(zID, myNick, sID = null) {
             push(msgRef, { n: `🚨 SOS: ${myNick}`, m: `HULP NODIG! Locatie: ${mapUrl}`, t: serverTimestamp(), isSOS: true });
         });
     };
+document.getElementById("back-btn").onclick = () => {
+    set(onlineRef, null); 
+    document.getElementById("chat-ui").style.display = "none";
+    document.getElementById("login-ui").style.display = "flex";
+};
 
     onChildAdded(msgRef, (s) => {
         const d = s.val();
