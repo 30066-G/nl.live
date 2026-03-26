@@ -81,45 +81,38 @@ body, html {
 }
 #theme-toggle {
     position: fixed;
-    top: 20px;
-    right: 20px;
-    padding: 10px 20px;
-    background: transparent;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); 
+    padding: 15px 30px;
+    background: rgba(0, 0, 0, 0.8); /* خلفية سوداء شفافة ليكون واضحاً */
     color: #00ff41;
-    border: 1px solid #00ff41;
+    border: 2px solid #00ff41;
     font-family: 'Courier New', Courier, monospace;
-    font-size: 14px;
+    font-size: 18px; /* تكبير الخط قليلاً لأنه أصبح في المنتصف */
+    font-weight: bold;
     cursor: pointer;
-    z-index: 10001; 
+    z-index: 100000; /* أعلى رقم ممكن ليظهر فوق اللوجو والكانفاس */
     transition: 0.3s;
     text-transform: uppercase;
-    letter-spacing: 2px;
+    letter-spacing: 3px;
+    box-shadow: 0 0 15px rgba(0, 255, 65, 0.3);
 }
 
 #theme-toggle:hover {
-    background: rgba(0, 255, 65, 0.1);
-    box-shadow: 0 0 15px rgba(0, 255, 65, 0.5);
+    color: #000;
+    box-shadow: 0 0 30px #00ff41;
 }
 
-body.red-mode .box {
-    border-color: #ff0000;
-    box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
-    background: rgba(20, 0, 0, 0.85);
-}
-
-body.red-mode input, body.red-mode select {
-    border-color: rgba(255, 0, 0, 0.5);
+body.red-mode #theme-toggle {
     color: #ff0000;
+    border-color: #ff0000;
 }
-
-body.red-mode button:not(#sos-btn) {
-    background: #ff0000;
-}
-
 
 body.red-mode #theme-toggle:hover {
-    background: rgba(255, 0, 0, 0.1);
-    box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
+    background: #ff0000;
+    color: #000;
+    box-shadow: 0 0 30px #ff0000;
 }
 
 body::before {
@@ -312,7 +305,7 @@ h2 {
 </head>
 <body>
   <link rel="manifest" href="manifest.json">
-    <button id="theme-toggle">SWITCH MODE</button>
+    <button id="theme-toggle">👒</button>
 <canvas id="matrix-canvas"></canvas> <div class="container">
    <img src="N.png" id="top-logo">
    <div id="terminal-console"></div>
