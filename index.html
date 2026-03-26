@@ -689,9 +689,8 @@ window.updateStreets = (cityVal) => {
 };
 
 window.boot = () => {
-
     if ('Notification' in window) { Notification.requestPermission(); }
-
+    
     const nickInput = document.getElementById("nick-input");
     const nick = nickInput.value.trim().toUpperCase();
     const cityVal = document.getElementById("city-select").value;
@@ -703,7 +702,7 @@ window.boot = () => {
     if (streetData[cityName] && !street) return alert("SELECT STREET");
 
     localStorage.setItem("a0z_nick_v6", nick);
-    
+
     navigator.geolocation.getCurrentPosition((p) => {
         const uLat = p.coords.latitude;
         const uLon = p.coords.longitude;
@@ -712,15 +711,21 @@ window.boot = () => {
             const target = streetData[cityName][street];
             const dist = getDistance(uLat, uLon, target.lat, target.lon);
             if (dist > 309) {
-                return alert(`ACCESS DENIED: Je bent ${Math.round(dist)}m verwijderd.`);
+                document.body.classList.add('glitch-active');
+                setTimeout(() => {
+                    alert(`ACCESS DENIED: Je bent ${Math.round(dist)}m verwijderd.`);
+                    document.body.classList.remove('glitch-active');
+                }, 100); 
+                return; 
             }
         }
+        
         startRadar(cityVal, nick, street);
+
     }, (err) => {
         alert("GPS REQUIRED.");
     }, { enableHighAccuracy: true });
 };
-
 function startRadar(zID, myNick, sID = null) {
     document.getElementById("login-ui").style.display = "none";
     document.getElementById("chat-ui").style.display = "flex";
