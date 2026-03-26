@@ -312,8 +312,7 @@ const scripts = [
     "                  ",
     "                  ",
     "                  ",
-    "                  ",
-    ">Laat het zwerven."
+    "                  "
 ];
 
 let lineIndex = 0;
@@ -617,8 +616,8 @@ const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-const chars = "01010"; 
-const fontSize = 19; 
+const chars = "01"; 
+const fontSize = 17; 
 const columns = Math.floor(canvas.width / fontSize);
 const drops = Array(columns).fill(1);
 function drawMatrix() {
