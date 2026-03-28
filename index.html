@@ -297,7 +297,6 @@ button:active {
 
 .msg-line {
     margin-bottom: 10px;
-    border-left: 2px solid var(--neon);
     background: rgba(0, 255, 65, 0.2);
     padding-left: 8px;
     word-break: break-all;
@@ -310,7 +309,6 @@ button:active {
 
 h2 {
     text-align: center;
-    text-shadow: var(--neon-shadow);
     background: rgba(0, 255, 0, 1);
     margin-bottom: 10px;
     font-size: 1.5rem;
@@ -836,11 +834,11 @@ toggleBtn.addEventListener('click', () => {
     document.body.classList.toggle('red-mode');
     
     if (matrixColor === "#00ff41") {
-        matrixColor = "#ff0000"; // تحويل للأحمر
+        matrixColor = "#ff0000"; 
         toggleBtn.innerText = "ALARM MODE";
         document.getElementById('terminal-console').style.color = "rgba(255, 0, 0, 0.7)";
     } else {
-        matrixColor = "#00ff41"; // العودة للأخضر
+        matrixColor = "#00ff41";
         toggleBtn.innerText = "SAFE MODE";
         document.getElementById('terminal-console').style.color = "rgba(0, 255, 65, 0.7)";
     }
