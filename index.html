@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NL.LIVE | RADAR & LIVE</title>
+    <title>NL | Live</title>
     <style>
         :root { --neon: #00ff41; --bg: #000; --red: #ff0000; }
         body { background: var(--bg); color: var(--neon); font-family: 'Courier New', monospace; margin: 0; overflow-x: hidden; }
@@ -36,24 +36,27 @@
 
 <div class="container">
     <div id="login-ui" class="box">
-        <h2 style="text-align:center">NL.LIVE RADAR</h2>
+        <h2 style="text-align:center">NL live</h2>
         <input id="nick-input" placeholder="NICKNAME" maxlength="12">
         <select id="city-select" onchange="window.updateStreets(this.value)">
             <option value="">-- KIES STAD --</option>
             <option value="Doetinchem">DOETINCHEM</option>
         </select>
         <select id="street-select" style="display:none;"></select>
-        <button onclick="window.boot()">SCAN & ENTER</button>
+        <button onclick="window.boot()">Join Chat</button>
         <p style="font-size:10px; text-align:center;">* Je moet binnen 309m van de straat zijn.</p>
     </div>
 
     <div id="app-ui" style="display:none;">
+        <button onclick="window.goBack()" style="background:#222; color:white; margin-bottom:10px;">⬅ TERUG</button>
         <div class="radar-header">
             <span id="zone-txt">ZONE: -</span>
             <span class="dist-badge" id="dist-txt">RADAR: OK</span>
-            <span id="view-count">0 VIEWERS</span>
-        </div>
-
+<button id="view-count" onclick="window.showViewers()" style="width:auto; padding:5px 10px; font-size:11px; background:#111;">0 VIEWERS</button>
+<div id="viewers-list" style="display:none; border:1px solid yellow; padding:10px; font-size:12px; margin-bottom:10px; background:#111;">
+    <strong style="color:yellow;">NU ONLINE:</strong>
+    <div id="names-area"></div>
+</div>
         <div id="live-container">
             <div class="live-tag">YOU ARE LIVE</div>
             <video id="v-preview" autoplay playsinline muted></video>
@@ -61,8 +64,8 @@
             <button onclick="window.stopLive()" style="background:var(--red); color:#white; border:none; margin:0;">STOP BROADCAST</button>
         </div>
 
-        <button id="cam-btn" onclick="window.startLive()">📷 GA LIVE IN DE BUURT</button>
-        <button class="sos" onclick="window.sendSOS()">🆘 SOS MELDING</button>
+        <button id="cam-btn" onclick="window.startLive()">📷 GA LIVE</button>
+        <button class="sos" onclick="window.sendSOS()">🆘 Nood</button>
 
         <div id="chat-box"></div>
 
@@ -78,7 +81,6 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
 import { getDatabase, ref, push, onChildAdded, serverTimestamp, onValue, onDisconnect, set, remove } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
-
 const firebaseConfig = { 
     apiKey: "AIzaSyA7Pu0DJOWmdoDYUUVP1J9aqhxh4f3wyfA", 
     projectId: "a0zai-56c3a", 
@@ -86,8 +88,6 @@ const firebaseConfig = {
 };
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
-
-// قاعدة بيانات الشوارع (أضف إحداثياتك هنا)
 const streetData = {
     "Doetinchem": {
   "2E LOOLAAN": { "lat": 51.9700, "lon": 6.3000 },
@@ -356,12 +356,19 @@ window.updateStreets = (city) => {
     }
 };
 
+window.onload = () => {
+    const savedNick = localStorage.getItem("mySavedNick");
+    if(savedNick) document.getElementById("nick-input").value = savedNick;
+};
+
 window.boot = () => {
     myNick = document.getElementById("nick-input").value.trim().toUpperCase();
     const city = document.getElementById("city-select").value;
     const street = document.getElementById("street-select").value;
 
     if(!myNick || !city || !street) return alert("VUL ALLES IN!");
+
+    localStorage.setItem("mySavedNick", myNick);
 
     navigator.geolocation.getCurrentPosition((p) => {
         const dist = calcDist(p.coords.latitude, p.coords.longitude, streetData[city][street].lat, streetData[city][street].lon);
@@ -380,21 +387,60 @@ window.boot = () => {
     }, () => alert("GPS AAN ZETTEN!"), {enableHighAccuracy: true});
 };
 
+window.goBack = () => {
+    if(confirm("Wil je de kamer verlaten?")) {
+        if(typeof window.stopLive === 'function') window.stopLive();
+        location.reload();
+    }
+};
+
+
+
+
 function startSystem() {
     const msgRef = ref(db, `${myPath}/msgs`);
     const onlineRef = ref(db, `${myPath}/online/${myNick}`);
     const liveRef = ref(db, `${myPath}/lives/${myNick}`);
 
+    // تثبيت التواجد أونلاين
     set(onlineRef, true);
     onDisconnect(onlineRef).remove();
     onDisconnect(liveRef).remove();
 
-    // 1. حساب المشاهدات (المتواجدين حالياً)
-    onValue(ref(db, `${myPath}/online`), s => {
-        document.getElementById("view-count").textContent = (s.exists() ? Object.keys(s.val()).length : 0) + " ONLINE";
+    // 1. نظام حذف الرسائل القديمة (أكبر من 14 ساعة) - الغلط كان هنا في الاستدعاء بدون تعريف
+    const fourteenHoursAgo = Date.now() - (14 * 60 * 60 * 1000);
+    onValue(msgRef, (snap) => {
+        if (snap.exists()) {
+            snap.forEach((child) => {
+                if (child.val().t && child.val().t < fourteenHoursAgo) {
+                    remove(ref(db, `${myPath}/msgs/${child.key}`));
+                }
+            });
+        }
+    }, { onlyOnce: true });
+
+    // 2. نظام تحديث العداد وقائمة الأسماء
+    onValue(ref(db, `${myPath}/online`), (s) => {
+        const namesArea = document.getElementById("names-area");
+        const users = s.exists() ? Object.keys(s.val()) : [];
+        document.getElementById("view-count").textContent = users.length + " ONLINE";
+        if (namesArea) namesArea.textContent = users.join(", ");
     });
 
-    // 2. استقبال الرسائل
+    // 3. إرسال الرسالة مع إضافة التوقيت t
+    window.sendMsg = () => {
+        const i = document.getElementById("msg-input");
+        if (i.value) { 
+            push(msgRef, { 
+                n: myNick, 
+                m: i.value, 
+                t: Date.now() 
+            }); 
+            i.value = ""; 
+        }
+    };
+
+    // 4. عرض الرسائل الجديدة
     onChildAdded(msgRef, s => {
         const d = s.val();
         const div = document.createElement("div");
@@ -404,7 +450,7 @@ function startSystem() {
         document.getElementById("chat-box").scrollTop = 99999;
     });
 
-    // 3. رادار الكاميرات (مشاهدة الآخرين)
+    // 5. عرض لايفات الجيران
     onValue(ref(db, `${myPath}/lives`), s => {
         const container = document.getElementById("remote-streams");
         if(!s.exists()) { container.innerHTML = ""; return; }
@@ -426,23 +472,17 @@ function startSystem() {
             img.src = allLives[user].frame;
         });
     });
-
-    window.sendMsg = () => {
-        const i = document.getElementById("msg-input");
-        if(i.value) { push(msgRef, { n: myNick, m: i.value }); i.value = ""; }
-    };
+}
 
     window.sendSOS = () => {
         push(msgRef, { n: "🚨 SOS", m: `${myNick} HEEFT HULP NODIG!` });
     };
 
-    // 4. تشغيل الكاميرا الخاصة بك
     window.startLive = async () => {
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
             document.getElementById("v-preview").srcObject = stream;
             document.getElementById("live-container").style.display = "block";
-            
             const canvas = document.getElementById("v-canvas");
             const ctx = canvas.getContext('2d');
 
@@ -451,7 +491,7 @@ function startSystem() {
                 ctx.drawImage(document.getElementById("v-preview"), 0, 0, canvas.width, canvas.height);
                 const data = canvas.toDataURL('image/jpeg', 0.4);
                 set(liveRef, { frame: data, t: Date.now() });
-            }, 800); // تحديث الفريم كل 0.8 ثانية
+            }, 600); 
 
         } catch (e) { alert("Camera Error"); }
     };
@@ -474,6 +514,41 @@ function calcDist(lat1, lon1, lat2, lon2) {
     const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ/2) * Math.sin(Δλ/2);
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 }
+function cleanOldMessages() {
+    const msgRef = ref(db, `${myPath}/msgs`);
+    const fourteenHoursAgo = Date.now() - (14 * 60 * 60 * 1000);
+
+    onValue(msgRef, (snapshot) => {
+        if (snapshot.exists()) {
+            snapshot.forEach((child) => {
+                const msgTime = child.val().t || 0; 
+                if (msgTime < fourteenHoursAgo) {
+                    remove(ref(db, `${myPath}/msgs/${child.key}`));
+                }
+            });
+        }
+    }, { onlyOnce: true });
+}
+
+window.showViewers = () => {
+    const area = document.getElementById("viewers-list");
+    area.style.display = area.style.display === "none" ? "block" : "none";
+};
+
+function watchViewers() {
+    onValue(ref(db, `${myPath}/online`), (s) => {
+        const namesArea = document.getElementById("names-area");
+        if (s.exists()) {
+            const users = Object.keys(s.val());
+            namesArea.textContent = users.join(", "); // يعرض الأسماء بجانب بعضها
+            document.getElementById("view-count").textContent = users.length + " VIEWERS";
+        } else {
+            namesArea.textContent = "Geen kijkers";
+            document.getElementById("view-count").textContent = "0 VIEWERS";
+        }
+    });
+}
+
 </script>
 </body>
 </html>
