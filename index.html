@@ -101,38 +101,6 @@ body.red-mode #live-viewers {
     text-shadow: 0 0 5px #ff0000;
 }
 
-#theme-toggle {
-    position: fixed;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 10px 20px;
-    background: rgba(0, 0, 0, 0.5);
-    color: #00ff41;
-    font-size: 14px;
-    font-weight: bold;
-    cursor: pointer;
-    z-index: 100000;
-    transition: 0.3s;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-}
-
-#theme-toggle:hover {
-    background: rgba(0, 255, 65, 0.1);
-    box-shadow: 0 0 15px rgba(0, 255, 65, 0.5);
-}
-
-body.red-mode #theme-toggle {
-    color: #ff0000;
-    border-color: #ff0000;
-}
-
-body.red-mode #theme-toggle:hover {
-    background: rgba(255, 0, 0, 0.1);
-    box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
-}
-
 body::before {
     content: " ";
     display: block;
@@ -172,15 +140,21 @@ body::before {
     50% { opacity: 0.7; }
 }
 
-#top-logo {
-    position: fixed;
-    top: 39px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 309px;
-    height: auto;
-    z-index: 5;
+#floating-cam-btn {
+    position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); z-index: 9998; 
+    background: #00ff41; color: black; border: none; border-radius: 50%; width: 60px; height: 60px; 
+    box-shadow: 0 0 20px #00ff41; cursor: pointer; font-size: 24px; display: flex; align-items: center; justify-content: center;
 }
+#live-request-panel {
+    display:none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+    z-index: 9999; background: #000; border: 2px solid #00ff41; padding: 20px; width: 85%; max-width: 320px; border-radius: 8px;
+}
+#global-video-container {
+    display:none; width:100%; background:#000; border:1px solid #00ff41; margin-bottom:10px; position:relative;
+}
+#video-feed { width:100%; height:auto; background:#000; }
+.live-tag { position:absolute; top:5px; left:5px; background:red; color:white; font-size:10px; padding:2px 5px; animation:blink 1s infinite; }
+
 
 .container {
     position: relative;
@@ -338,9 +312,7 @@ h2 {
 <body>
   <link rel="manifest" href="manifest.json">
    <div id="live-viewers">👁️‍🗨️ <span id="viewer-count">0</span></div>
-    <button id="theme-toggle">🔰</button>
    <canvas id="matrix-canvas"></canvas> <div class="container">
-   <img src="N.png" id="top-logo">
    <div id="terminal-console"></div>
 <div id="login-ui" class="box">
     <input id="nick-input" placeholder="Naam..." maxlength="12">
@@ -356,6 +328,11 @@ h2 {
       <button id="back-btn" style="background:transparent; color:var(--neon); border:1px solid var(--neon); padding:5px 10px; font-size:10px; margin-bottom:10px; width:fit-content;">⬅ BACK</button>
             <span id="zone-display">Z: SCANNING</span>
             <span id="online-count">nl 0 live</span>
+            <div id="global-video-container">
+            <div class="live-tag">📡 LIVE NL</div>
+            <video id="video-feed" autoplay muted playsinline></video>
+    <div id="live-location-name" style="font-size:10px; text-align:center; padding:2px;">SCANNING...</div>
+</div>
         </div>
         <button id="sos-btn" onclick="window.sendSOS()" style="background: #ff3333; color: white; width: 100%; margin-bottom: 10px; border-radius: 4px; box-shadow: 0 0 15px #ff3333; font-size: 14px; animation: blink 1s infinite;">
     🆘 
@@ -841,6 +818,71 @@ toggleBtn.addEventListener('click', () => {
         matrixColor = "#00ff41";
         toggleBtn.innerText = "SAFE MODE";
         document.getElementById('terminal-console').style.color = "rgba(0, 255, 65, 0.7)";
+    }
+});
+window.openLivePanel = () => {
+    document.getElementById("live-request-panel").style.display = "block";
+    const citySel = document.getElementById("live-city-select");
+    citySel.innerHTML = '<option value="">-- Choose City --</option>';
+    nlCities.forEach(c => {
+        let opt = document.createElement("option");
+        opt.value = c.name.replace(/\s+/g, '_');
+        opt.textContent = c.name.toUpperCase();
+        citySel.appendChild(opt);
+    });
+};
+
+window.updateLiveStreets = (cityVal) => {
+    const sSel = document.getElementById("live-street-select");
+    const city = cityVal.replace(/_/g, ' ');
+    if(streetData[city]) {
+        sSel.innerHTML = '<option value="">-- Choose Street --</option>';
+        Object.keys(streetData[city]).forEach(s => {
+            let opt = document.createElement("option");
+            opt.value = s;
+            opt.textContent = s;
+            sSel.appendChild(opt);
+        });
+        sSel.style.display = "block";
+    }
+};
+
+window.submitLiveRequest = async () => {
+    const city = document.getElementById("live-city-select").value;
+    const street = document.getElementById("live-street-select").value;
+    if(!city || !street) return alert("SELECT LOCATION!");
+
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+        document.getElementById("video-feed").srcObject = stream;
+        
+        const reqRef = ref(db, `v6_live_requests/${city}/${street}`);
+        set(reqRef, {
+            user: localStorage.getItem("a0z_nick_v6"),
+            status: "pending",
+            timestamp: serverTimestamp()
+        });
+
+        alert("📡 REQUEST SENT! Waiting for NL.TEAM to broadcast you to all NL...");
+        closeLivePanel();
+    } catch (err) {
+        alert("Camera required for live.");
+    }
+};
+
+window.closeLivePanel = () => {
+    document.getElementById("live-request-panel").style.display = "none";
+};
+
+const globalLiveRef = ref(db, 'v6_global_live');
+onValue(globalLiveRef, (snapshot) => {
+    const data = snapshot.val();
+    const vContainer = document.getElementById("global-video-container");
+    if(data && data.active) {
+        vContainer.style.display = "block";
+        document.getElementById("live-location-name").textContent = `SOURCE: ${data.location}`;
+    } else {
+        vContainer.style.display = "none";
     }
 });
 
