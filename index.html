@@ -77,15 +77,16 @@
         </div>
     </div>
 </div>
-
-<script type="module">
+<script type="module"> 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
-import { getDatabase, ref, push, onChildAdded, serverTimestamp, onValue, onDisconnect, set, remove } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
+import { getDatabase, ref, push, onChildAdded, onValue, onDisconnect, set, remove } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
+
 const firebaseConfig = { 
     apiKey: "AIzaSyA7Pu0DJOWmdoDYUUVP1J9aqhxh4f3wyfA", 
     projectId: "a0zai-56c3a", 
     databaseURL: "https://a0zai-56c3a-default-rtdb.europe-west1.firebasedatabase.app" 
 };
+
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const streetData = {
@@ -344,6 +345,7 @@ const streetData = {
 
 let myNick, myPath, liveInt;
 
+// 1. تحديث الشوارع عند اختيار المدينة
 window.updateStreets = (city) => {
     const s = document.getElementById("street-select");
     s.innerHTML = '<option value="">-- KIES STRAAT --</option>';
@@ -356,18 +358,13 @@ window.updateStreets = (city) => {
     }
 };
 
-window.onload = () => {
-    const savedNick = localStorage.getItem("mySavedNick");
-    if(savedNick) document.getElementById("nick-input").value = savedNick;
-};
-
+// 2. تشغيل النظام والدخول
 window.boot = () => {
     myNick = document.getElementById("nick-input").value.trim().toUpperCase();
     const city = document.getElementById("city-select").value;
     const street = document.getElementById("street-select").value;
 
     if(!myNick || !city || !street) return alert("VUL ALLES IN!");
-
     localStorage.setItem("mySavedNick", myNick);
 
     navigator.geolocation.getCurrentPosition((p) => {
@@ -387,35 +384,30 @@ window.boot = () => {
     }, () => alert("GPS AAN ZETTEN!"), {enableHighAccuracy: true});
 };
 
-window.goBack = () => {
-    if(confirm("Wil je de kamer verlaten?")) {
-        if(typeof window.stopLive === 'function') window.stopLive();
-        location.reload();
-    }
-};
-
+// 3. النظام الأساسي (الدردشة واللايف)
 function startSystem() {
     const msgRef = ref(db, `${myPath}/msgs`);
     const onlineRef = ref(db, `${myPath}/online/${myNick}`);
     const liveRef = ref(db, `${myPath}/lives/${myNick}`);
 
+    // إعداد حالة الاتصال
     set(onlineRef, true);
     onDisconnect(onlineRef).remove();
     onDisconnect(liveRef).remove();
 
-    // 1. نظام حذف الرسائل التلقائي (14 ساعة)
+    // نظام الحذف التلقائي للرسائل القديمة (أكبر من 14 ساعة)
     const fourteenHoursAgo = Date.now() - (14 * 60 * 60 * 1000);
     onValue(msgRef, (snap) => {
         if (snap.exists()) {
             snap.forEach((child) => {
-                if (child.val().t && child.val().t < fourteenHoursAgo) {
+                if (child.val().t < fourteenHoursAgo) {
                     remove(ref(db, `${myPath}/msgs/${child.key}`));
                 }
             });
         }
     }, { onlyOnce: true });
 
-    // 2. تحديث عداد المشاهدين وقائمة الأسماء
+    // تحديث قائمة الأونلاين
     onValue(ref(db, `${myPath}/online`), (s) => {
         const namesArea = document.getElementById("names-area");
         const users = s.exists() ? Object.keys(s.val()) : [];
@@ -423,30 +415,32 @@ function startSystem() {
         if (namesArea) namesArea.textContent = users.join(", ");
     });
 
-    // 3. إرسال الرسائل
+    // إرسال الرسائل
     window.sendMsg = () => {
         const i = document.getElementById("msg-input");
-        if (i.value) { 
+        if (i.value.trim()) { 
             push(msgRef, { n: myNick, m: i.value, t: Date.now() }); 
             i.value = ""; 
         }
     };
 
+    // إرسال SOS
     window.sendSOS = () => {
         push(msgRef, { n: "🚨 SOS", m: `${myNick} HEEFT HULP NODIG!`, t: Date.now() });
     };
 
-    // 4. عرض الرسائل
+    // استقبال الرسائل وعرضها
     onChildAdded(msgRef, s => {
         const d = s.val();
         const div = document.createElement("div");
         div.className = "msg";
         div.innerHTML = `<b>${d.n}:</b> ${d.m}`;
-        document.getElementById("chat-box").appendChild(div);
-        document.getElementById("chat-box").scrollTop = 99999;
+        const box = document.getElementById("chat-box");
+        box.appendChild(div);
+        box.scrollTop = box.scrollHeight;
     });
 
-    // 5. البث المباشر
+    // البث المباشر (إرسال)
     window.startLive = async () => {
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
@@ -456,14 +450,15 @@ function startSystem() {
             const ctx = canvas.getContext('2d');
 
             liveInt = setInterval(() => {
-                canvas.width = 300; canvas.height = 225;
+                canvas.width = 320; canvas.height = 240;
                 ctx.drawImage(document.getElementById("v-preview"), 0, 0, canvas.width, canvas.height);
-                const data = canvas.toDataURL('image/jpeg', 0.4);
+                const data = canvas.toDataURL('image/jpeg', 0.4); // ضغط الصورة لتقليل استهلاك البيانات
                 set(liveRef, { frame: data, t: Date.now() });
-            }, 600); 
-        } catch (e) { alert("Camera Error"); }
+            }, 700); 
+        } catch (e) { alert("Camera Error: " + e.message); }
     };
 
+    // إيقاف البث
     window.stopLive = () => {
         clearInterval(liveInt);
         const v = document.getElementById("v-preview");
@@ -472,21 +467,31 @@ function startSystem() {
         remove(liveRef);
     };
 
-    // 6. عرض بث الجيران
+    // استقبال بث الجيران (استقبال)
     onValue(ref(db, `${myPath}/lives`), s => {
         const container = document.getElementById("remote-streams");
-        if(!s.exists()) { container.innerHTML = ""; return; }
-        const allLives = s.val();
+        const allLives = s.val() || {};
+        
+        // حذف فيديوهات الأشخاص الذين غادروا
+        Array.from(container.children).forEach(child => {
+            const userId = child.id.replace('peer-container-', '');
+            if (!allLives[userId] || userId === myNick) {
+                child.remove();
+            }
+        });
+
+        // تحديث أو إضافة بث جديد
         Object.keys(allLives).forEach(user => {
             if(user === myNick) return;
-            let img = document.getElementById("peer-" + user);
+            let img = document.getElementById("peer-img-" + user);
             if(!img) {
                 const wrapper = document.createElement("div");
+                wrapper.id = "peer-container-" + user;
                 wrapper.className = "viewer-box";
-                img = document.createElement("img");
-                img.id = "peer-" + user;
-                img.style.width = "100%";
                 wrapper.innerHTML = `<div class="live-tag">LIVE: ${user}</div>`;
+                img = document.createElement("img");
+                img.id = "peer-img-" + user;
+                img.style.width = "100%";
                 wrapper.appendChild(img);
                 container.appendChild(wrapper);
             }
@@ -495,10 +500,16 @@ function startSystem() {
     });
 }
 
-// وظائف مساعدة (خارج startSystem)
+// وظائف مساعدة
 window.showViewers = () => {
     const area = document.getElementById("viewers-list");
     area.style.display = area.style.display === "none" ? "block" : "none";
+};
+
+window.goBack = () => {
+    if(confirm("Wil je de kamer verlaten?")) {
+        location.reload();
+    }
 };
 
 function calcDist(lat1, lon1, lat2, lon2) {
