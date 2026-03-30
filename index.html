@@ -5,75 +5,133 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>NL | Live</title>
     <style>
-        :root { --neon: #00ff41; --bg: #000; --red: #ff0000; }
-        body { background: var(--bg); color: var(--neon); font-family: 'Courier New', monospace; margin: 0; overflow-x: hidden; }
-        .container { max-width: 500px; margin: auto; padding: 15px; }
+        :root { --neon: #00ff41; --bg: #000; --red: #ff0000; --dark-grey: #111; }
+        body { background: var(--bg); color: var(--neon); font-family: 'Courier New', monospace; margin: 0; padding: 0; overflow-x: hidden; }
+        
+        .container { max-width: 500px; margin: auto; padding: 10px; box-sizing: border-box; }
         .box { border: 1px solid var(--neon); padding: 15px; border-radius: 8px; background: #050505; margin-bottom: 10px; }
         
-        /* Input Styles */
-        input, select, button { width: 100%; padding: 12px; margin: 5px 0; background: #000; border: 1px solid var(--neon); color: var(--neon); box-sizing: border-box; font-size: 14px; }
-        button { background: var(--neon); color: #000; font-weight: bold; cursor: pointer; text-transform: uppercase; }
-        button.sos { background: var(--red); color: white; border: none; }
-        
-        /* Radar & Stats */
-        .radar-header { display: flex; justify-content: space-between; font-size: 11px; border-bottom: 1px solid var(--neon); padding-bottom: 5px; margin-bottom: 10px; }
-        .dist-badge { color: yellow; }
+        /* تحسين الهيدر لعدم تداخل النصوص */
+        .radar-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            font-size: 12px; 
+            border-bottom: 1px solid var(--neon); 
+            padding-bottom: 8px; 
+            margin-bottom: 15px;
+            gap: 10px;
+        }
+        #zone-txt { color: var(--neon); font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .dist-badge { color: yellow; min-width: fit-content; }
 
-        /* Chat & Video */
-        #chat-box { height: 300px; overflow-y: auto; border: 1px solid #111; padding: 5px; margin-bottom: 10px; font-size: 13px; }
-        .msg { margin-bottom: 8px; border-left: 2px solid var(--neon); padding-left: 8px; }
-        .msg b { color: #fff; }
+        /* نظام الأزرار الجديد */
+        .action-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
         
-        #live-container { display: none; position: relative; border: 2px solid var(--red); margin-bottom: 10px; }
-        video, .remote-canvas { width: 100%; background: #222; display: block; }
-        .live-tag { position: absolute; top: 5px; left: 5px; background: var(--red); color: white; padding: 2px 6px; font-size: 10px; font-weight: bold; }
+        button { 
+            width: 100%; 
+            padding: 15px 5px; 
+            background: #000; 
+            border: 1px solid var(--neon); 
+            color: var(--neon); 
+            font-weight: bold; 
+            cursor: pointer; 
+            font-size: 13px;
+            text-transform: uppercase;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
         
-        .viewer-box { border: 1px solid var(--red); margin-top: 10px; position: relative; }
-        .viewer-name { position: absolute; bottom: 0; background: rgba(255,0,0,0.7); color: white; width: 100%; font-size: 10px; text-align: center; }
+        button:active { background: var(--neon); color: #000; }
+        
+        button.sos { border-color: var(--red); color: var(--red); }
+        button.sos:active { background: var(--red); color: white; }
+
+        #view-count { background: var(--dark-grey); border-color: yellow; color: yellow; }
+
+        /* Chat */
+        #chat-box { 
+            height: 250px; 
+            overflow-y: auto; 
+            border: 1px solid var(--dark-grey); 
+            padding: 10px; 
+            margin-bottom: 10px; 
+            font-size: 13px; 
+            background: rgba(0,255,65,0.02);
+        }
+        .msg { margin-bottom: 8px; border-left: 2px solid var(--neon); padding-left: 8px; line-height: 1.4; }
+        .msg b { color: #fff; font-size: 11px; display: block; margin-bottom: 2px; }
+        
+        /* Live & Video */
+        #live-container { display: none; position: relative; border: 2px solid var(--red); margin-bottom: 10px; overflow: hidden; }
+        video { width: 100%; aspect-ratio: 4/3; background: #222; display: block; object-fit: cover; }
+        .live-tag { position: absolute; top: 8px; left: 8px; background: var(--red); color: white; padding: 3px 8px; font-size: 10px; font-weight: bold; border-radius: 3px; z-index: 10; }
+
+        /* Input Bar */
+        .input-bar { display: flex; gap: 5px; background: #000; padding: 5px 0; }
+        input { flex: 1; padding: 12px; background: #000; border: 1px solid var(--neon); color: var(--neon); font-size: 14px; }
+        .send-btn { width: 70px; background: var(--neon); color: #000; }
+
+        /* Viewers list hidden */
+        #viewers-list { border: 1px solid yellow; padding: 10px; font-size: 12px; margin-bottom: 10px; background: #111; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div id="login-ui" class="box">
-        <h2 style="text-align:center">NL live</h2>
+        <h2 style="text-align:center">NL LIVE</h2>
         <input id="nick-input" placeholder="NICKNAME" maxlength="12">
         <select id="city-select" onchange="window.updateStreets(this.value)">
             <option value="">-- KIES STAD --</option>
             <option value="Doetinchem">DOETINCHEM</option>
         </select>
         <select id="street-select" style="display:none;"></select>
-        <button onclick="window.boot()">Join Chat</button>
-        <p style="font-size:10px; text-align:center;">* Je moet binnen 309m van de straat zijn.</p>
+        <button onclick="window.boot()" style="background:var(--neon); color:#000; margin-top:10px;">Join Chat</button>
     </div>
 
     <div id="app-ui" style="display:none;">
-        <button onclick="window.goBack()" style="background:#222; color:white; margin-bottom:10px;">⬅ TERUG</button>
+        <button onclick="window.goBack()" style="padding:8px; font-size:11px; margin-bottom:10px; width:auto; border-color:#444;">⬅ TERUG</button>
+        
         <div class="radar-header">
-            <span id="zone-txt">ZONE: -</span>
-            <span class="dist-badge" id="dist-txt">RADAR: OK</span>
-<button id="view-count" onclick="window.showViewers()" style="width:auto; padding:5px 10px; font-size:11px; background:#111;">0 VIEWERS</button>
-<div id="viewers-list" style="display:none; border:1px solid yellow; padding:10px; font-size:12px; margin-bottom:10px; background:#111;">
-    <strong style="color:yellow;">NU ONLINE:</strong>
-    <div id="names-area"></div>
-</div>
+            <div id="zone-txt">ZONE: -</div>
+            <div class="dist-badge" id="dist-txt">RADAR: OK</div>
+        </div>
+
+        <div class="action-grid">
+            <button id="view-count" onclick="window.showViewers()">👥 0 VIEWERS</button>
+            <button id="cam-btn" onclick="window.startLive()">📷 GA LIVE</button>
+            <button class="sos" onclick="window.sendSOS()">🆘 NOOD (SOS)</button>
+            <button onclick="document.getElementById('msg-input').focus()" style="border-color:cyan; color:cyan;">💬 CHAT</button>
+        </div>
+
+        <div id="viewers-list" style="display:none;">
+            <strong style="color:yellow;">NU ONLINE:</strong>
+            <div id="names-area" style="color:#ccc; margin-top:5px;"></div>
+        </div>
+
         <div id="live-container">
             <div class="live-tag">YOU ARE LIVE</div>
             <video id="v-preview" autoplay playsinline muted></video>
             <canvas id="v-canvas" style="display:none;"></canvas>
-            <button onclick="window.stopLive()" style="background:var(--red); color:#white; border:none; margin:0;">STOP BROADCAST</button>
+            <button onclick="window.stopLive()" style="background:var(--red); color:white; border:none; padding:10px;">STOP BROADCAST</button>
         </div>
-
-        <button id="cam-btn" onclick="window.startLive()">📷 GA LIVE</button>
-        <button class="sos" onclick="window.sendSOS()">🆘 Nood</button>
-
-        <div id="chat-box"></div>
 
         <div id="remote-streams"></div>
 
-        <div style="display:flex; gap:5px;">
+        <div id="chat-box"></div>
+
+        <div class="input-bar">
             <input id="msg-input" placeholder="Bericht..." maxlength="33" onkeydown="if(event.key==='Enter') window.sendMsg()">
-            <button onclick="window.sendMsg()" style="width:70px;">SND</button>
+            <button class="send-btn" onclick="window.sendMsg()">SND</button>
         </div>
     </div>
 </div>
