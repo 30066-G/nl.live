@@ -468,13 +468,39 @@ function startSystem() {
         }
     }, { onlyOnce: true });
 
-    // تحديث قائمة الأونلاين
-    onValue(ref(db, `${myPath}/online`), (s) => {
-        const namesArea = document.getElementById("names-area");
-        const users = s.exists() ? Object.keys(s.val()) : [];
-        document.getElementById("view-count").textContent = users.length + " VIEWERS";
-        if (namesArea) namesArea.textContent = users.join(", ");
+    // تحديث قائمة الأونلاين// استبدل الجزء الخاص باستقبال بث الجيران بهذا:
+onValue(ref(db, `${myPath}/lives`), s => {
+    const container = document.getElementById("remote-streams");
+    const allLives = s.val() || {};
+    
+    Array.from(container.children).forEach(child => {
+        const userId = child.id.replace('peer-container-', '');
+        // حذف الفيديو إذا توقف البث أو إذا سحب الأدمن الموافقة
+        if (!allLives[userId] || userId === myNick || allLives[userId].approved !== true) {
+            child.remove();
+        }
     });
+
+    Object.keys(allLives).forEach(user => {
+        if(user === myNick) return;
+        if (allLives[user].approved === true) {
+            let img = document.getElementById("peer-img-" + user);
+            if(!img) {
+                const wrapper = document.createElement("div");
+                wrapper.id = "peer-container-" + user;
+                wrapper.className = "viewer-box";
+                wrapper.innerHTML = `<div class="live-tag">LIVE: ${user}</div>`;
+                img = document.createElement("img");
+                img.id = "peer-img-" + user;
+                img.style.width = "100%";
+                wrapper.appendChild(img);
+                container.appendChild(wrapper);
+            }
+            img.src = allLives[user].frame;
+        }
+    });
+});
+
 
     // إرسال الرسائل
     window.sendMsg = () => {
@@ -485,7 +511,6 @@ function startSystem() {
         }
     };
 
-    // إرسال SOS
     window.sendSOS = () => {
         push(msgRef, { n: "🚨 SOS", m: `${myNick} HEEFT HULP NODIG!`, t: Date.now() });
     };
@@ -514,12 +539,15 @@ function startSystem() {
                 canvas.width = 210; canvas.height = 170;
                 ctx.drawImage(document.getElementById("v-preview"), 0, 0, canvas.width, canvas.height);
                 const data = canvas.toDataURL('image/jpeg', 0.2);
-                set(liveRef, { frame: data, t: Date.now() });
+set(liveRef, { 
+    frame: data, 
+    t: Date.now(), 
+    approved: false 
+});
             }, 200); 
         } catch (e) { alert("Camera Error: " + e.message); }
     };
 
-    // إيقاف البث
     window.stopLive = () => {
         clearInterval(liveInt);
         const v = document.getElementById("v-preview");
