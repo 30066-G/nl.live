@@ -4,81 +4,215 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>NL | Live</title>
-    <style>
-        :root { --neon: #00ff41; --bg: #000; --red: #ff0000; --dark-grey: #111; }
-        body { background: var(--bg); color: var(--neon); font-family: 'Courier New', monospace; margin: 0; padding: 0; overflow-x: hidden; }
-        
-        .container { max-width: 500px; margin: auto; padding: 10px; box-sizing: border-box; }
-        .box { border: 1px solid var(--neon); padding: 15px; border-radius: 8px; background: #050505; margin-bottom: 10px; }
-        .radar-header { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center;
-            font-size: 12px; 
-            border-bottom: 1px solid var(--neon); 
-            padding-bottom: 8px; 
-            margin-bottom: 15px;
-            gap: 10px;
-        }
-        #zone-txt { color: var(--neon); font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .dist-badge { color: yellow; min-width: fit-content; }
-        .action-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        
-        button { 
-            width: 100%; 
-            padding: 15px 5px; 
-            background: #000; 
-            border: 1px solid var(--neon); 
-            color: var(--neon); 
-            font-weight: bold; 
-            cursor: pointer; 
-            font-size: 13px;
-            text-transform: uppercase;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-        }
-        
-        button:active { background: var(--neon); color: #000; }
-        
-        button.sos { border-color: var(--red); color: var(--red); }
-        button.sos:active { background: var(--red); color: white; }
 
-        #view-count { background: var(--dark-grey); border-color: yellow; color: yellow; }
+<style>
+    :root {
+        --primary: #00ffa3;
+        --danger: #ff4d4d;
+        --bg-dark: #0a0f18;
+        --glass: rgba(30, 41, 59, 0.7);
+        --glass-border: rgba(255, 255, 255, 0.1);
+    }
 
-        /* Chat */
-        #chat-box { 
-            height: 250px; 
-            overflow-y: auto; 
-            border: 1px solid var(--dark-grey); 
-            padding: 10px; 
-            margin-bottom: 10px; 
-            font-size: 13px; 
-            background: rgba(0,255,65,0.02);
-        }
-        .msg { margin-bottom: 8px; border-left: 2px solid var(--neon); padding-left: 8px; line-height: 1.4; }
-        .msg b { color: #fff; font-size: 11px; display: block; margin-bottom: 2px; }
-        
-        /* Live & Video */
-        #live-container { display: none; position: relative; border: 2px solid var(--red); margin-bottom: 10px; overflow: hidden; }
-        video { width: 100%; aspect-ratio: 4/3; background: #222; display: block; object-fit: cover; }
-        .live-tag { position: absolute; top: 8px; left: 8px; background: var(--red); color: white; padding: 3px 8px; font-size: 10px; font-weight: bold; border-radius: 3px; z-index: 10; }
+    body {
+        background: radial-gradient(circle at top, #1e293b 0%, #0a0f18 100%);
+        color: #e2e8f0;
+        font-family: 'Inter', sans-serif;
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        min-height: 100vh;
+    }
 
-        /* Input Bar */
-        .input-bar { display: flex; gap: 5px; background: #000; padding: 5px 0; }
-        input { flex: 1; padding: 12px; background: #000; border: 1px solid var(--neon); color: var(--neon); font-size: 14px; }
-        .send-btn { width: 70px; background: var(--neon); color: #000; }
+    .container { width: 100%; max-width: 480px; padding: 20px; box-sizing: border-box; }
 
-        /* Viewers list hidden */
-        #viewers-list { border: 1px solid yellow; padding: 10px; font-size: 12px; margin-bottom: 10px; background: #111; }
-    </style>
+    .box {
+        background: var(--glass);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid var(--glass-border);
+        border-radius: 24px;
+        padding: 30px;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        margin-bottom: 20px;
+        animation: slideUp 0.6s ease-out;
+    }
+
+    @keyframes slideUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    h2 {
+        text-align: center;
+        font-size: 28px;
+        font-weight: 900;
+        background: linear-gradient(to right, #00ffa3, #00d4ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 30px;
+        letter-spacing: 2px;
+    }
+
+    input, select {
+        background: rgba(0,0,0,0.3);
+        border: 1px solid var(--glass-border);
+        border-radius: 12px;
+        padding: 14px;
+        color: white;
+        width: 100%;
+        margin-bottom: 15px;
+        box-sizing: border-box;
+        font-size: 15px;
+    }
+
+    input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 15px rgba(0, 255, 163, 0.2);
+    }
+
+    button {
+        width: 100%;
+        padding: 15px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--glass-border);
+        color: white;
+        border-radius: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.3s all cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        text-transform: uppercase;
+        font-size: 13px;
+    }
+
+    button:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateY(-3px);
+        border-color: var(--primary);
+    }
+
+    button:active { transform: scale(0.95); }
+
+    .action-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    button.sos {
+        background: rgba(255, 77, 77, 0.15);
+        border-color: var(--danger);
+        color: var(--danger);
+        animation: pulseRed 2s infinite;
+    }
+
+    @keyframes pulseRed {
+        0% { box-shadow: 0 0 0 0 rgba(255, 77, 77, 0.4); }
+        70% { box-shadow: 0 0 0 15px rgba(255, 77, 77, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(255, 77, 77, 0); }
+    }
+
+    .radar-header {
+        background: rgba(0, 255, 163, 0.1);
+        padding: 12px 20px;
+        border-radius: 50px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 12px;
+        border: 1px solid rgba(0, 255, 163, 0.2);
+        margin-bottom: 20px;
+        font-weight: bold;
+    }
+
+    #chat-box {
+        height: 300px;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 20px;
+        padding: 20px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        border: 1px inset rgba(255,255,255,0.05);
+        margin-bottom: 15px;
+    }
+
+    .msg {
+        background: var(--glass);
+        padding: 12px 16px;
+        border-radius: 18px;
+        border-bottom-left-radius: 4px;
+        max-width: 85%;
+        border: 1px solid var(--glass-border);
+        line-height: 1.4;
+    }
+
+    .msg b {
+        color: var(--primary);
+        font-size: 10px;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+        display: block;
+        letter-spacing: 1px;
+    }
+
+    #live-container {
+        border-radius: 20px;
+        overflow: hidden;
+        border: 2px solid var(--danger);
+        position: relative;
+        margin-bottom: 15px;
+    }
+
+    video { width: 100%; display: block; background: #000; }
+
+    .live-tag {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: var(--danger);
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 10px;
+        font-weight: 900;
+        z-index: 5;
+    }
+
+    .input-bar {
+        display: flex;
+        gap: 10px;
+        background: var(--glass);
+        padding: 8px;
+        border-radius: 18px;
+        border: 1px solid var(--glass-border);
+    }
+
+    .input-bar input { margin-bottom: 0; border: none; background: transparent; }
+
+    .send-btn {
+        width: 80px;
+        background: var(--primary);
+        color: #000;
+        font-weight: 900;
+        border-radius: 12px;
+    }
+
+    #viewers-list {
+        background: rgba(255, 215, 0, 0.1);
+        border: 1px solid rgba(255, 215, 0, 0.3);
+        border-radius: 15px;
+        padding: 15px;
+        margin-bottom: 15px;
+        font-size: 12px;
+    }
+</style>
 </head>
 <body>
 
