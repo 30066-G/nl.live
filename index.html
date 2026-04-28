@@ -226,17 +226,6 @@
         <span>ℹ️</span> APP INFO
     </button>
 </div>
-    <div id="login-ui" class="box">
-        <h2 style="text-align:center">NL LIVE</h2>
-        <input id="nick-input" placeholder="D-ID (EX: NL-772)" maxlength="12">
-        <select id="city-select" onchange="window.updateStreets(this.value)">
-            <option value="">-- KIES STAD --</option>
-            <option value="Doetinchem">DOETINCHEM</option>
-        </select>
-        <select id="street-select" style="display:none;"></select>
-        <button onclick="window.boot()" style="background:var(--neon); color:#000; margin-top:10px;">Join Chat</button>
-    </div>
-
     <div id="app-ui" style="display:none;">
         <button onclick="window.goBack()" style="padding:8px; font-size:11px; margin-bottom:10px; width:auto; border-color:#444;">⬅ TERUG</button>
         
@@ -552,43 +541,58 @@ window.updateStreets = (city) => {
         s.style.display = "block";
     }
 };
-
-
 window.boot = () => {
     const nickInput = document.getElementById("nick-input");
     let inputName = nickInput.value.trim().toUpperCase();
-    
-
-    const city = document.getElementById("city-select").value;
-    const street = document.getElementById("street-select").value;
-
-
-    if(!inputName || !city || !street) return alert("VUL ALLES IN!");
+    if (!inputName) return alert("VUL UW NAAM IN!");
     let savedDID = localStorage.getItem("NL_LIVE_DID");
     if (!savedDID) {
-        let randomNum = Math.floor(100 + Math.random() * 899); 
+        let randomNum = Math.floor(100 + Math.random() * 899);
         savedDID = `${inputName.substring(0, 3)}-${randomNum}`;
         localStorage.setItem("NL_LIVE_DID", savedDID);
     }
-
     myNick = savedDID;
     localStorage.setItem("savedNick", myNick);
+
     navigator.geolocation.getCurrentPosition((p) => {
-        const dist = calcDist(p.coords.latitude, p.coords.longitude, streetData[city][street].lat, streetData[city][street].lon);
-        
-        if(dist > 309) {
-            alert(`GEEN TOEGANG: Je bent ${Math.round(dist)}m verwijderd. (Max 309m)`);
-            return;
+        const userLat = p.coords.latitude;
+        const userLon = p.coords.longitude;
+
+        let targetCity = null;
+        let targetStreet = null;
+        let closestDist = 309; 
+
+        for (const city in streetData) {
+            for (const street in streetData[city]) {
+                const coords = streetData[city][street];
+                const dist = calcDist(userLat, userLon, coords.lat, coords.lon);
+                
+                if (dist <= closestDist) {
+                    closestDist = dist;
+                    targetCity = city;
+                    targetStreet = street;
+                }
+            }
         }
 
-        myPath = `v6/${city}/${street}`;
-        document.getElementById("login-ui").style.display = "none";
-        document.getElementById("app-ui").style.display = "block";
-        document.getElementById("zone-txt").textContent = street;
-        document.getElementById("dist-txt").textContent = `RADAR: ${Math.round(dist)}m`;
-        startSystem();
-    }, () => alert("GPS AAN ZETTEN!"), {enableHighAccuracy: true});
+        if (targetCity && targetStreet) {
+            myPath = `v6/${targetCity}/${targetStreet}`;
+            
+            document.getElementById("login-ui").style.display = "none";
+            document.getElementById("app-ui").style.display = "block";
+            document.getElementById("zone-txt").textContent = targetStreet;
+            document.getElementById("dist-txt").textContent = `RADAR: ${Math.round(closestDist)}m`;
+            
+            startSystem(); 
+        } else {
+            alert("GEEN TOEGANG: (Max 309m).");
+        }
+        
+    }, (err) => {
+        alert("GPS AAN ZETTEN AUB!.");
+    }, { enableHighAccuracy: true });
 };
+
 function startSystem() {
     const msgRef = ref(db, `${myPath}/msgs`);
     const onlineRef = ref(db, `${myPath}/online/${myNick}`);
