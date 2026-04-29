@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NL | Live</title>
+    <title>NL | Live Login</title>
 <style>
     :root {
         --primary: #00ffa3;
@@ -89,7 +89,7 @@
         border-radius: 16px;
         font-weight: 600;
         cursor: pointer;
-        transition: 0.3s all cubic-bezier(0.4, 0, 0.2, 1);
+        transition: 0.3s all;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -165,32 +165,43 @@
 
     #viewers-list { background: rgba(255, 215, 0, 0.1); border: 1px solid rgba(255, 215, 0, 0.3); border-radius: 15px; padding: 15px; margin-bottom: 15px; font-size: 12px; }
     .viewer-box { background: var(--glass); border-radius: 20px; padding: 10px; margin-bottom: 15px; border: 1px solid var(--glass-border); }
+
+    .auth-tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+    .auth-tabs button { padding: 10px; font-size: 11px; }
+    .active-tab { border-color: var(--primary); background: rgba(0, 255, 163, 0.1); }
 </style>
 </head>
 <body>
 
 <div class="container">
     <div style="text-align: right; margin-bottom: 15px;">
-        <button onclick="window.toggleInfo()" style="width: auto; padding: 8px 18px; border-radius: 50px; font-size: 11px; background: rgba(255,255,255,0.1); display: inline-flex; flex-direction: row; align-items: center; gap: 5px; border: 1px solid rgba(255,255,255,0.2);">
-            <span>ℹ️</span> APP INFO
+        <button id="logout-btn" onclick="window.logout()" style="display:none; width: auto; padding: 8px 18px; border-radius: 50px; font-size: 11px; background: rgba(255,77,77,0.2); display: inline-flex; flex-direction: row; align-items: center; gap: 5px; border: 1px solid var(--danger);">
+            LOGOUT
         </button>
     </div>
 
     <div id="login-ui" class="box">
         <h2>NL LIVE</h2>
-        <input id="nick-input" placeholder="VUL JE NAAM IN (EX: NL-772)" maxlength="12">
-        <button onclick="window.boot()" style="background:var(--primary); color:#000; font-weight:bold; margin-top:10px;">
-            START RADAR SCAN 📡
+        <div class="auth-tabs">
+            <button id="tab-login" class="active-tab" onclick="window.switchAuth('login')">LOGIN</button>
+            <button id="tab-reg" onclick="window.switchAuth('reg')">REGISTER</button>
+        </div>
+        
+        <input id="email-input" type="email" placeholder="EMAIL ADRES">
+        <input id="pass-input" type="password" placeholder="WACHTWOORD">
+        <input id="nick-input" placeholder="DISPLAY NAME (EX: NL-772)" maxlength="12" style="display:none;">
+        
+        <button id="auth-main-btn" onclick="window.handleAuth()" style="background:var(--primary); color:#000; font-weight:bold;">
+            GO TO RADAR 📡
         </button>
     </div>
 
     <div id="app-ui" style="display:none;">
-        <button onclick="window.goBack()" style="padding:8px; font-size:11px; margin-bottom:10px; width:auto; border-color:#444;">⬅ TERUG</button>
         <div id="zone-bg"></div> 
 
         <div class="radar-header">
             <div id="zone-txt">ZONE: -</div>
-            <div class="dist-badge" id="dist-txt">RADAR: OK</div>
+            <div id="dist-txt">RADAR: SEARCHING...</div>
         </div>
 
         <div class="action-grid">
@@ -226,7 +237,7 @@
 <script type="module"> 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
 import { getDatabase, ref, push, onChildAdded, onValue, onDisconnect, set, remove } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
-import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
 
 const firebaseConfig = { 
     apiKey: "AIzaSyA7Pu0DJOWmdoDYUUVP1J9aqhxh4f3wyfA", 
@@ -238,7 +249,9 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const auth = getAuth(app);
 
-let myNick, myPath, liveInt;
+let myNick, myPath, liveInt, authMode = 'login';
+
+// استيراد بيانات الشوارع (نفس القائمة السابقة)
 const streetData = {
     "Doetinchem": {
         "2E LOOLAAN": { "lat": 51.9700, "lon": 6.3000 },
@@ -323,7 +336,7 @@ const streetData = {
         "DOKTER SCHAEPMANSTRAAT": { "lat": 51.9688, "lon": 6.2925 },
         "DOMINEE VAN DIJKSTRAAT": { "lat": 51.9692, "lon": 6.2918 },
         "DONKERSGOOT": { "lat": 51.9748, "lon": 6.3112 },
-        "DOORNBOS": { "lat": 51.9735, "lon": 6.3089 },
+        "DOORNBOS": { "lat": 51.9735, "lon": 6.3088 },
         "DR HOOFTLAAN": { "lat": 51.9695, "lon": 6.2935 },
         "EDELWEISSSTRAAT": { "lat": 51.9715, "lon": 6.3035 },
         "EIKENLAAN": { "lat": 51.9708, "lon": 6.3015 },
@@ -493,14 +506,51 @@ const streetData = {
     }
 };
 
-window.boot = () => {
-    const nickInput = document.getElementById("nick-input");
-    let inputName = nickInput.value.trim().toUpperCase();
-    if (!inputName) return alert("VUL JE NAAM IN!");
+// 1. Auth Persistence & State
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        myNick = user.displayName || "GUEST";
+        document.getElementById("login-ui").style.display = "none";
+        document.getElementById("logout-btn").style.display = "inline-flex";
+        runRadar(); // البدء بالبحث عن الموقع فور تسجيل الدخول
+    } else {
+        document.getElementById("login-ui").style.display = "block";
+        document.getElementById("app-ui").style.display = "none";
+        document.getElementById("logout-btn").style.display = "none";
+    }
+});
 
-    myNick = inputName;
-    localStorage.setItem("savedNick", myNick);
+// 2. Switch Auth Tabs
+window.switchAuth = (mode) => {
+    authMode = mode;
+    document.getElementById("tab-login").classList.toggle("active-tab", mode === 'login');
+    document.getElementById("tab-reg").classList.toggle("active-tab", mode === 'reg');
+    document.getElementById("nick-input").style.display = (mode === 'reg') ? "block" : "none";
+};
 
+// 3. Handle Login / Register
+window.handleAuth = async () => {
+    const email = document.getElementById("email-input").value;
+    const pass = document.getElementById("pass-input").value;
+    const nick = document.getElementById("nick-input").value;
+
+    try {
+        if (authMode === 'reg') {
+            const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+            await updateProfile(userCredential.user, { displayName: nick });
+            alert("Account aangemaakt!");
+        } else {
+            await signInWithEmailAndPassword(auth, email, pass);
+        }
+    } catch (e) {
+        alert("Auth Error: " + e.message);
+    }
+};
+
+window.logout = () => signOut(auth);
+
+// 4. Radar Logic
+function runRadar() {
     navigator.geolocation.getCurrentPosition((p) => {
         const uLat = p.coords.latitude;
         const uLon = p.coords.longitude;
@@ -520,43 +570,36 @@ window.boot = () => {
 
         if (foundStreet) {
             myPath = `v6/${foundCity}/${foundStreet}`;
+            document.getElementById("app-ui").style.display = "block";
+            document.getElementById("zone-txt").textContent = foundStreet;
+            document.getElementById("dist-txt").textContent = `RADAR: ${Math.round(minD)}m`;
+            
             const lat = streetData[foundCity][foundStreet].lat;
             const lon = streetData[foundCity][foundStreet].lon;
-            const satUrl = `https://static-maps.yandex.ru/1.x/?lang=en_US&ll=${lon},${lat}&z=17&l=sat&size=450,150`;
-            const bgBox = document.getElementById("zone-bg");
+            document.getElementById("zone-bg").style.backgroundImage = `url('https://static-maps.yandex.ru/1.x/?ll=${lon},${lat}&z=17&l=sat&size=450,150')`;
+            document.getElementById("zone-bg").style.display = "block";
             
-            if (bgBox) {
-                bgBox.style.backgroundImage = `url('${satUrl}')`;
-                bgBox.style.display = "block";
-            }
-
-            signInAnonymously(auth).then(() => {
-                document.getElementById("login-ui").style.display = "none";
-                document.getElementById("app-ui").style.display = "block";
-                document.getElementById("zone-txt").textContent = foundStreet;
-                document.getElementById("dist-txt").textContent = `RADAR: ${Math.round(minD)}m`;
-                startSystem();
-            });
+            startSystem();
         } else {
-            alert("GEEN TOEGANG: Je bent niet in de buurt van een actieve zone.");
+            alert("GEEN TOEGANG: Buiten actieve zones.");
+            signOut(auth);
         }
-    }, () => alert("GPS ERROR: Zet je locatie aan."), { enableHighAccuracy: true });
-};
+    }, () => alert("GPS ERROR"), { enableHighAccuracy: true });
+}
 
+// 5. System Logic (Chat, Online, Live)
 function startSystem() {
     const uid = auth.currentUser.uid;
     const msgRef = ref(db, `${myPath}/msgs`);
     const onlineRef = ref(db, `${myPath}/online/${uid}`);
     const liveRef = ref(db, `${myPath}/lives/${uid}`);
-    const typingRef = ref(db, `${myPath}/typing/${myNick}`);
 
     set(onlineRef, { n: myNick, t: Date.now() });
     onDisconnect(onlineRef).remove();
 
     onValue(ref(db, `${myPath}/online`), (snap) => {
         const data = snap.val() || {};
-        const count = Object.keys(data).length;
-        document.getElementById("view-count").textContent = `👥 ${count} VIEWERS`;
+        document.getElementById("view-count").textContent = `👥 ${Object.keys(data).length} VIEWERS`;
         document.getElementById("names-area").innerHTML = Object.values(data).map(u => u.n).join(", ");
     });
 
@@ -565,12 +608,7 @@ function startSystem() {
         if (i.value.trim()) {
             push(msgRef, { n: myNick, m: i.value, t: Date.now() });
             i.value = "";
-            remove(typingRef);
         }
-    };
-
-    window.sendSOS = () => {
-        push(msgRef, { n: "🚨 SOS", m: `${myNick} HEEFT HULP NODIG!`, t: Date.now() });
     };
 
     onChildAdded(msgRef, s => {
@@ -583,17 +621,7 @@ function startSystem() {
         box.scrollTop = box.scrollHeight;
     });
 
-    document.getElementById("msg-input").addEventListener("input", () => {
-        set(typingRef, true);
-        clearTimeout(window.typingTimer);
-        window.typingTimer = setTimeout(() => remove(typingRef), 2000);
-    });
-
-    onValue(ref(db, `${myPath}/typing`), (snap) => {
-        const typers = snap.exists() ? Object.keys(snap.val()).filter(n => n !== myNick) : [];
-        document.getElementById("typing-area").textContent = typers.length > 0 ? `${typers.join(", ")} is aan het typen...` : "";
-    });
-
+    // Live logic
     window.startLive = async () => {
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
@@ -607,75 +635,43 @@ function startSystem() {
                 ctx.drawImage(document.getElementById("v-preview"), 0, 0, canvas.width, canvas.height);
                 set(liveRef, { frame: canvas.toDataURL('image/jpeg', 0.4), t: Date.now(), n: myNick });
             }, 500);
-        } catch (e) { alert("Camera error!"); }
+        } catch (e) { alert("Cam error"); }
     };
 
     window.stopLive = () => {
         clearInterval(liveInt);
-        const v = document.getElementById("v-preview");
-        if(v.srcObject) v.srcObject.getTracks().forEach(t => t.stop());
+        document.getElementById("v-preview").srcObject?.getTracks().forEach(t => t.stop());
         document.getElementById("live-container").style.display = "none";
         remove(liveRef);
     };
 
+    // View others
     onValue(ref(db, `${myPath}/lives`), s => {
         const container = document.getElementById("remote-streams");
-        const allLives = s.val() || {};
-        
-        Array.from(container.children).forEach(c => {
-            const userId = c.id.replace('pc-', '');
-            if(!allLives[userId]) c.remove();
-        });
-
-        Object.keys(allLives).forEach(userId => {
-            if(userId === uid) return;
-            let img = document.getElementById("pi-" + userId);
+        const all = s.val() || {};
+        Object.keys(all).forEach(id => {
+            if(id === uid) return;
+            let img = document.getElementById("pi-" + id);
             if(!img) {
                 const div = document.createElement("div");
-                div.id = "pc-" + userId;
+                div.id = "pc-" + id;
                 div.className = "viewer-box";
-                div.innerHTML = `<div class="live-tag" style="position:relative; top:0; left:0; display:inline-block; margin-bottom:5px;">LIVE: ${allLives[userId].n}</div>`;
-                img = document.createElement("img");
-                img.id = "pi-" + userId;
-                img.style.width = "100%"; img.style.borderRadius = "15px";
-                div.appendChild(img);
+                div.innerHTML = `<div class="live-tag" style="position:relative; top:0; left:0; display:inline-block; margin-bottom:5px;">LIVE: ${all[id].n}</div><img id="pi-${id}" style="width:100%; border-radius:15px;">`;
                 container.appendChild(div);
+                img = document.getElementById("pi-" + id);
             }
-            img.src = allLives[userId].frame;
+            img.src = all[id].frame;
         });
     });
 }
-
-window.showViewers = () => {
-    const el = document.getElementById("viewers-list");
-    el.style.display = el.style.display === "none" ? "block" : "none";
-};
-
-window.toggleInfo = () => {
-    const m = document.getElementById("info-modal");
-    m.style.display = m.style.display === "none" ? "flex" : "none";
-};
-
-window.goBack = () => location.reload();
 
 function calcDist(lat1, lon1, lat2, lon2) {
     const R = 6371e3;
     const dLat = (lat2-lat1) * Math.PI/180;
     const dLon = (lon2-lon1) * Math.PI/180;
-    const a = Math.sin(dLat/2) ** 2 + Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLon/2) ** 2;
+    const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 }
-
-document.getElementById("msg-input").addEventListener("keypress", e => { if(e.key === "Enter") window.sendMsg(); });
-window.onload = () => { if(localStorage.getItem("savedNick")) document.getElementById("nick-input").value = localStorage.getItem("savedNick"); };
 </script>
-
-<div id="info-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:9999; justify-content:center; align-items:center; padding:20px; box-sizing:border-box;">
-    <div class="box" style="max-width:400px; position:relative;">
-        <button onclick="window.toggleInfo()" style="position:absolute; top:-10px; right:-10px; width:30px; height:30px; background:var(--danger); border-radius:50%; border:none; color:white; font-weight:bold; cursor:pointer;">✕</button>
-        <h2 style="font-size:20px;">NL LIVE INFO</h2>
-        <p style="font-size:13px; text-align:center; color:#94a3b8;">Hyper-lokale communicatie gebaseerd op GPS radar.</p>
-    </div>
-</div>
 </body>
 </html>
