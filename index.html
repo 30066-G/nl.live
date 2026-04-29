@@ -276,14 +276,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
 import { getDatabase, ref, push, onChildAdded, onValue, onDisconnect, set, remove } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
 import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
-const auth = getAuth(app);
-signInAnonymously(auth)
-  .then(() => {
-    console.log("Anonymous login success");
-  })
-  .catch((error) => {
-    console.log(error);
-  });
+
 const firebaseConfig = { 
     apiKey: "AIzaSyA7Pu0DJOWmdoDYUUVP1J9aqhxh4f3wyfA", 
     projectId: "a0zai-56c3a", 
@@ -292,6 +285,12 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
+const auth = getAuth(app);
+
+signInAnonymously(auth)
+  .then(() => console.log("Anonymous login success"))
+  .catch((error) => console.error("Auth Error:", error));
+
 const streetData = {
     "Doetinchem": {
   "2E LOOLAAN": { "lat": 51.9700, "lon": 6.3000 },
@@ -600,84 +599,135 @@ window.boot = () => {
 
 function startSystem() {
     const uid = auth.currentUser.uid;
-
     const msgRef = ref(db, `${myPath}/msgs`);
     const onlineRef = ref(db, `${myPath}/online/${uid}`);
-    const liveRef = ref(db, `${myPath}/lives/${uid}`);        const count = snap.exists() ? Object.keys(snap.val()).length : 0;
-        const viewBtn = document.getElementById("view-count");
-        if (viewBtn) viewBtn.textContent = `👥 ${count} VIEWERS`;
-const msgInput = document.getElementById("msg-input");
-msgInput.addEventListener("input", () => {
-    set(ref(db, `${myPath}/typing/${myNick}`), true);
-    
-    clearTimeout(window.typingTimer);
-    window.typingTimer = setTimeout(() => {
-        remove(ref(db, `${myPath}/typing/${myNick}`));
-    }, 2000);
-});
+    const liveRef = ref(db, `${myPath}/lives/${uid}`);
+    const typingRef = ref(db, `${myPath}/typing/${myNick}`);
 
-onValue(ref(db, `${myPath}/typing`), (snap) => {
-    const typingArea = document.getElementById("typing-area");
-    if (snap.exists()) {
-        const typers = Object.keys(snap.val()).filter(name => name !== myNick);
-        if (typers.length > 0) {
-            typingArea.textContent = `${typers.join(", ")} is aan het typen...`;
+    // 1. تسجيل الدخول وتحديث قائمة المتواجدين
+    set(onlineRef, { n: myNick, t: Date.now() });
+    onDisconnect(onlineRef).remove();
+
+    onValue(ref(db, `${myPath}/online`), (snap) => {
+        const data = snap.val() || {};
+        const count = Object.keys(data).length;
+        const viewBtn = document.getElementById("view-count");
+        const namesArea = document.getElementById("names-area");
+        
+        if (viewBtn) viewBtn.textContent = `👥 ${count} VIEWERS`;
+        if (namesArea) namesArea.innerHTML = Object.values(data).map(u => u.n).join(", ");
+    });
+
+    // 2. منطق "يكتب الآن..."
+    const msgInput = document.getElementById("msg-input");
+    msgInput.addEventListener("input", () => {
+        set(typingRef, true);
+        clearTimeout(window.typingTimer);
+        window.typingTimer = setTimeout(() => remove(typingRef), 2000);
+    });
+
+    onValue(ref(db, `${myPath}/typing`), (snap) => {
+        const typingArea = document.getElementById("typing-area");
+        if (snap.exists()) {
+            const typers = Object.keys(snap.val()).filter(name => name !== myNick);
+            typingArea.textContent = typers.length > 0 ? `${typers.join(", ")} is aan het typen...` : "";
         } else {
             typingArea.textContent = "";
         }
-    } else {
-        typingArea.textContent = "";
-    }
-});
-        const namesArea = document.getElementById("names-area");
-        if (namesArea && snap.exists()) {
-            namesArea.innerHTML = Object.keys(snap.val()).join(", ");
-        }
     });
+
+    // 3. تنظيف الرسائل القديمة (أقدم من 14 ساعة)
     const fourteenHoursAgo = Date.now() - (14 * 60 * 60 * 1000);
     onValue(msgRef, (snap) => {
         if (snap.exists()) {
             snap.forEach((child) => {
-                if (child.val().t < fourteenHoursAgo) {
-                    remove(ref(db, `${myPath}/msgs/${child.key}`));
-                }
+                if (child.val().t < fourteenHoursAgo) remove(ref(db, `${myPath}/msgs/${child.key}`));
             });
         }
     }, { onlyOnce: true });
 
-onValue(ref(db, `${myPath}/lives`), s => {
-    const container = document.getElementById("remote-streams");
-    const allLives = s.val() || {};
-    
-    Array.from(container.children).forEach(child => {
-        const userId = child.id.replace('peer-container-', '');
-        if (!allLives[userId] || userId === myNick || allLives[userId].approved !== true) {
-            child.remove();
-        }
+    // 4. استقبال الرسائل (الشات)
+    onChildAdded(msgRef, s => {
+        const d = s.val();
+        const div = document.createElement("div");
+        div.className = "msg";
+        div.innerHTML = `<b>${d.n}:</b> ${d.m}`;
+        const box = document.getElementById("chat-box");
+        box.appendChild(div);
+        box.scrollTop = box.scrollHeight;
     });
 
-    Object.keys(allLives).forEach(user => {
-        if(user === myNick) return;
-        if (allLives[user].approved === true) {
+    // 5. استقبال البث المباشر من الآخرين
+    onValue(ref(db, `${myPath}/lives`), s => {
+        const container = document.getElementById("remote-streams");
+        const allLives = s.val() || {};
+        
+        // حذف البث المتوقف
+        Array.from(container.children).forEach(child => {
+            const userId = child.id.replace('peer-container-', '');
+            if (!allLives[userId] || userId === myNick) child.remove();
+        });
+
+        // عرض البث الجديد
+        Object.keys(allLives).forEach(user => {
+            if(user === myNick) return;
             let img = document.getElementById("peer-img-" + user);
             if(!img) {
                 const wrapper = document.createElement("div");
                 wrapper.id = "peer-container-" + user;
-                wrapper.className = "viewer-box";
-                wrapper.innerHTML = `<div class="live-tag">LIVE: ${user}</div>`;
+                wrapper.className = "box";
+                wrapper.style.marginTop = "10px";
+                wrapper.innerHTML = `<div class="live-tag" style="position:relative; top:0; left:0; display:inline-block; margin-bottom:5px;">LIVE: ${user}</div>`;
                 img = document.createElement("img");
                 img.id = "peer-img-" + user;
                 img.style.width = "100%";
+                img.style.borderRadius = "12px";
                 wrapper.appendChild(img);
                 container.appendChild(wrapper);
             }
             img.src = allLives[user].frame;
-        }
+        });
     });
-});
 
+    // 6. تعريف الوظائف لـ window ليتمكن الـ HTML من الوصول إليها
+    window.sendMsg = () => {
+        const i = document.getElementById("msg-input");
+        if (i.value.trim()) {
+            push(msgRef, { n: myNick, m: i.value, t: Date.now() });
+            i.value = "";
+            remove(typingRef);
+        }
+    };
 
+    window.sendSOS = () => {
+        push(msgRef, { n: "🚨 SOS", m: `${myNick} HEEFT HULP NODIG!`, t: Date.now() });
+    };
 
+    window.startLive = async () => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+            document.getElementById("v-preview").srcObject = stream;
+            document.getElementById("live-container").style.display = "block";
+            const canvas = document.getElementById("v-canvas");
+            const ctx = canvas.getContext('2d');
+            
+            window.liveInt = setInterval(() => {
+                canvas.width = 300; canvas.height = 225;
+                ctx.drawImage(document.getElementById("v-preview"), 0, 0, canvas.width, canvas.height);
+                const data = canvas.toDataURL('image/jpeg', 0.4);
+                set(liveRef, { frame: data, t: Date.now(), approved: true });
+            }, 400); 
+        } catch (e) { alert("Camera Error: " + e.message); }
+    };
+
+    window.stopLive = () => {
+        clearInterval(window.liveInt);
+        const v = document.getElementById("v-preview");
+        if(v.srcObject) v.srcObject.getTracks().forEach(t => t.stop());
+        document.getElementById("live-container").style.display = "none";
+        remove(liveRef);
+    };
+}
     window.sendMsg = () => {
         const i = document.getElementById("msg-input");
         if (i.value.trim()) { 
