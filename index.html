@@ -6,55 +6,51 @@
     <title>NL | Live</title>
 <style>
     :root {
-    --primary: #00ffa3;
-    --danger: #ff4d4d;
-    --bg-dark: #0a0f18;
-    --glass: rgba(30, 41, 59, 0.7);
-    --glass-border: rgba(255, 255, 255, 0.1);
-}
+        --primary: #00ffa3;
+        --danger: #ff4d4d;
+        --bg-dark: #0a0f18;
+        --glass: rgba(30, 41, 59, 0.7);
+        --glass-border: rgba(255, 255, 255, 0.1);
+    }
 
-body {
-    background: linear-gradient(-45deg, #0a0f18, #1e293b, #0f172a, #020617);
-    background-size: 400% 400%;
-    animation: gradientBG 15s ease infinite;
-    color: #e2e8f0;
-    font-family: 'Inter', sans-serif;
-    margin: 0;
-    display: flex;
-    justify-content: center;
-    min-height: 100vh;
-    overflow-x: hidden;
-}
+    body {
+        background: linear-gradient(-45deg, #0a0f18, #1e293b, #0f172a, #020617);
+        background-size: 400% 400%;
+        animation: gradientBG 15s ease infinite;
+        color: #e2e8f0;
+        font-family: 'Inter', sans-serif;
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        min-height: 100vh;
+        overflow-x: hidden;
+    }
 
-@keyframes gradientBG {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-}
+    @keyframes gradientBG {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
 
-.container { 
-    width: 100%; 
-    max-width: 480px; 
-    padding: 20px; 
-    box-sizing: border-box; 
-}
+    .container { width: 100%; max-width: 480px; padding: 20px; box-sizing: border-box; }
 
-.box {
-    background: var(--glass);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid var(--glass-border);
-    border-radius: 24px;
-    padding: 30px;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-    margin-bottom: 20px;
-    animation: slideUp 0.6s ease-out;
-}
+    .box {
+        background: var(--glass);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid var(--glass-border);
+        border-radius: 24px;
+        padding: 30px;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        margin-bottom: 20px;
+        animation: slideUp 0.6s ease-out;
+    }
 
-@keyframes slideUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
+    @keyframes slideUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
     h2 {
         text-align: center;
         font-size: 28px;
@@ -139,16 +135,17 @@ body {
         border: 1px inset rgba(255,255,255,0.05);
         margin-bottom: 15px;
     }
-#zone-bg {
-    width: 77%;
-    height: 123px;
-    background-size: cover;
-    background-position: center;
-    border-radius: 20px;
-    margin-bottom: 15px;
-    border: 1px solid rgba(0, 255, 163, 0.3);
-    display: none; 
-}
+
+    #zone-bg {
+        width: 100%;
+        height: 123px;
+        background-size: cover;
+        background-position: center;
+        border-radius: 20px;
+        margin-bottom: 15px;
+        border: 1px solid rgba(0, 255, 163, 0.3);
+        display: none; 
+    }
 
     .msg { background: var(--glass); padding: 12px 16px; border-radius: 18px; border-bottom-left-radius: 4px; max-width: 85%; border: 1px solid var(--glass-border); }
     .msg b { color: var(--primary); font-size: 10px; text-transform: uppercase; display: block; margin-bottom: 4px; }
@@ -167,7 +164,6 @@ body {
     .send-btn { width: 80px; background: var(--primary); color: #000; font-weight: 900; border-radius: 12px; }
 
     #viewers-list { background: rgba(255, 215, 0, 0.1); border: 1px solid rgba(255, 215, 0, 0.3); border-radius: 15px; padding: 15px; margin-bottom: 15px; font-size: 12px; }
-    
     .viewer-box { background: var(--glass); border-radius: 20px; padding: 10px; margin-bottom: 15px; border: 1px solid var(--glass-border); }
 </style>
 </head>
@@ -190,7 +186,7 @@ body {
 
     <div id="app-ui" style="display:none;">
         <button onclick="window.goBack()" style="padding:8px; font-size:11px; margin-bottom:10px; width:auto; border-color:#444;">⬅ TERUG</button>
-    <div id="zone-bg"></div> 
+        <div id="zone-bg"></div> 
 
         <div class="radar-header">
             <div id="zone-txt">ZONE: -</div>
@@ -217,7 +213,6 @@ body {
         </div>
 
         <div id="remote-streams"></div>
-
         <div id="chat-box"></div>
         <div id="typing-area" style="height: 20px; font-size: 11px; color: var(--primary); margin-left: 10px; font-style: italic;"></div>
         
@@ -227,7 +222,6 @@ body {
         </div>
     </div>
 </div>
-
 
 <script type="module"> 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
@@ -247,257 +241,258 @@ const auth = getAuth(app);
 let myNick, myPath, liveInt;
 const streetData = {
     "Doetinchem": {
-  "2E LOOLAAN": { "lat": 51.9700, "lon": 6.3000 },
-  "ABDIJLAAN": { "lat": 51.9712, "lon": 6.2985 },
-  "ACACIALAAN": { "lat": 51.9721, "lon": 6.3021 },
-  "ADELAARSTRAAT": { "lat": 51.9650, "lon": 6.2920 },
-  "AIRBORNESTRAAT": { "lat": 51.9685, "lon": 6.2955 },
-  "ALFRED MOZERPLEIN": { "lat": 51.9678, "lon": 6.3002 },
-  "AMBACHTSTRAAT": { "lat": 51.9645, "lon": 6.3050 },
-  "AMPHIONSTRAAT": { "lat": 51.9660, "lon": 6.2935 },
-  "AMPERESTRAAT": { "lat": 51.9640, "lon": 6.3065 },
-  "ANEMOONSTRAAT": { "lat": 51.9710, "lon": 6.3040 },
-  "ANTILLENSTRAAT": { "lat": 51.9635, "lon": 6.2995 },
-  "ASTERSTRAAT": { "lat": 51.9705, "lon": 6.3030 },
-  "ATJEHSTRAAT": { "lat": 51.9638, "lon": 6.2980 },
-  "AURORAWEG": { "lat": 51.9689, "lon": 6.3070 },
-  "BADWEG": { "lat": 51.9725, "lon": 6.3010 },
-  "BARLHAMMERWEG": { "lat": 51.9750, "lon": 6.3100 },
-  "BARON VAN DIESTSTRAAT": { "lat": 51.9670, "lon": 6.2940 },
-  "BASTINGLAAN": { "lat": 51.9690, "lon": 6.2965 },
-  "BEDRIJVENWEG": { "lat": 51.9630, "lon": 6.3075 },
-  "BEETHOVENLAAN": { "lat": 51.9695, "lon": 6.2925 },
-  "BEGONIASTRAAT": { "lat": 51.9718, "lon": 6.3038 },
-  "BELDERSTRAAT": { "lat": 51.9668, "lon": 6.2915 },
-  "BERGLAAN": { "lat": 51.9680, "lon": 6.2948 },
-  "BERLAGELAAN": { "lat": 51.9692, "lon": 6.2972 },
-  "BEUKENHAGE": { "lat": 51.9701, "lon": 6.3008 },
-  "BEVRIJDINGSSTRAAT": { "lat": 51.9662, "lon": 6.2928 },
-  "BEZELHORSTWEG": { "lat": 51.9715, "lon": 6.3055 },
-  "BIESLOOKVELD": { "lat": 51.9730, "lon": 6.3080 },
-  "BILDERDIJKSTRAAT": { "lat": 51.9698, "lon": 6.2922 },
-  "BIZETLAAN": { "lat": 51.9690, "lon": 6.2930 },
-  "BLOEMERSSTRAAT": { "lat": 51.9665, "lon": 6.2960 },
-  "BLOKHUISLAAN": { "lat": 51.9722, "lon": 6.3060 },
-  "BODDENS HOSANGSTRAAT": { "lat": 51.9655, "lon": 6.2938 },
-  "BOEKWEITDREEF": { "lat": 51.9735, "lon": 6.3072 },
-  "BOENINKSTEEG": { "lat": 51.9650, "lon": 6.2975 },
-  "BOESMATE": { "lat": 51.9740, "lon": 6.3090 },
-  "BOLIESTRAAT": { "lat": 51.9652, "lon": 6.2898 },
-  "BORNEOSTRAAT": { "lat": 51.9642, "lon": 6.2970 },
-  "BOSSTRAAT": { "lat": 51.9688, "lon": 6.3015 },
-  "BRAAMTSEWEG": { "lat": 51.9755, "lon": 6.3120 },
-  "BRAMENHOF": { "lat": 51.9738, "lon": 6.3085 },
-  "BRASEM": { "lat": 51.9742, "lon": 6.3095 },
-  "BROEKSTRAAT": { "lat": 51.9690, "lon": 6.2935 },
-  "BROUWERSKAMP": { "lat": 51.9660, "lon": 6.2910 },
-  "BRUGGENWEG": { "lat": 51.9712, "lon": 6.3042 },
-  "BULTENSWEG": { "lat": 51.9728, "lon": 6.3068 },
-  "BUNDERHORST": { "lat": 51.9745, "lon": 6.3102 },
-  "BURGEMEESTER KEHRERSTRAAT": { "lat": 51.9695, "lon": 6.2928 },
-  "BURGEMEESTER TENKINKSTRAAT": { "lat": 51.9685, "lon": 6.2932 },
-  "BURGEMEESTER DE BRUIJNSTRAAT": { "lat": 51.9675, "lon": 6.2936 },
-  "BURGEMEESTER VAN NISPENSTRAAT": { "lat": 51.9668, "lon": 6.2940 },
-  "C MISSETSTRAAT": { "lat": 51.9645, "lon": 6.3055 },
-  "CAENSTRAAT": { "lat": 51.9692, "lon": 6.2920 },
-  "CALSLAAN": { "lat": 51.9700, "lon": 6.2950 },
-  "CANADAPARKLAAN": { "lat": 51.9710, "lon": 6.2975 },
-  "CATHARINASTRAAT": { "lat": 51.9657, "lon": 6.2912 },
-  "CATSSTRAAT": { "lat": 51.9690, "lon": 6.2938 },
-  "CELEBESSTRAAT": { "lat": 51.9640, "lon": 6.2985 },
-  "CHARLEY TOOROPSTRAAT": { "lat": 51.9705, "lon": 6.2968 },
-  "CHURCHILLSTRAAT": { "lat": 51.9688, "lon": 6.2945 },
-  "COLIJNLAAN": { "lat": 51.9698, "lon": 6.2955 },
-  "COOPSSTRAAT": { "lat": 51.9655, "lon": 6.2905 },
-  "CROUWELLSTRAAT": { "lat": 51.9650, "lon": 6.2915 },
-  "CURACAOSTRAAT": { "lat": 51.9635, "lon": 6.2990 },
-  "DE AALBES": { "lat": 51.9735, "lon": 6.3088 },
-  "DE BONGERD": { "lat": 51.9740, "lon": 6.3098 },
-  "DE ENK": { "lat": 51.9730, "lon": 6.3078 },
-  "DE GAARDE": { "lat": 51.9725, "lon": 6.3065 },
-  "DE HOVEN": { "lat": 51.9728, "lon": 6.3070 },
-  "DE HUET": { "lat": 51.9715, "lon": 6.3060 },
-  "DE KEMPEN": { "lat": 51.9732, "lon": 6.3082 },
-  "DE MEERPAAL": { "lat": 51.9745, "lon": 6.3105 },
-  "DE SCHANS": { "lat": 51.9720, "lon": 6.3058 },
-  "DE WHEEM": { "lat": 51.9738, "lon": 6.3095 },
-  "DE ZONNEBLOEM": { "lat": 51.9742, "lon": 6.3108 },
-  "DENNENLAAN": { "lat": 51.9705, "lon": 6.3025 },
-  "DOETINCHEMSEWEG": { "lat": 51.9760, "lon": 6.3125 },
-  "DOKTER BARDENHEUERSTRAAT": { "lat": 51.9680, "lon": 6.2942 },
-  "DOKTER HUBER NOODTSTRAAT": { "lat": 51.9675, "lon": 6.2930 },
-  "DOKTER SCHAEPMANSTRAAT": { "lat": 51.9688, "lon": 6.2925 },
-  "DOMINEE VAN DIJKSTRAAT": { "lat": 51.9692, "lon": 6.2918 },
-  "DONKERSGOOT": { "lat": 51.9748, "lon": 6.3112 },
-  "DOORNBOS": { "lat": 51.9735, "lon": 6.3089 },
-  "DR HOOFTLAAN": { "lat": 51.9695, "lon": 6.2935 },
-  "EDELWEISSSTRAAT": { "lat": 51.9715, "lon": 6.3035 },
-  "EIKENLAAN": { "lat": 51.9708, "lon": 6.3015 },
-  "ELZENLAAN": { "lat": 51.9712, "lon": 6.3022 },
-  "EMMASINGEL": { "lat": 51.9665, "lon": 6.2922 },
-  "ENERGIESTRAAT": { "lat": 51.9638, "lon": 6.3068 },
-  "ENGWEG": { "lat": 51.9752, "lon": 6.3115 },
-  "ERASMUSLAAN": { "lat": 51.9698, "lon": 6.2948 },
-  "ESDOORNLAAN": { "lat": 51.9710, "lon": 6.3028 },
-  "FABRIEKSSTRAAT": { "lat": 51.9645, "lon": 6.3045 },
-  "FOKKEMAWEG": { "lat": 51.9755, "lon": 6.3128 },
-  "FRANS HALSSTRAAT": { "lat": 51.9702, "lon": 6.2965 },
-  "GAARDERENSTRAAT": { "lat": 51.9735, "lon": 6.3092 },
-  "GAARDERHOF": { "lat": 51.9738, "lon": 6.3098 },
-  "GAARDEWEG": { "lat": 51.9725, "lon": 6.3075 },
-  "GASPELDOORNSTRAAT": { "lat": 51.9718, "lon": 6.3045 },
-  "GELEENSTRAAT": { "lat": 51.9640, "lon": 6.3005 },
-  "GENTIAANSTRAAT": { "lat": 51.9712, "lon": 6.3032 },
-  "GERANIUMSTRAAT": { "lat": 51.9715, "lon": 6.3038 },
-  "GOUDSBLOEMSTRAAT": { "lat": 51.9718, "lon": 6.3042 },
-  "GRUTSTRAAT": { "lat": 51.9655, "lon": 6.2890 },
-  "HAARWEG": { "lat": 51.9758, "lon": 6.3132 },
-  "HAGEN": { "lat": 51.9732, "lon": 6.3085 },
-  "HALSEWEG": { "lat": 51.9765, "lon": 6.3140 },
-  "HAMBURGERSTRAAT": { "lat": 51.9649, "lon": 6.2905 },
-  "HANZEWEG": { "lat": 51.9635, "lon": 6.3078 },
-  "HAVENSTRAAT": { "lat": 51.9658, "lon": 6.2955 },
-  "HEEZENSTRAAT": { "lat": 51.9646, "lon": 6.2920 },
-  "HEIDEWEG": { "lat": 51.9740, "lon": 6.3100 },
-  "HEKSELAAR": { "lat": 51.9735, "lon": 6.3095 },
-  "HELMHOLTZSTRAAT": { "lat": 51.9642, "lon": 6.3062 },
-  "HOFSTRAAT": { "lat": 51.9640, "lon": 6.2885 },
-  "HOGEWEG": { "lat": 51.9750, "lon": 6.3120 },
-  "HOLTERWEG": { "lat": 51.9768, "lon": 6.3145 },
-  "HOUTENSTRAAT": { "lat": 51.9650, "lon": 6.2940 },
-  "IBISSTRAAT": { "lat": 51.9725, "lon": 6.3055 },
-  "INDUSTRIEWEG": { "lat": 51.9630, "lon": 6.3085 },
-  "IRISSTRAAT": { "lat": 51.9718, "lon": 6.3048 },
-  "J F KENNEDYLAAN": { "lat": 51.9695, "lon": 6.2960 },
-  "JACHTLAAN": { "lat": 51.9745, "lon": 6.3115 },
-  "JACOB CATSSTRAAT": { "lat": 51.9690, "lon": 6.2938 },
-  "JACOB MARISSTRAAT": { "lat": 51.9705, "lon": 6.2962 },
-  "JAN STEENSTRAAT": { "lat": 51.9708, "lon": 6.2968 },
-  "JAN VERMEERSTRAAT": { "lat": 51.9702, "lon": 6.2972 },
-  "JASMĲNSTRAAT": { "lat": 51.9715, "lon": 6.3045 },
-  "JULIANAPLEIN": { "lat": 51.9668, "lon": 6.2920 },
-  "JULIANASTRAAT": { "lat": 51.9672, "lon": 6.2925 },
-  "KAPOENIESTRAAT": { "lat": 51.9658, "lon": 6.2882 },
-  "KARWIJZAAD": { "lat": 51.9738, "lon": 6.3090 },
-  "KASTANJELAAN": { "lat": 51.9705, "lon": 6.3018 },
-  "KEIZER KARELSTRAAT": { "lat": 51.9685, "lon": 6.2930 },
-  "KEMPENAERSTRAAT": { "lat": 51.9675, "lon": 6.2942 },
-  "KIEVITSTRAAT": { "lat": 51.9720, "lon": 6.3058 },
-  "KLOOSTERSTRAAT": { "lat": 51.9655, "lon": 6.2908 },
-  "KORENSTRAAT": { "lat": 51.9658, "lon": 6.2895 },
-  "KORTE HEERENSTRAAT": { "lat": 51.9652, "lon": 6.2892 },
-  "KRUISBERGSEWEG": { "lat": 51.9688, "lon": 6.2985 },
-  "KRUISSTRAAT": { "lat": 51.9650, "lon": 6.2900 },
-  "LAAN VAN SCHUYLENBURG": { "lat": 51.9715, "lon": 6.3052 },
-  "LANGEBERG": { "lat": 51.9742, "lon": 6.3102 },
-  "LANGE HEERENSTRAAT": { "lat": 51.9655, "lon": 6.2898 },
-  "LANGELOSTRAAT": { "lat": 51.9760, "lon": 6.3135 },
-  "LARIKSLAAN": { "lat": 51.9712, "lon": 6.3025 },
-  "LEEUWERIKSTRAAT": { "lat": 51.9722, "lon": 6.3052 },
-  "LEIDSEWEG": { "lat": 51.9755, "lon": 6.3125 },
-  "LINDELAAN": { "lat": 51.9708, "lon": 6.3012 },
-  "LOOILAND": { "lat": 51.9735, "lon": 6.3095 },
-  "LOOWEG": { "lat": 51.9748, "lon": 6.3110 },
-  "MAGNOLIASTRAAT": { "lat": 51.9718, "lon": 6.3040 },
-  "MARGRIETSTRAAT": { "lat": 51.9675, "lon": 6.2928 },
-  "MARKT": { "lat": 51.9653, "lon": 6.2893 },
-  "MEIDOORNSTRAAT": { "lat": 51.9715, "lon": 6.3032 },
-  "MELKWEG": { "lat": 51.9740, "lon": 6.3105 },
-  "MERELSTRAAT": { "lat": 51.9725, "lon": 6.3055 },
-  "MOLENSTRAAT": { "lat": 51.9662, "lon": 6.2915 },
-  "MONSEIGNEUR NOLENSSTRAAT": { "lat": 51.9680, "lon": 6.2935 },
-  "MOORSSTRAAT": { "lat": 51.9658, "lon": 6.2908 },
-  "NACHTEGAALSTRAAT": { "lat": 51.9728, "lon": 6.3058 },
-  "NIJVERHEIDSWEG": { "lat": 51.9632, "lon": 6.3088 },
-  "NIEUWSTAD": { "lat": 51.9660, "lon": 6.2905 },
-  "NIEUWEWEG": { "lat": 51.9750, "lon": 6.3122 },
-  "NOLENSLAAN": { "lat": 51.9682, "lon": 6.2938 },
-  "ORANJELAAN": { "lat": 51.9678, "lon": 6.2922 },
-  "ORCHIDEESTRAAT": { "lat": 51.9715, "lon": 6.3042 },
-  "PASTOOR VAN AERLEStraat": { "lat": 51.9685, "lon": 6.2932 },
-  "PAUL KRUGERSTRAAT": { "lat": 51.9692, "lon": 6.2945 },
-  "PLANTSOENSTRAAT": { "lat": 51.9668, "lon": 6.2918 },
-  "PRINS HENDRIKSTRAAT": { "lat": 51.9675, "lon": 6.2925 },
-  "RAADHUISSTRAAT": { "lat": 51.9662, "lon": 6.2900 },
-  "REIGERSTRAAT": { "lat": 51.9720, "lon": 6.3055 },
-  "RIETSTRAAT": { "lat": 51.9730, "lon": 6.3068 },
-  "ROZENSTRAAT": { "lat": 51.9712, "lon": 6.3035 },
-  "SCHOOLSTRAAT": { "lat": 51.9665, "lon": 6.2912 },
-  "SCHOUWBURGPLEIN": { "lat": 51.9658, "lon": 6.2905 },
-  "SIMONSPLEIN": { "lat": 51.9652, "lon": 6.2895 },
-  "SINGELWEG": { "lat": 51.9688, "lon": 6.2948 },
-  "SPORTWEG": { "lat": 51.9725, "lon": 6.3065 },
-  "TERBORGSEWEG": { "lat": 51.9660, "lon": 6.2950 },
-  "TOLLENSTRAAT": { "lat": 51.9690, "lon": 6.2932 },
-  "TRANSPORTWEG": { "lat": 51.9635, "lon": 6.3075 },
-  "VAN GOGHSTRAAT": { "lat": 51.9702, "lon": 6.2965 },
-  "VAN LIMBURG STIRUMSTRAAT": { "lat": 51.9685, "lon": 6.2930 },
-  "VARSSEVELDSEWEG": { "lat": 51.9655, "lon": 6.2968 },
-  "VIVALDILAAN": { "lat": 51.9695, "lon": 6.2928 },
-  "WALSTRAAT": { "lat": 51.9651, "lon": 6.2878 },
-  "WEEMSTRAAT": { "lat": 51.9735, "lon": 6.3095 },
-  "WILHELMINALAAN": { "lat": 51.9672, "lon": 6.2920 },
-  "WILGENSTRAAT": { "lat": 51.9710, "lon": 6.3025 },
-  "WEG NAAR GAANDEREN": { "lat": 51.9685, "lon": 6.3015 },
-  "WATERSTRAAT": { "lat": 51.9652, "lon": 6.2902 },
-  "WETERINGSTRAAT": { "lat": 51.9728, "lon": 6.3075 },
-  "VELDWEG": { "lat": 51.9748, "lon": 6.3118 },
-  "VELDHOF": { "lat": 51.9735, "lon": 6.3090 },
-  "VELDSTRAAT": { "lat": 51.9722, "lon": 6.3065 },
-  "TUINSTRAAT": { "lat": 51.9660, "lon": 6.2910 },
-  "TULPENSTRAAT": { "lat": 51.9718, "lon": 6.3045 },
-  "STATIONSSTRAAT": { "lat": 51.9668, "lon": 6.2935 },
-  "STATIONSPLEIN": { "lat": 51.9670, "lon": 6.2940 },
-  "ROERSTRAAT": { "lat": 51.9730, "lon": 6.3072 },
-  "RIVIERSTRAAT": { "lat": 51.9725, "lon": 6.3068 },
-  "PLATANENLAAN": { "lat": 51.9705, "lon": 6.3022 },
-  "POPULIERENLAAN": { "lat": 51.9712, "lon": 6.3028 },
-  "OLMENSTRAAT": { "lat": 51.9708, "lon": 6.3018 },
-  "OLIJFSTRAAT": { "lat": 51.9720, "lon": 6.3052 },
-  "MUNNIKENLAND": { "lat": 51.9745, "lon": 6.3108 },
-  "MIDDENWEG": { "lat": 51.9738, "lon": 6.3098 },
-  "KLEIN KWEKERIJPAD": { "lat": 51.9725, "lon": 6.3060 },
-  "KORTE BERGSTRAAT": { "lat": 51.9658, "lon": 6.2908 },
-  "HOGE AKKER": { "lat": 51.9742, "lon": 6.3102 },
-  "HET TANGH": { "lat": 51.9735, "lon": 6.3095 },
-  "GROENEWEG": { "lat": 51.9755, "lon": 6.3125 },
-  "GOORSTRAAT": { "lat": 51.9748, "lon": 6.3115 },
-  "ZANDSTRAAT": { "lat": 51.9658, "lon": 6.2915 },
-  "ZONNESTRAAT": { "lat": 51.9720, "lon": 6.3050 },
-  "ZUIDERLAAN": { "lat": 51.9695, "lon": 6.2955 },
-  "ZUIDERHAVEN": { "lat": 51.9648, "lon": 6.2965 },
-  "ZUIDERSTRAAT": { "lat": 51.9655, "lon": 6.2925 },
-  "ZUIDERKANAALDIJK": { "lat": 51.9638, "lon": 6.2988 },
-  "ACHTERSTRAAT": { "lat": 51.9650, "lon": 6.2900 },
-  "ACHTERHOF": { "lat": 51.9660, "lon": 6.2910 },
-  "AKKERSTRAAT": { "lat": 51.9730, "lon": 6.3075 },
-  "AKKERPAD": { "lat": 51.9735, "lon": 6.3080 },
-  "BEEKSTRAAT": { "lat": 51.9685, "lon": 6.2950 },
-  "BEEKPAD": { "lat": 51.9690, "lon": 6.2955 },
-  "BERGSTRAAT": { "lat": 51.9655, "lon": 6.2920 },
-  "BERGPAD": { "lat": 51.9660, "lon": 6.2925 },
-  "DIJKSTRAAT": { "lat": 51.9645, "lon": 6.2970 },
-  "DIJKPAD": { "lat": 51.9650, "lon": 6.2975 },
-  "ESSTRAAT": { "lat": 51.9720, "lon": 6.3060 },
-  "ESSENPAD": { "lat": 51.9725, "lon": 6.3065 },
-  "GRACHTSTRAAT": { "lat": 51.9652, "lon": 6.2898 },
-  "GRACHTPAD": { "lat": 51.9655, "lon": 6.2902 },
-  "HAVENPAD": { "lat": 51.9658, "lon": 6.2958 },
-  "HOFPAD": { "lat": 51.9645, "lon": 6.2888 },
-  "KAMPSTRAAT": { "lat": 51.9735, "lon": 6.3090 },
-  "KAMPPAD": { "lat": 51.9740, "lon": 6.3095 },
-  "LAANPAD": { "lat": 51.9715, "lon": 6.3035 },
-  "MOLENPAD": { "lat": 51.9665, "lon": 6.2918 },
-  "PADDEWEG": { "lat": 51.9755, "lon": 6.3128 },
-  "RIETPAD": { "lat": 51.9730, "lon": 6.3070 },
-  "STEENSTRAAT": { "lat": 51.9658, "lon": 6.2912 },
-  "STEENPAD": { "lat": 51.9662, "lon": 6.2915 },
-  "VELDPAD": { "lat": 51.9740, "lon": 6.3100 },
-  "WEIDEPAD": { "lat": 51.9740, "lon": 6.3102 },
-  "SEINHORSTSTRAAT": { "lat": 51.9758, "lon": 6.2928 },
-  "ZANDPAD": { "lat": 51.9655, "lon": 6.2918 }
-}
+        "2E LOOLAAN": { "lat": 51.9700, "lon": 6.3000 },
+        "ABDIJLAAN": { "lat": 51.9712, "lon": 6.2985 },
+        "ACACIALAAN": { "lat": 51.9721, "lon": 6.3021 },
+        "ADELAARSTRAAT": { "lat": 51.9650, "lon": 6.2920 },
+        "AIRBORNESTRAAT": { "lat": 51.9685, "lon": 6.2955 },
+        "ALFRED MOZERPLEIN": { "lat": 51.9678, "lon": 6.3002 },
+        "AMBACHTSTRAAT": { "lat": 51.9645, "lon": 6.3050 },
+        "AMPHIONSTRAAT": { "lat": 51.9660, "lon": 6.2935 },
+        "AMPERESTRAAT": { "lat": 51.9640, "lon": 6.3065 },
+        "ANEMOONSTRAAT": { "lat": 51.9710, "lon": 6.3040 },
+        "ANTILLENSTRAAT": { "lat": 51.9635, "lon": 6.2995 },
+        "ASTERSTRAAT": { "lat": 51.9705, "lon": 6.3030 },
+        "ATJEHSTRAAT": { "lat": 51.9638, "lon": 6.2980 },
+        "AURORAWEG": { "lat": 51.9689, "lon": 6.3070 },
+        "BADWEG": { "lat": 51.9725, "lon": 6.3010 },
+        "BARLHAMMERWEG": { "lat": 51.9750, "lon": 6.3100 },
+        "BARON VAN DIESTSTRAAT": { "lat": 51.9670, "lon": 6.2940 },
+        "BASTINGLAAN": { "lat": 51.9690, "lon": 6.2965 },
+        "BEDRIJVENWEG": { "lat": 51.9630, "lon": 6.3075 },
+        "BEETHOVENLAAN": { "lat": 51.9695, "lon": 6.2925 },
+        "BEGONIASTRAAT": { "lat": 51.9718, "lon": 6.3038 },
+        "BELDERSTRAAT": { "lat": 51.9668, "lon": 6.2915 },
+        "BERGLAAN": { "lat": 51.9680, "lon": 6.2948 },
+        "BERLAGELAAN": { "lat": 51.9692, "lon": 6.2972 },
+        "BEUKENHAGE": { "lat": 51.9701, "lon": 6.3008 },
+        "BEVRIJDINGSSTRAAT": { "lat": 51.9662, "lon": 6.2928 },
+        "BEZELHORSTWEG": { "lat": 51.9715, "lon": 6.3055 },
+        "BIESLOOKVELD": { "lat": 51.9730, "lon": 6.3080 },
+        "BILDERDIJKSTRAAT": { "lat": 51.9698, "lon": 6.2922 },
+        "BIZETLAAN": { "lat": 51.9690, "lon": 6.2930 },
+        "BLOEMERSSTRAAT": { "lat": 51.9665, "lon": 6.2960 },
+        "BLOKHUISLAAN": { "lat": 51.9722, "lon": 6.3060 },
+        "BODDENS HOSANGSTRAAT": { "lat": 51.9655, "lon": 6.2938 },
+        "BOEKWEITDREEF": { "lat": 51.9735, "lon": 6.3072 },
+        "BOENINKSTEEG": { "lat": 51.9650, "lon": 6.2975 },
+        "BOESMATE": { "lat": 51.9740, "lon": 6.3090 },
+        "BOLIESTRAAT": { "lat": 51.9652, "lon": 6.2898 },
+        "BORNEOSTRAAT": { "lat": 51.9642, "lon": 6.2970 },
+        "BOSSTRAAT": { "lat": 51.9688, "lon": 6.3015 },
+        "BRAAMTSEWEG": { "lat": 51.9755, "lon": 6.3120 },
+        "BRAMENHOF": { "lat": 51.9738, "lon": 6.3085 },
+        "BRASEM": { "lat": 51.9742, "lon": 6.3095 },
+        "BROEKSTRAAT": { "lat": 51.9690, "lon": 6.2935 },
+        "BROUWERSKAMP": { "lat": 51.9660, "lon": 6.2910 },
+        "BRUGGENWEG": { "lat": 51.9712, "lon": 6.3042 },
+        "BULTENSWEG": { "lat": 51.9728, "lon": 6.3068 },
+        "BUNDERHORST": { "lat": 51.9745, "lon": 6.3102 },
+        "BURGEMEESTER KEHRERSTRAAT": { "lat": 51.9695, "lon": 6.2928 },
+        "BURGEMEESTER TENKINKSTRAAT": { "lat": 51.9685, "lon": 6.2932 },
+        "BURGEMEESTER DE BRUIJNSTRAAT": { "lat": 51.9675, "lon": 6.2936 },
+        "BURGEMEESTER VAN NISPENSTRAAT": { "lat": 51.9668, "lon": 6.2940 },
+        "C MISSETSTRAAT": { "lat": 51.9645, "lon": 6.3055 },
+        "CAENSTRAAT": { "lat": 51.9692, "lon": 6.2920 },
+        "CALSLAAN": { "lat": 51.9700, "lon": 6.2950 },
+        "CANADAPARKLAAN": { "lat": 51.9710, "lon": 6.2975 },
+        "CATHARINASTRAAT": { "lat": 51.9657, "lon": 6.2912 },
+        "CATSSTRAAT": { "lat": 51.9690, "lon": 6.2938 },
+        "CELEBESSTRAAT": { "lat": 51.9640, "lon": 6.2985 },
+        "CHARLEY TOOROPSTRAAT": { "lat": 51.9705, "lon": 6.2968 },
+        "CHURCHILLSTRAAT": { "lat": 51.9688, "lon": 6.2945 },
+        "COLIJNLAAN": { "lat": 51.9698, "lon": 6.2955 },
+        "COOPSSTRAAT": { "lat": 51.9655, "lon": 6.2905 },
+        "CROUWELLSTRAAT": { "lat": 51.9650, "lon": 6.2915 },
+        "CURACAOSTRAAT": { "lat": 51.9635, "lon": 6.2990 },
+        "DE AALBES": { "lat": 51.9735, "lon": 6.3088 },
+        "DE BONGERD": { "lat": 51.9740, "lon": 6.3098 },
+        "DE ENK": { "lat": 51.9730, "lon": 6.3078 },
+        "DE GAARDE": { "lat": 51.9725, "lon": 6.3065 },
+        "DE HOVEN": { "lat": 51.9728, "lon": 6.3070 },
+        "DE HUET": { "lat": 51.9715, "lon": 6.3060 },
+        "DE KEMPEN": { "lat": 51.9732, "lon": 6.3082 },
+        "DE MEERPAAL": { "lat": 51.9745, "lon": 6.3105 },
+        "DE SCHANS": { "lat": 51.9720, "lon": 6.3058 },
+        "DE WHEEM": { "lat": 51.9738, "lon": 6.3095 },
+        "DE ZONNEBLOEM": { "lat": 51.9742, "lon": 6.3108 },
+        "DENNENLAAN": { "lat": 51.9705, "lon": 6.3025 },
+        "DOETINCHEMSEWEG": { "lat": 51.9760, "lon": 6.3125 },
+        "DOKTER BARDENHEUERSTRAAT": { "lat": 51.9680, "lon": 6.2942 },
+        "DOKTER HUBER NOODTSTRAAT": { "lat": 51.9675, "lon": 6.2930 },
+        "DOKTER SCHAEPMANSTRAAT": { "lat": 51.9688, "lon": 6.2925 },
+        "DOMINEE VAN DIJKSTRAAT": { "lat": 51.9692, "lon": 6.2918 },
+        "DONKERSGOOT": { "lat": 51.9748, "lon": 6.3112 },
+        "DOORNBOS": { "lat": 51.9735, "lon": 6.3089 },
+        "DR HOOFTLAAN": { "lat": 51.9695, "lon": 6.2935 },
+        "EDELWEISSSTRAAT": { "lat": 51.9715, "lon": 6.3035 },
+        "EIKENLAAN": { "lat": 51.9708, "lon": 6.3015 },
+        "ELZENLAAN": { "lat": 51.9712, "lon": 6.3022 },
+        "EMMASINGEL": { "lat": 51.9665, "lon": 6.2922 },
+        "ENERGIESTRAAT": { "lat": 51.9638, "lon": 6.3068 },
+        "ENGWEG": { "lat": 51.9752, "lon": 6.3115 },
+        "ERASMUSLAAN": { "lat": 51.9698, "lon": 6.2948 },
+        "ESDOORNLAAN": { "lat": 51.9710, "lon": 6.3028 },
+        "FABRIEKSSTRAAT": { "lat": 51.9645, "lon": 6.3045 },
+        "FOKKEMAWEG": { "lat": 51.9755, "lon": 6.3128 },
+        "FRANS HALSSTRAAT": { "lat": 51.9702, "lon": 6.2965 },
+        "GAARDERENSTRAAT": { "lat": 51.9735, "lon": 6.3092 },
+        "GAARDERHOF": { "lat": 51.9738, "lon": 6.3098 },
+        "GAARDEWEG": { "lat": 51.9725, "lon": 6.3075 },
+        "GASPELDOORNSTRAAT": { "lat": 51.9718, "lon": 6.3045 },
+        "GELEENSTRAAT": { "lat": 51.9640, "lon": 6.3005 },
+        "GENTIAANSTRAAT": { "lat": 51.9712, "lon": 6.3032 },
+        "GERANIUMSTRAAT": { "lat": 51.9715, "lon": 6.3038 },
+        "GOUDSBLOEMSTRAAT": { "lat": 51.9718, "lon": 6.3042 },
+        "GRUTSTRAAT": { "lat": 51.9655, "lon": 6.2890 },
+        "HAARWEG": { "lat": 51.9758, "lon": 6.3132 },
+        "HAGEN": { "lat": 51.9732, "lon": 6.3085 },
+        "HALSEWEG": { "lat": 51.9765, "lon": 6.3140 },
+        "HAMBURGERSTRAAT": { "lat": 51.9649, "lon": 6.2905 },
+        "HANZEWEG": { "lat": 51.9635, "lon": 6.3078 },
+        "HAVENSTRAAT": { "lat": 51.9658, "lon": 6.2955 },
+        "HEEZENSTRAAT": { "lat": 51.9646, "lon": 6.2920 },
+        "HEIDEWEG": { "lat": 51.9740, "lon": 6.3100 },
+        "HEKSELAAR": { "lat": 51.9735, "lon": 6.3095 },
+        "HELMHOLTZSTRAAT": { "lat": 51.9642, "lon": 6.3062 },
+        "HOFSTRAAT": { "lat": 51.9640, "lon": 6.2885 },
+        "HOGEWEG": { "lat": 51.9750, "lon": 6.3120 },
+        "HOLTERWEG": { "lat": 51.9768, "lon": 6.3145 },
+        "HOUTENSTRAAT": { "lat": 51.9650, "lon": 6.2940 },
+        "IBISSTRAAT": { "lat": 51.9725, "lon": 6.3055 },
+        "INDUSTRIEWEG": { "lat": 51.9630, "lon": 6.3085 },
+        "IRISSTRAAT": { "lat": 51.9718, "lon": 6.3048 },
+        "J F KENNEDYLAAN": { "lat": 51.9695, "lon": 6.2960 },
+        "JACHTLAAN": { "lat": 51.9745, "lon": 6.3115 },
+        "JACOB CATSSTRAAT": { "lat": 51.9690, "lon": 6.2938 },
+        "JACOB MARISSTRAAT": { "lat": 51.9705, "lon": 6.2962 },
+        "JAN STEENSTRAAT": { "lat": 51.9708, "lon": 6.2968 },
+        "JAN VERMEERSTRAAT": { "lat": 51.9702, "lon": 6.2972 },
+        "JASMĲNSTRAAT": { "lat": 51.9715, "lon": 6.3045 },
+        "JULIANAPLEIN": { "lat": 51.9668, "lon": 6.2920 },
+        "JULIANASTRAAT": { "lat": 51.9672, "lon": 6.2925 },
+        "KAPOENIESTRAAT": { "lat": 51.9658, "lon": 6.2882 },
+        "KARWIJZAAD": { "lat": 51.9738, "lon": 6.3090 },
+        "KASTANJELAAN": { "lat": 51.9705, "lon": 6.3018 },
+        "KEIZER KARELSTRAAT": { "lat": 51.9685, "lon": 6.2930 },
+        "KEMPENAERSTRAAT": { "lat": 51.9675, "lon": 6.2942 },
+        "KIEVITSTRAAT": { "lat": 51.9720, "lon": 6.3058 },
+        "KLOOSTERSTRAAT": { "lat": 51.9655, "lon": 6.2908 },
+        "KORENSTRAAT": { "lat": 51.9658, "lon": 6.2895 },
+        "KORTE HEERENSTRAAT": { "lat": 51.9652, "lon": 6.2892 },
+        "KRUISBERGSEWEG": { "lat": 51.9688, "lon": 6.2985 },
+        "KRUISSTRAAT": { "lat": 51.9650, "lon": 6.2900 },
+        "LAAN VAN SCHUYLENBURG": { "lat": 51.9715, "lon": 6.3052 },
+        "LANGEBERG": { "lat": 51.9742, "lon": 6.3102 },
+        "LANGE HEERENSTRAAT": { "lat": 51.9655, "lon": 6.2898 },
+        "LANGELOSTRAAT": { "lat": 51.9760, "lon": 6.3135 },
+        "LARIKSLAAN": { "lat": 51.9712, "lon": 6.3025 },
+        "LEEUWERIKSTRAAT": { "lat": 51.9722, "lon": 6.3052 },
+        "LEIDSEWEG": { "lat": 51.9755, "lon": 6.3125 },
+        "LINDELAAN": { "lat": 51.9708, "lon": 6.3012 },
+        "LOOILAND": { "lat": 51.9735, "lon": 6.3095 },
+        "LOOWEG": { "lat": 51.9748, "lon": 6.3110 },
+        "MAGNOLIASTRAAT": { "lat": 51.9718, "lon": 6.3040 },
+        "MARGRIETSTRAAT": { "lat": 51.9675, "lon": 6.2928 },
+        "MARKT": { "lat": 51.9653, "lon": 6.2893 },
+        "MEIDOORNSTRAAT": { "lat": 51.9715, "lon": 6.3032 },
+        "MELKWEG": { "lat": 51.9740, "lon": 6.3105 },
+        "MERELSTRAAT": { "lat": 51.9725, "lon": 6.3055 },
+        "MOLENSTRAAT": { "lat": 51.9662, "lon": 6.2915 },
+        "MONSEIGNEUR NOLENSSTRAAT": { "lat": 51.9680, "lon": 6.2935 },
+        "MOORSSTRAAT": { "lat": 51.9658, "lon": 6.2908 },
+        "NACHTEGAALSTRAAT": { "lat": 51.9728, "lon": 6.3058 },
+        "NIJVERHEIDSWEG": { "lat": 51.9632, "lon": 6.3088 },
+        "NIEUWSTAD": { "lat": 51.9660, "lon": 6.2905 },
+        "NIEUWEWEG": { "lat": 51.9750, "lon": 6.3122 },
+        "NOLENSLAAN": { "lat": 51.9682, "lon": 6.2938 },
+        "ORANJELAAN": { "lat": 51.9678, "lon": 6.2922 },
+        "ORCHIDEESTRAAT": { "lat": 51.9715, "lon": 6.3042 },
+        "PASTOOR VAN AERLEStraat": { "lat": 51.9685, "lon": 6.2932 },
+        "PAUL KRUGERSTRAAT": { "lat": 51.9692, "lon": 6.2945 },
+        "PLANTSOENSTRAAT": { "lat": 51.9668, "lon": 6.2918 },
+        "PRINS HENDRIKSTRAAT": { "lat": 51.9675, "lon": 6.2925 },
+        "RAADHUISSTRAAT": { "lat": 51.9662, "lon": 6.2900 },
+        "REIGERSTRAAT": { "lat": 51.9720, "lon": 6.3055 },
+        "RIETSTRAAT": { "lat": 51.9730, "lon": 6.3068 },
+        "ROZENSTRAAT": { "lat": 51.9712, "lon": 6.3035 },
+        "SCHOOLSTRAAT": { "lat": 51.9665, "lon": 6.2912 },
+        "SCHOUWBURGPLEIN": { "lat": 51.9658, "lon": 6.2905 },
+        "SIMONSPLEIN": { "lat": 51.9652, "lon": 6.2895 },
+        "SINGELWEG": { "lat": 51.9688, "lon": 6.2948 },
+        "SPORTWEG": { "lat": 51.9725, "lon": 6.3065 },
+        "TERBORGSEWEG": { "lat": 51.9660, "lon": 6.2950 },
+        "TOLLENSTRAAT": { "lat": 51.9690, "lon": 6.2932 },
+        "TRANSPORTWEG": { "lat": 51.9635, "lon": 6.3075 },
+        "VAN GOGHSTRAAT": { "lat": 51.9702, "lon": 6.2965 },
+        "VAN LIMBURG STIRUMSTRAAT": { "lat": 51.9685, "lon": 6.2930 },
+        "VARSSEVELDSEWEG": { "lat": 51.9655, "lon": 6.2968 },
+        "VIVALDILAAN": { "lat": 51.9695, "lon": 6.2928 },
+        "WALSTRAAT": { "lat": 51.9651, "lon": 6.2878 },
+        "WEEMSTRAAT": { "lat": 51.9735, "lon": 6.3095 },
+        "WILHELMINALAAN": { "lat": 51.9672, "lon": 6.2920 },
+        "WILGENSTRAAT": { "lat": 51.9710, "lon": 6.3025 },
+        "WEG NAAR GAANDEREN": { "lat": 51.9685, "lon": 6.3015 },
+        "WATERSTRAAT": { "lat": 51.9652, "lon": 6.2902 },
+        "WETERINGSTRAAT": { "lat": 51.9728, "lon": 6.3075 },
+        "VELDWEG": { "lat": 51.9748, "lon": 6.3118 },
+        "VELDHOF": { "lat": 51.9735, "lon": 6.3090 },
+        "VELDSTRAAT": { "lat": 51.9722, "lon": 6.3065 },
+        "TUINSTRAAT": { "lat": 51.9660, "lon": 6.2910 },
+        "TULPENSTRAAT": { "lat": 51.9718, "lon": 6.3045 },
+        "STATIONSSTRAAT": { "lat": 51.9668, "lon": 6.2935 },
+        "STATIONSPLEIN": { "lat": 51.9670, "lon": 6.2940 },
+        "ROERSTRAAT": { "lat": 51.9730, "lon": 6.3072 },
+        "RIVIERSTRAAT": { "lat": 51.9725, "lon": 6.3068 },
+        "PLATANENLAAN": { "lat": 51.9705, "lon": 6.3022 },
+        "POPULIERENLAAN": { "lat": 51.9712, "lon": 6.3028 },
+        "OLMENSTRAAT": { "lat": 51.9708, "lon": 6.3018 },
+        "OLIJFSTRAAT": { "lat": 51.9720, "lon": 6.3052 },
+        "MUNNIKENLAND": { "lat": 51.9745, "lon": 6.3108 },
+        "MIDDENWEG": { "lat": 51.9738, "lon": 6.3098 },
+        "KLEIN KWEKERIJPAD": { "lat": 51.9725, "lon": 6.3060 },
+        "KORTE BERGSTRAAT": { "lat": 51.9658, "lon": 6.2908 },
+        "HOGE AKKER": { "lat": 51.9742, "lon": 6.3102 },
+        "HET TANGH": { "lat": 51.9735, "lon": 6.3095 },
+        "GROENEWEG": { "lat": 51.9755, "lon": 6.3125 },
+        "GOORSTRAAT": { "lat": 51.9748, "lon": 6.3115 },
+        "ZANDSTRAAT": { "lat": 51.9658, "lon": 6.2915 },
+        "ZONNESTRAAT": { "lat": 51.9720, "lon": 6.3050 },
+        "ZUIDERLAAN": { "lat": 51.9695, "lon": 6.2955 },
+        "ZUIDERHAVEN": { "lat": 51.9648, "lon": 6.2965 },
+        "ZUIDERSTRAAT": { "lat": 51.9655, "lon": 6.2925 },
+        "ZUIDERKANAALDIJK": { "lat": 51.9638, "lon": 6.2988 },
+        "ACHTERSTRAAT": { "lat": 51.9650, "lon": 6.2900 },
+        "ACHTERHOF": { "lat": 51.9660, "lon": 6.2910 },
+        "AKKERSTRAAT": { "lat": 51.9730, "lon": 6.3075 },
+        "AKKERPAD": { "lat": 51.9735, "lon": 6.3080 },
+        "BEEKSTRAAT": { "lat": 51.9685, "lon": 6.2950 },
+        "BEEKPAD": { "lat": 51.9690, "lon": 6.2955 },
+        "BERGSTRAAT": { "lat": 51.9655, "lon": 6.2920 },
+        "BERGPAD": { "lat": 51.9660, "lon": 6.2925 },
+        "DIJKSTRAAT": { "lat": 51.9645, "lon": 6.2970 },
+        "DIJKPAD": { "lat": 51.9650, "lon": 6.2975 },
+        "ESSTRAAT": { "lat": 51.9720, "lon": 6.3060 },
+        "ESSENPAD": { "lat": 51.9725, "lon": 6.3065 },
+        "GRACHTSTRAAT": { "lat": 51.9652, "lon": 6.2898 },
+        "GRACHTPAD": { "lat": 51.9655, "lon": 6.2902 },
+        "HAVENPAD": { "lat": 51.9658, "lon": 6.2958 },
+        "HOFPAD": { "lat": 51.9645, "lon": 6.2888 },
+        "KAMPSTRAAT": { "lat": 51.9735, "lon": 6.3090 },
+        "KAMPPAD": { "lat": 51.9740, "lon": 6.3095 },
+        "LAANPAD": { "lat": 51.9715, "lon": 6.3035 },
+        "MOLENPAD": { "lat": 51.9665, "lon": 6.2918 },
+        "PADDEWEG": { "lat": 51.9755, "lon": 6.3128 },
+        "RIETPAD": { "lat": 51.9730, "lon": 6.3070 },
+        "STEENSTRAAT": { "lat": 51.9658, "lon": 6.2912 },
+        "STEENPAD": { "lat": 51.9662, "lon": 6.2915 },
+        "VELDPAD": { "lat": 51.9740, "lon": 6.3100 },
+        "WEIDEPAD": { "lat": 51.9740, "lon": 6.3102 },
+        "SEINHORSTSTRAAT": { "lat": 51.9758, "lon": 6.2928 },
+        "ZANDPAD": { "lat": 51.9655, "lon": 6.2918 }
+    }
 };
+
 window.boot = () => {
     const nickInput = document.getElementById("nick-input");
     let inputName = nickInput.value.trim().toUpperCase();
@@ -555,7 +550,6 @@ function startSystem() {
     const liveRef = ref(db, `${myPath}/lives/${uid}`);
     const typingRef = ref(db, `${myPath}/typing/${myNick}`);
 
-    // Online Status
     set(onlineRef, { n: myNick, t: Date.now() });
     onDisconnect(onlineRef).remove();
 
@@ -566,7 +560,6 @@ function startSystem() {
         document.getElementById("names-area").innerHTML = Object.values(data).map(u => u.n).join(", ");
     });
 
-    // Chat logic
     window.sendMsg = () => {
         const i = document.getElementById("msg-input");
         if (i.value.trim()) {
@@ -590,7 +583,6 @@ function startSystem() {
         box.scrollTop = box.scrollHeight;
     });
 
-    // Typing Status
     document.getElementById("msg-input").addEventListener("input", () => {
         set(typingRef, true);
         clearTimeout(window.typingTimer);
@@ -602,7 +594,6 @@ function startSystem() {
         document.getElementById("typing-area").textContent = typers.length > 0 ? `${typers.join(", ")} is aan het typen...` : "";
     });
 
-    // Live Broadcast
     window.startLive = async () => {
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
@@ -627,20 +618,17 @@ function startSystem() {
         remove(liveRef);
     };
 
-    // View other lives
     onValue(ref(db, `${myPath}/lives`), s => {
         const container = document.getElementById("remote-streams");
         const allLives = s.val() || {};
         
-        // Remove inactive streams
         Array.from(container.children).forEach(c => {
             const userId = c.id.replace('pc-', '');
             if(!allLives[userId]) c.remove();
         });
 
-        // Add or update streams
         Object.keys(allLives).forEach(userId => {
-            if(userId === uid) return; // Don't show own stream here
+            if(userId === uid) return;
             let img = document.getElementById("pi-" + userId);
             if(!img) {
                 const div = document.createElement("div");
@@ -658,15 +646,16 @@ function startSystem() {
     });
 }
 
-// Global UI Helpers
 window.showViewers = () => {
     const el = document.getElementById("viewers-list");
     el.style.display = el.style.display === "none" ? "block" : "none";
 };
+
 window.toggleInfo = () => {
     const m = document.getElementById("info-modal");
     m.style.display = m.style.display === "none" ? "flex" : "none";
 };
+
 window.goBack = () => location.reload();
 
 function calcDist(lat1, lon1, lat2, lon2) {
@@ -683,7 +672,7 @@ window.onload = () => { if(localStorage.getItem("savedNick")) document.getElemen
 
 <div id="info-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:9999; justify-content:center; align-items:center; padding:20px; box-sizing:border-box;">
     <div class="box" style="max-width:400px; position:relative;">
-        <button onclick="window.toggleInfo()" style="position:absolute; top:-10px; right:-10px; width:30px; height:30px; background:var(--danger); border-radius:50%;">✕</button>
+        <button onclick="window.toggleInfo()" style="position:absolute; top:-10px; right:-10px; width:30px; height:30px; background:var(--danger); border-radius:50%; border:none; color:white; font-weight:bold; cursor:pointer;">✕</button>
         <h2 style="font-size:20px;">NL LIVE INFO</h2>
         <p style="font-size:13px; text-align:center; color:#94a3b8;">Hyper-lokale communicatie gebaseerd op GPS radar.</p>
     </div>
