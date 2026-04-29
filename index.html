@@ -126,6 +126,16 @@
         border: 1px inset rgba(255,255,255,0.05);
         margin-bottom: 15px;
     }
+#zone-bg {
+    width: 100%;
+    height: 120px;
+    background-size: cover;
+    background-position: center;
+    border-radius: 20px;
+    margin-bottom: 15px;
+    border: 1px solid rgba(0, 255, 163, 0.3);
+    display: none; 
+}
 
     .msg { background: var(--glass); padding: 12px 16px; border-radius: 18px; border-bottom-left-radius: 4px; max-width: 85%; border: 1px solid var(--glass-border); }
     .msg b { color: var(--primary); font-size: 10px; text-transform: uppercase; display: block; margin-bottom: 4px; }
@@ -167,7 +177,8 @@
 
     <div id="app-ui" style="display:none;">
         <button onclick="window.goBack()" style="padding:8px; font-size:11px; margin-bottom:10px; width:auto; border-color:#444;">⬅ TERUG</button>
-        
+    <div id="zone-bg"></div> 
+
         <div class="radar-header">
             <div id="zone-txt">ZONE: -</div>
             <div class="dist-badge" id="dist-txt">RADAR: OK</div>
@@ -497,6 +508,12 @@ window.boot = () => {
 
         if (foundStreet) {
             myPath = `v6/${foundCity}/${foundStreet}`;
+            const lat = streetData[foundCity][foundStreet].lat;
+            const lon = streetData[foundCity][foundStreet].lon;
+            const satUrl = `https://static-maps.yandex.ru/1.x/?lang=en_US&ll=${lon},${lat}&z=17&l=sat&size=450,150`;
+            const bgBox = document.getElementById("zone-bg");
+            bgBox.style.backgroundImage = `url('${satUrl}')`;
+            bgBox.style.display = "block";
             signInAnonymously(auth).then(() => {
                 document.getElementById("login-ui").style.display = "none";
                 document.getElementById("app-ui").style.display = "block";
@@ -504,12 +521,7 @@ window.boot = () => {
                 document.getElementById("dist-txt").textContent = `RADAR: ${Math.round(minD)}m`;
                 startSystem();
             });
-        } else {
-            alert("GEEN TOEGANG: Je bent niet in de buurt van een actieve zone.");
         }
-    }, () => alert("GPS ERROR: Zet je locatie aan."), { enableHighAccuracy: true });
-};
-
 function startSystem() {
     const uid = auth.currentUser.uid;
     const msgRef = ref(db, `${myPath}/msgs`);
