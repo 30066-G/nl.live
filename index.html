@@ -484,7 +484,6 @@ const streetData = {
   "ZANDPAD": { "lat": 51.9655, "lon": 6.2918 }
 }
 };
-
 window.boot = () => {
     const nickInput = document.getElementById("nick-input");
     let inputName = nickInput.value.trim().toUpperCase();
@@ -502,7 +501,11 @@ window.boot = () => {
         for (const city in streetData) {
             for (const street in streetData[city]) {
                 const d = calcDist(uLat, uLon, streetData[city][street].lat, streetData[city][street].lon);
-                if (d <= minD) { minD = d; foundCity = city; foundStreet = street; }
+                if (d <= minD) { 
+                    minD = d; 
+                    foundCity = city; 
+                    foundStreet = street; 
+                }
             }
         }
 
@@ -512,8 +515,12 @@ window.boot = () => {
             const lon = streetData[foundCity][foundStreet].lon;
             const satUrl = `https://static-maps.yandex.ru/1.x/?lang=en_US&ll=${lon},${lat}&z=17&l=sat&size=450,150`;
             const bgBox = document.getElementById("zone-bg");
-            bgBox.style.backgroundImage = `url('${satUrl}')`;
-            bgBox.style.display = "block";
+            
+            if (bgBox) {
+                bgBox.style.backgroundImage = `url('${satUrl}')`;
+                bgBox.style.display = "block";
+            }
+
             signInAnonymously(auth).then(() => {
                 document.getElementById("login-ui").style.display = "none";
                 document.getElementById("app-ui").style.display = "block";
@@ -521,7 +528,12 @@ window.boot = () => {
                 document.getElementById("dist-txt").textContent = `RADAR: ${Math.round(minD)}m`;
                 startSystem();
             });
+        } else {
+            alert("GEEN TOEGANG: Je bent niet in de buurt van een actieve zone.");
         }
+    }, () => alert("GPS ERROR: Zet je locatie aan."), { enableHighAccuracy: true });
+};
+
 function startSystem() {
     const uid = auth.currentUser.uid;
     const msgRef = ref(db, `${myPath}/msgs`);
@@ -529,7 +541,6 @@ function startSystem() {
     const liveRef = ref(db, `${myPath}/lives/${uid}`);
     const typingRef = ref(db, `${myPath}/typing/${myNick}`);
 
-    // 1. Online System
     set(onlineRef, { n: myNick, t: Date.now() });
     onDisconnect(onlineRef).remove();
 
@@ -540,7 +551,6 @@ function startSystem() {
         document.getElementById("names-area").innerHTML = Object.values(data).map(u => u.n).join(", ");
     });
 
-    // 2. Typing System
     document.getElementById("msg-input").addEventListener("input", () => {
         set(typingRef, true);
         clearTimeout(window.typingTimer);
@@ -570,6 +580,7 @@ function startSystem() {
             remove(typingRef);
         }
     };
+}
 
     window.sendSOS = () => {
         push(msgRef, { n: "🚨 SOS", m: `${myNick} HEEFT HULP NODIG!`, t: Date.now() });
