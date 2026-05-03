@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NL LIVE</title>
+    <title>NL LIVE TACTICAL V7</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
@@ -11,7 +11,8 @@
             --neon: #00ffa3;
             --danger: #ff3e3e;
             --bg-deep: #05070a;
-            --panel: rgba(13, 17, 23, 0.9);
+            --panel: rgba(10, 15, 20, 0.95);
+            --border: rgba(0, 255, 163, 0.2);
         }
 
         body, html { 
@@ -23,142 +24,125 @@
 
         #map { 
             position: absolute; top: 0; bottom: 0; width: 100%; z-index: 1; 
-            filter: hue-rotate(10deg) brightness(1.1) contrast(1.2);
+            filter: brightness(0.6) contrast(1.2) saturate(0.5);
         }
 
         /* Tactical Glitch Animation */
-        .glitch-in {
-            animation: glitch-fade 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
-        }
-
+        .glitch-in { animation: glitch-fade 0.8s ease-out; }
         @keyframes glitch-fade {
-            0% { opacity: 0; transform: scale(1.05) skewX(5deg); filter: brightness(3) blur(15px); }
-            40% { opacity: 0.9; transform: scale(0.99) skewX(-2deg); filter: brightness(1.5) blur(2px); }
-            70% { opacity: 0.6; transform: skewX(10deg); }
-            100% { opacity: 1; transform: scale(1) skewX(0deg); filter: brightness(1) blur(0px); }
+            0% { opacity: 0; filter: brightness(3) blur(10px); transform: scale(1.1); }
+            100% { opacity: 1; filter: brightness(1) blur(0px); transform: scale(1); }
         }
 
-        /* UI Elements */
+        /* الحاوية الرئيسية - ترتيب عمودي */
         .floating-ui {
-            position: absolute; bottom: 15px; left: 50%;
+            position: absolute; bottom: 20px; left: 50%;
             transform: translateX(-50%);
-            width: 95%; max-width: 380px;
-            z-index: 100; display: none; flex-direction: column; gap: 8px;
+            width: 92%; max-width: 400px;
+            z-index: 100; display: none; flex-direction: column; gap: 12px;
         }
 
         .glass-box {
             background: var(--panel);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(0, 255, 163, 0.2);
-            border-radius: 16px;
-            padding: 12px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 15px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+            display: flex; flex-direction: column; gap: 10px;
         }
 
+        /* الهيدر: القطاع والإحداثيات */
         .status-header {
             display: flex; justify-content: space-between; align-items: center;
-            padding-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.05);
-            margin-bottom: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px;
         }
 
-        .indicator {
-            display: flex; align-items: center; gap: 6px; font-size: 10px; font-weight: bold;
-            color: var(--neon); letter-spacing: 1px;
-        }
+        .sector-info { color: var(--neon); font-weight: bold; font-size: 13px; letter-spacing: 1px; }
+        .coords { font-size: 10px; color: #555; }
 
-        .dot-blink {
-            width: 6px; height: 6px; background: var(--neon); border-radius: 50%;
-            animation: blink 1s infinite;
-        }
-
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-
+        /* منطقة الرسائل */
         #chat-container {
-            height: 110px; overflow-y: auto; display: flex; flex-direction: column; gap: 5px;
-            scrollbar-width: none; mask-image: linear-gradient(to bottom, transparent, black 15%);
+            height: 140px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;
+            scrollbar-width: none;
         }
 
         .message {
-            background: rgba(255,255,255,0.03); padding: 8px 12px; border-radius: 10px;
-            border-left: 2px solid var(--neon); font-size: 12px;
+            background: rgba(255,255,255,0.03); padding: 10px; border-radius: 12px;
+            border-left: 3px solid var(--neon); font-size: 12px; line-height: 1.4;
         }
 
-        .message b { color: var(--neon); font-size: 10px; display: block; }
+        .message.mayday { border-left-color: var(--danger); background: rgba(255, 62, 62, 0.05); }
+        .message b { color: var(--neon); display: block; margin-bottom: 2px; font-size: 10px; }
 
-        .input-group { display: flex; gap: 6px; margin-top: 5px; }
+        /* أزرار التحكم المنفصلة */
+        .controls { display: flex; flex-direction: column; gap: 10px; }
 
+        .input-row { display: flex; gap: 8px; }
         input {
-            flex: 1; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 10px; padding: 10px; color: white; outline: none; font-size: 13px;
+            flex: 1; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px; padding: 12px; color: white; font-size: 14px; outline: none;
         }
 
         .btn-send {
-            background: var(--neon); border: none; width: 45px; border-radius: 10px;
+            background: var(--neon); border: none; width: 50px; border-radius: 12px;
             cursor: pointer; display: flex; align-items: center; justify-content: center;
         }
 
-        .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
-        
-        .sos-btn { 
-            background: rgba(255, 62, 62, 0.1); border: 1px solid var(--danger); 
-            color: var(--danger); padding: 8px; border-radius: 10px; font-weight: bold; font-size: 11px;
+        .btn-sos {
+            background: rgba(255, 62, 62, 0.1); border: 1px solid var(--danger);
+            color: var(--danger); padding: 14px; border-radius: 12px;
+            font-weight: bold; font-size: 12px; letter-spacing: 2px; cursor: pointer;
+            transition: 0.3s;
         }
+        .btn-sos:active { background: var(--danger); color: white; }
 
-        .re-btn {
-            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-            color: white; border-radius: 10px; font-size: 11px; cursor: pointer;
-        }
-
+        /* التسميات على الخريطة */
         .tactical-label {
-            background: rgba(0, 20, 0, 0.8) !important;
-            border: 1px solid var(--neon) !important;
-            color: var(--neon) !important;
-            font-family: monospace; font-size: 10px !important;
-            padding: 2px 5px; border-radius: 4px;
+            background: rgba(0,0,0,0.8) !important; border: 1px solid var(--neon) !important;
+            color: var(--neon) !important; font-size: 10px !important; padding: 2px 6px; border-radius: 4px;
         }
 
         #auth-screen {
-            position: fixed; inset: 0; background: var(--bg-deep);
-            z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px;
+            position: fixed; inset: 0; background: var(--bg-deep); z-index: 1000;
+            display: flex; align-items: center; justify-content: center; padding: 30px;
         }
-        .auth-card { width: 100%; max-width: 320px; text-align: center; }
-        .auth-card h1 { font-size: 1.5rem; letter-spacing: 4px; margin-bottom: 20px; color: var(--neon); }
+        .auth-card { width: 100%; max-width: 320px; display: flex; flex-direction: column; gap: 15px; }
+        .auth-card h1 { color: var(--neon); letter-spacing: 5px; text-align: center; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
-    <!-- Authentication Screen -->
     <div id="auth-screen" class="glitch-in">
         <div class="auth-card">
-            <h1>UNIT CONNECT</h1>
-            <input id="email" type="email" placeholder="Email Address">
+            <h1>UNIT LOGIN</h1>
+            <input id="email" type="email" placeholder="Email">
             <input id="pass" type="password" placeholder="Password">
-            <input id="nick" type="text" placeholder="Callsign (ALPHA-1)">
-            <button onclick="window.access('login')" style="background:var(--neon); color:black; font-weight:bold; width:100%; padding:15px; border-radius:12px; border:none; cursor:pointer; margin-top:10px;">ESTABLISH LINK</button>
-            <p onclick="window.access('reg')" style="font-size:10px; color:#666; margin-top:15px; cursor:pointer; text-decoration:underline;">Register New Unit</p>
+            <input id="nick" type="text" placeholder="Callsign (e.g. ALPHA-1)">
+            <button onclick="window.access('login')" style="background:var(--neon); color:black; padding:15px; border-radius:12px; font-weight:bold; border:none;">CONNECT LINK</button>
+            <span onclick="window.access('reg')" style="color:#444; font-size:11px; text-align:center; cursor:pointer;">New Unit? Register Here</span>
         </div>
     </div>
 
-    <!-- Map Engine -->
     <div id="map"></div>
 
-    <!-- Main UI Layer -->
     <div class="floating-ui" id="main-ui">
         <div class="glass-box">
             <div class="status-header">
-                <div class="indicator"><div class="dot-blink"></div> <span id="street-name">SCANNING SECTOR...</span></div>
-                <div style="font-size: 9px; color: #666;" id="coords-display">0.00, 0.00</div>
+                <div class="sector-info">● <span id="street-name">SCANNING...</span></div>
+                <div class="coords" id="coords-display">0.000, 0.000</div>
             </div>
+            
             <div id="chat-container"></div>
-            <div class="input-group">
-                <input type="text" id="msg-input" placeholder="Transmit data...">
-                <button class="btn-send" onclick="window.sendMsg()">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="3"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
-                </button>
-            </div>
-            <div class="action-grid">
-                <button class="sos-btn" onclick="window.sos()">SOS / MAYDAY</button>
-                <button class="re-btn" onclick="window.reCenter()">RE-CENTER</button>
+
+            <div class="controls">
+                <div class="input-row">
+                    <input type="text" id="msg-input" placeholder="Transmit data...">
+                    <button class="btn-send" onclick="window.sendMsg()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="black"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+                    </button>
+                </div>
+                <button class="btn-sos" onclick="window.sos()">SOS / MAYDAY</button>
             </div>
         </div>
     </div>
@@ -177,7 +161,8 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
     const auth = getAuth(app);
-    const BASE_PATH = 'v6/doetinchem/main';
+    const BASE_PATH = 'v7/doetinchem';
+
     let map, myMarker, myUID, myNick;
     let otherMarkers = {};
     let currentPos = [51.965, 6.290];
@@ -307,35 +292,22 @@ const sectors = [
     { name: "ZUIDERHAVEN", lat: 51.9632, lon: 6.2955 }, { name: "ZUIDERKANAALDIJK", lat: 51.9602, lon: 6.2965 },
     { name: "ZUIDERLAAN", lat: 51.9595, lon: 6.2752 }, { name: "ZUIDERSTRAAT", lat: 51.9655, lon: 6.2925 }
 ];
-    // --- AUTH LOGIC ---
+
+
     onAuthStateChanged(auth, (user) => {
         if (user) {
             myUID = user.uid;
-            myNick = user.displayName || "UNIT-X";
-            
-            // Hide Auth Screen
+            myNick = user.displayName || "UNIT";
             document.getElementById('auth-screen').style.display = 'none';
-            
-            // Show & Glitch UI
-            const mainUI = document.getElementById('main-ui');
-            mainUI.style.display = 'flex';
-            mainUI.classList.add('glitch-in');
-            
-            // Flash Effect
-            document.body.style.transition = "none";
-            document.body.style.backgroundColor = "var(--neon)";
-            setTimeout(() => {
-                document.body.style.transition = "background 0.5s ease";
-                document.body.style.backgroundColor = "var(--bg-deep)";
-            }, 60);
-
+            document.getElementById('main-ui').style.display = 'flex';
+            document.getElementById('main-ui').classList.add('glitch-in');
             initRadar();
         }
     });
 
     function initRadar() {
         if (map) return;
-        map = L.map('map', { zoomControl: false, attributionControl: false }).setView(currentPos, 15);
+        map = L.map('map', { zoomControl: false, attributionControl: false }).setView(currentPos, 16);
         L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
 
         navigator.geolocation.watchPosition(p => {
@@ -344,88 +316,72 @@ const sectors = [
             document.getElementById('coords-display').innerText = `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
 
             if (!myMarker) {
-                myMarker = L.circleMarker(currentPos, { radius: 8, color: '#fff', fillColor: '#00ffa3', fillOpacity: 1, weight: 3 }).addTo(map);
-                map.flyTo(currentPos, 16);
-            } else {
-                myMarker.setLatLng(currentPos);
-            }
+                myMarker = L.circleMarker(currentPos, { radius: 9, color: '#fff', fillColor: '#00ffa3', fillOpacity: 1, weight: 4 }).addTo(map);
+                map.panTo(currentPos);
+            } else { myMarker.setLatLng(currentPos); }
 
-            checkSector(latitude, longitude);
+            updateSector(latitude, longitude);
 
             set(ref(db, `${BASE_PATH}/lives/${myUID}`), {
                 n: myNick, lat: latitude, lon: longitude, t: Date.now()
             });
             onDisconnect(ref(db, `${BASE_PATH}/lives/${myUID}`)).remove();
-        }, null, { enableHighAccuracy: true });
+        });
 
+        // استلام المواقع
         onValue(ref(db, `${BASE_PATH}/lives`), snap => {
             const units = snap.val() || {};
-            Object.keys(otherMarkers).forEach(id => { 
-                if(!units[id]) { map.removeLayer(otherMarkers[id]); delete otherMarkers[id]; } 
-            });
-
             for(let id in units) {
                 if(id === myUID) continue;
                 const {lat, lon, n} = units[id];
-                const dist = L.latLng(currentPos).distanceTo([lat, lon]); 
-                const label = `${n} [${Math.round(dist)}m]`;
-                
-                if(otherMarkers[id]) {
-                    otherMarkers[id].setLatLng([lat, lon]);
-                    otherMarkers[id].getTooltip().setContent(label);
-                } else {
-                    otherMarkers[id] = L.circleMarker([lat, lon], { radius: 6, color: '#00ffa3', weight: 1, fillOpacity: 0.5 })
-                        .addTo(map).bindTooltip(label, { permanent: true, className: 'tactical-label', direction: 'top' });
+                if(otherMarkers[id]) { otherMarkers[id].setLatLng([lat, lon]); }
+                else {
+                    otherMarkers[id] = L.circleMarker([lat, lon], { radius: 6, color: '#00ffa3' })
+                        .addTo(map).bindTooltip(n, { permanent: true, className: 'tactical-label', direction: 'top' });
                 }
             }
         });
 
+        // استلام الرسائل
         onChildAdded(ref(db, `${BASE_PATH}/msgs`), s => {
             const data = s.val();
             const container = document.getElementById('chat-container');
             const div = document.createElement('div');
-            div.className = 'message';
-            if(data.m.includes("MAYDAY")) div.style.borderLeft = "3px solid var(--danger)";
-            div.innerHTML = `<b>${data.n}</b> ${data.m}`;
+            div.className = `message ${data.m.includes('MAYDAY') ? 'mayday' : ''}`;
+            div.innerHTML = `<b>${data.n}</b>${data.m}`;
             container.appendChild(div);
             container.scrollTop = container.scrollHeight;
         });
     }
 
-    function checkSector(lat, lon) {
-        let found = sectors.find(s => L.latLng(lat, lon).distanceTo([s.lat, s.lon]) <= 300);
-        const display = document.getElementById('street-name');
-        if (found) {
-            display.innerText = `SECTOR: ${found.name}`;
-            display.style.color = 'var(--neon)';
-        } else {
-            display.innerText = `OUTSIDE SECURE ZONE`;
-            display.style.color = 'var(--danger)';
-        }
+    function updateSector(lat, lon) {
+        let nearest = sectors.reduce((prev, curr) => {
+            let distPrev = L.latLng(lat, lon).distanceTo([prev.lat, prev.lon]);
+            let distCurr = L.latLng(lat, lon).distanceTo([curr.lat, curr.lon]);
+            return (distCurr < distPrev) ? curr : prev;
+        });
+        document.getElementById('street-name').innerText = nearest.name;
     }
 
     window.sendMsg = () => {
         const input = document.getElementById('msg-input');
-        if(!input.value.trim()) return;
-        push(ref(db, `${BASE_PATH}/msgs`), { n: myNick, m: input.value, t: Date.now() });
+        if(!input.value) return;
+        push(ref(db, `${BASE_PATH}/msgs`), { n: myNick, m: input.value });
         input.value = '';
     };
 
     window.sos = () => {
-        push(ref(db, `${BASE_PATH}/msgs`), { n: "🚨 " + myNick, m: "!!! MAYDAY - ASSISTANCE REQUIRED !!!", t: Date.now() });
+        push(ref(db, `${BASE_PATH}/msgs`), { n: "🚨 " + myNick, m: "!!! MAYDAY - IMMEDIATE ASSISTANCE !!!" });
     };
-
-    window.reCenter = () => map.flyTo(currentPos, 16);
 
     window.access = async (mode) => {
         const e = document.getElementById('email').value;
         const p = document.getElementById('pass').value;
-        const n = document.getElementById('nick').value || "UNIT-X";
+        const n = document.getElementById('nick').value;
         try {
             if(mode === 'reg') {
                 const res = await createUserWithEmailAndPassword(auth, e, p);
                 await updateProfile(res.user, { displayName: n });
-                alert("Unit Registered. Connecting...");
                 location.reload();
             } else { await signInWithEmailAndPassword(auth, e, p); }
         } catch(err) { alert(err.message); }
