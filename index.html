@@ -3,231 +3,169 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NL | Live Login</title>
-<style>
-    :root {
-        --primary: #00ffa3;
-        --danger: #ff4d4d;
-        --bg-dark: #0a0f18;
-        --glass: rgba(30, 41, 59, 0.7);
-        --glass-border: rgba(255, 255, 255, 0.1);
-    }
+    <title>NL | Pro Radar V7</title>
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-    body {
-        background: #000000;
-        color: #94a3b8;
-        font-family: 'Inter', sans-serif;
-        margin: 0;
-        display: flex;
-        justify-content: center;
-        min-height: 100vh;
-        overflow-x: hidden;
-    }
+    <style>
+        :root {
+            --primary: #00ffa3;
+            --danger: #ff4d4d;
+            --bg: #000000;
+            --glass: rgba(15, 23, 42, 0.8);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
 
-    .container { width: 100%; max-width: 480px; padding: 20px; box-sizing: border-box; }
+        body {
+            background: var(--bg);
+            color: #f8fafc;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
 
-    .box {
-        background: var(--glass);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border: 1px solid var(--glass-border);
-        border-radius: 24px;
-        padding: 30px;
-        margin-bottom: 20px;
-        animation: slideUp 0.6s ease-out;
-    }
+        .container { width: 100%; max-width: 500px; padding: 15px; box-sizing: border-box; }
 
-    @keyframes slideUp {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
+        /* ستايل الخريطة المحترف */
+        #map {
+            width: 100%;
+            height: 380px;
+            border-radius: 28px;
+            margin-bottom: 15px;
+            border: 1px solid var(--primary);
+            box-shadow: 0 0 25px rgba(0, 255, 163, 0.15);
+        }
 
-    h2 {
-        text-align: center;
-        font-size: 28px;
-        font-weight: 900;
-        background: linear-gradient(to right, #00ffa3, #00d4ff);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        margin-bottom: 30px;
-        letter-spacing: 2px;
-    }
-  
-    input {
-        background: rgba(0,0,0,0.3);
-        border: 1px solid var(--glass-border);
-        border-radius: 12px;
-        padding: 14px;
-        color: white;
-        width: 100%;
-        margin-bottom: 15px;
-        box-sizing: border-box;
-        font-size: 15px;
-    }
+        .box {
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            border-radius: 24px;
+            padding: 25px;
+            border: 1px solid var(--glass-border);
+        }
 
-    input:focus {
-        outline: none;
-        border-color: var(--primary);
-        box-shadow: 0 0 15px rgba(0, 255, 163, 0.2);
-    }
+        h2 {
+            text-align: center;
+            background: linear-gradient(45deg, #00ffa3, #00d4ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 900;
+            margin-top: 0;
+        }
 
-    button {
-        width: 100%;
-        padding: 15px;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid var(--glass-border);
-        color: white;
-        border-radius: 16px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: 0.3s all;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 8px;
-        text-transform: uppercase;
-        font-size: 13px;
-    }
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            background: rgba(255,255,255,0.05);
+            padding: 12px 18px;
+            border-radius: 50px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            border: 1px solid var(--glass-border);
+        }
 
-    button:hover { background: rgba(255, 255, 255, 0.1); transform: translateY(-3px); border-color: var(--primary); }
+        input {
+            background: rgba(0,0,0,0.4);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 14px;
+            color: white;
+            width: 100%;
+            margin-bottom: 12px;
+            box-sizing: border-box;
+        }
 
-    .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        button {
+            width: 100%;
+            padding: 14px;
+            border-radius: 14px;
+            border: none;
+            font-weight: 900;
+            cursor: pointer;
+            transition: 0.3s;
+            text-transform: uppercase;
+        }
 
-    button.sos { background: rgba(255, 77, 77, 0.15); border-color: var(--danger); color: var(--danger); animation: pulseRed 2s infinite; }
+        .action-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        
+        .sos-btn { background: rgba(255, 77, 77, 0.2); color: var(--danger); border: 1px solid var(--danger); }
+        .sos-btn:active { background: var(--danger); color: white; }
 
-    @keyframes pulseRed {
-        0% { box-shadow: 0 0 0 0 rgba(255, 77, 77, 0.4); }
-        70% { box-shadow: 0 0 0 15px rgba(255, 77, 77, 0); }
-        100% { box-shadow: 0 0 0 0 rgba(255, 77, 77, 0); }
-    }
+        #chat-box {
+            height: 250px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 20px;
+            padding: 15px;
+            overflow-y: auto;
+            border: 1px solid var(--glass-border);
+            margin-bottom: 12px;
+        }
 
-    .radar-header {
-        background: rgba(0, 255, 163, 0.1);
-        padding: 12px 20px;
-        border-radius: 50px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-size: 12px;
-        border: 1px solid rgba(0, 255, 163, 0.2);
-        margin-bottom: 20px;
-        font-weight: bold;
-    }
+        .msg { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 15px; margin-bottom: 8px; border-bottom-left-radius: 2px; }
+        .msg b { color: var(--primary); font-size: 10px; display: block; margin-bottom: 3px; }
 
-    #chat-box {
-        height: 300px;
-        background: rgba(0, 0, 0, 0.2);
-        border-radius: 20px;
-        padding: 20px;
-        overflow-y: auto;
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-        border: 1px inset rgba(255,255,255,0.05);
-        margin-bottom: 15px;
-    }
+        .user-dot {
+            width: 12px; height: 12px;
+            background: var(--primary);
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 0 10px var(--primary);
+            animation: pulse 2s infinite;
+        }
 
-    #zone-bg {
-        width: 100%;
-        height: 123px;
-        background-size: cover;
-        background-position: center;
-        border-radius: 20px;
-        margin-bottom: 15px;
-        border: 1px solid rgba(0, 255, 163, 0.3);
-        display: none; 
-    }
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 255, 163, 0.7); }
+            70% { transform: scale(1.2); box-shadow: 0 0 0 10px rgba(0, 255, 163, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 255, 163, 0); }
+        }
 
-    .msg { background: var(--glass); padding: 12px 16px; border-radius: 18px; border-bottom-left-radius: 4px; max-width: 85%; border: 1px solid var(--glass-border); }
-    .msg b { color: var(--primary); font-size: 10px; text-transform: uppercase; display: block; margin-bottom: 4px; }
-
-    #live-container { border-radius: 20px; overflow: hidden; border: 2px solid var(--danger); position: relative; margin-bottom: 15px; }
-    video { width: 100%; display: block; background: #000; }
-
-    .live-tag {
-        position: absolute; top: 10px; left: 10px;
-        background: var(--danger); padding: 4px 10px;
-        border-radius: 6px; font-size: 10px; font-weight: 900; z-index: 5;
-    }
-
-    .input-bar { display: flex; gap: 10px; background: var(--glass); padding: 8px; border-radius: 18px; border: 1px solid var(--glass-border); }
-    .input-bar input { margin-bottom: 0; border: none; background: transparent; }
-    .send-btn { width: 80px; background: var(--primary); color: #000; font-weight: 900; border-radius: 12px; }
-
-    #viewers-list { background: rgba(255, 215, 0, 0.1); border: 1px solid rgba(255, 215, 0, 0.3); border-radius: 15px; padding: 15px; margin-bottom: 15px; font-size: 12px; }
-    .viewer-box { background: var(--glass); border-radius: 20px; padding: 10px; margin-bottom: 15px; border: 1px solid var(--glass-border); }
-
-    .auth-tabs { display: flex; gap: 10px; margin-bottom: 20px; }
-    .auth-tabs button { padding: 10px; font-size: 11px; }
-    .active-tab { border-color: var(--primary); background: rgba(0, 255, 163, 0.1); }
-</style>
+        .input-area { display: flex; gap: 8px; }
+        .send-btn { background: var(--primary); color: black; width: 80px; }
+    </style>
 </head>
 <body>
 
 <div class="container">
-    <div style="text-align: right; margin-bottom: 15px;">
-        <button id="logout-btn" onclick="window.logout()" style="display:none; width: auto; padding: 8px 18px; border-radius: 50px; font-size: 11px; background: rgba(255,77,77,0.2); display: inline-flex; flex-direction: row; align-items: center; gap: 5px; border: 1px solid var(--danger);">
-            LOGOUT
-        </button>
-    </div>
-
     <div id="login-ui" class="box">
-        <h2>NL LIVE</h2>
-        <div class="auth-tabs">
-            <button id="tab-login" class="active-tab" onclick="window.switchAuth('login')">LOGIN</button>
-            <button id="tab-reg" onclick="window.switchAuth('reg')">REGISTER</button>
-        </div>
-        
-        <input id="email-input" type="email" placeholder="EMAIL ADRES">
+        <h2>NL RADAR</h2>
+        <input id="email-input" type="email" placeholder="E-MAIL">
         <input id="pass-input" type="password" placeholder="WACHTWOORD">
-        <input id="nick-input" placeholder="DISPLAY NAME (EX: NL-772)" maxlength="12" style="display:none;">
-        
-        <button id="auth-main-btn" onclick="window.handleAuth()" style="background:var(--primary); color:#000; font-weight:bold;">
-            GO TO RADAR 📡
-        </button>
+        <input id="nick-input" placeholder="DISPLAY NAME (NL-000)" maxlength="12">
+        <button onclick="window.handleAuth('login')" style="background:var(--primary); margin-bottom:10px;">INLOGGEN</button>
+        <button onclick="window.handleAuth('reg')" style="background:transparent; color:white; border:1px solid var(--glass-border);">REGISTREREN</button>
     </div>
 
     <div id="app-ui" style="display:none;">
-        <div id="zone-bg"></div> 
-
-        <div class="radar-header">
-            <div id="zone-txt">ZONE: -</div>
-            <div id="dist-txt">RADAR: SEARCHING...</div>
+        <div class="status-bar">
+            <span id="zone-txt" style="color:var(--primary)">ZONE: SCANNING...</span>
+            <span id="dist-txt">OFFLINE</span>
         </div>
 
-        <div class="action-grid">
-            <button id="view-count" onclick="window.showViewers()">👥 0 VIEWERS</button>
-            <button id="cam-btn" onclick="window.startLive()">📷 GA LIVE</button>
-            <button class="sos" onclick="window.sendSOS()">🆘 NOOD (SOS)</button>
-            <button onclick="document.getElementById('msg-input').focus()" style="border-color:cyan; color:cyan;">💬 CHAT</button>
+        <div id="map"></div>
+
+        <div class="action-btns">
+            <button class="sos-btn" onclick="window.sendSOS()">🆘 SOS</button>
+            <button style="background:rgba(0, 212, 255, 0.1); color:#00d4ff; border:1px solid #00d4ff;" onclick="window.reCenter()">📍 MY LOCATION</button>
         </div>
 
-        <div id="viewers-list" style="display:none;">
-            <strong style="color:yellow;">NU ONLINE:</strong>
-            <div id="names-area" style="color:#ccc; margin-top:5px;"></div>
-        </div>
-
-        <div id="live-container" style="display:none;">
-            <div class="live-tag">YOU ARE LIVE</div>
-            <video id="v-preview" autoplay playsinline muted></video>
-            <canvas id="v-canvas" style="display:none;"></canvas>
-            <button onclick="window.stopLive()" style="background:var(--danger); color:white; border:none; padding:10px; width:100%; border-radius:0 0 20px 20px;">STOP BROADCAST</button>
-        </div>
-
-        <div id="remote-streams"></div>
         <div id="chat-box"></div>
-        <div id="typing-area" style="height: 20px; font-size: 11px; color: var(--primary); margin-left: 10px; font-style: italic;"></div>
-        
-        <div class="input-bar">
-            <input id="msg-input" placeholder="Bericht..." maxlength="33">
-            <button class="send-btn" onclick="window.sendMsg()">SND</button>
+
+        <div class="input-area">
+            <input id="msg-input" placeholder="Bericht sturen...">
+            <button class="send-btn" onclick="window.sendMsg()">SEND</button>
         </div>
+        
+        <button onclick="window.logout()" style="margin-top:20px; background:transparent; color:gray; font-size:10px; border:none;">UITLOGGEN</button>
     </div>
 </div>
 
-<script type="module"> 
+<script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
-import { getDatabase, ref, push, onChildAdded, onValue, onDisconnect, set, remove } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
+import { getDatabase, ref, set, push, onChildAdded, onValue, onDisconnect, remove } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
 
 const firebaseConfig = { 
@@ -240,7 +178,10 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const auth = getAuth(app);
 
-let myNick, myPath, liveInt, authMode = 'login';
+let map, userMarker, myUID, myNick;
+let otherMarkers = {};
+let currentPos = { lat: 0, lon: 0 };
+let activeStreet = null;
 const streetData = {
     "Doetinchem": {
         "2E LOOLAAN": { "lat": 51.9732, "lon": 6.2845 },
@@ -495,112 +436,69 @@ const streetData = {
     }
 };
 
-
 onAuthStateChanged(auth, (user) => {
     if (user) {
+        myUID = user.uid;
         myNick = user.displayName || "GUEST";
         document.getElementById("login-ui").style.display = "none";
-        document.getElementById("logout-btn").style.display = "inline-flex";
-        runRadar(); 
+        document.getElementById("app-ui").style.display = "block";
+        initSystem();
     } else {
         document.getElementById("login-ui").style.display = "block";
         document.getElementById("app-ui").style.display = "none";
-        document.getElementById("logout-btn").style.display = "none";
     }
 });
 
-// 2. Switch Auth Tabs
-window.switchAuth = (mode) => {
-    authMode = mode;
-    document.getElementById("tab-login").classList.toggle("active-tab", mode === 'login');
-    document.getElementById("tab-reg").classList.toggle("active-tab", mode === 'reg');
-    document.getElementById("nick-input").style.display = (mode === 'reg') ? "block" : "none";
-};
-
-// 3. Handle Login / Register
-window.handleAuth = async () => {
-    const email = document.getElementById("email-input").value;
-    const pass = document.getElementById("pass-input").value;
-    const nick = document.getElementById("nick-input").value;
-
-    try {
-        if (authMode === 'reg') {
-            const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
-            await updateProfile(userCredential.user, { displayName: nick });
-            alert("Account aangemaakt!");
-        } else {
-            await signInWithEmailAndPassword(auth, email, pass);
-        }
-    } catch (e) {
-        alert("Auth Error: " + e.message);
-    }
-};
-
-window.logout = () => signOut(auth);
-
-// 4. Radar Logic
-function runRadar() {
-    navigator.geolocation.getCurrentPosition((p) => {
-        const uLat = p.coords.latitude;
-        const uLon = p.coords.longitude;
-
-        let foundCity = null, foundStreet = null, minD = 309; 
-
-        for (const city in streetData) {
-            for (const street in streetData[city]) {
-                const d = calcDist(uLat, uLon, streetData[city][street].lat, streetData[city][street].lon);
-                if (d <= minD) { 
-                    minD = d; 
-                    foundCity = city; 
-                    foundStreet = street; 
-                }
+function initSystem() {
+    if (!map) {
+        map = L.map('map').setView([52.1326, 5.2913], 7);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+        
+        for(let city in streetData) {
+            for(let street in streetData[city]) {
+                L.circle([streetData[city][street].lat, streetData[city][street].lon], {
+                    color: '#00d4ff', weight: 1, fillOpacity: 0.1, radius: 309
+                }).addTo(map);
             }
         }
+    }
 
-        if (foundStreet) {
-            myPath = `v6/${foundCity}/${foundStreet}`;
-            document.getElementById("app-ui").style.display = "block";
-            document.getElementById("zone-txt").textContent = foundStreet;
-            document.getElementById("dist-txt").textContent = `RADAR: ${Math.round(minD)}m`;
-            
-            const lat = streetData[foundCity][foundStreet].lat;
-            const lon = streetData[foundCity][foundStreet].lon;
-            document.getElementById("zone-bg").style.backgroundImage = `url('https://static-maps.yandex.ru/1.x/?ll=${lon},${lat}&z=17&l=sat&size=450,150')`;
-            document.getElementById("zone-bg").style.display = "block";
-            
-            startSystem();
+    navigator.geolocation.watchPosition((p) => {
+        currentPos.lat = p.coords.latitude;
+        currentPos.lon = p.coords.longitude;
+        const coords = [currentPos.lat, currentPos.lon];
+
+        if (!userMarker) {
+            userMarker = L.marker(coords, { icon: L.divIcon({className: 'user-dot'}) }).addTo(map);
+            map.setView(coords, 15);
         } else {
-            alert("GEEN TOEGANG: Buiten actieve zones.");
-            signOut(auth);
+            userMarker.setLatLng(coords);
         }
-    }, () => alert("GPS ERROR"), { enableHighAccuracy: true });
-}
 
-// 5. System Logic (Chat, Online, Live)
-function startSystem() {
-    const uid = auth.currentUser.uid;
-    const msgRef = ref(db, `${myPath}/msgs`);
-    const onlineRef = ref(db, `${myPath}/online/${uid}`);
-    const liveRef = ref(db, `${myPath}/lives/${uid}`);
+        checkZone();
 
-    set(onlineRef, { n: myNick, t: Date.now() });
-    onDisconnect(onlineRef).remove();
+        const locRef = ref(db, `v7/locations/${myUID}`);
+        set(locRef, { n: myNick, lat: currentPos.lat, lon: currentPos.lon, t: Date.now() });
+        onDisconnect(locRef).remove();
 
-    onValue(ref(db, `${myPath}/online`), (snap) => {
-        const data = snap.val() || {};
-        document.getElementById("view-count").textContent = `👥 ${Object.keys(data).length} VIEWERS`;
-        document.getElementById("names-area").innerHTML = Object.values(data).map(u => u.n).join(", ");
+    }, null, { enableHighAccuracy: true });
+    onValue(ref(db, `v7/locations`), (snap) => {
+        const users = snap.val() || {};
+        for (let id in otherMarkers) { if (!users[id]) { map.removeLayer(otherMarkers[id]); delete otherMarkers[id]; } }
+        for (let id in users) {
+            if (id === myUID) continue;
+            const u = users[id];
+            if (otherMarkers[id]) {
+                otherMarkers[id].setLatLng([u.lat, u.lon]);
+            } else {
+                otherMarkers[id] = L.marker([u.lat, u.lon], {
+                    icon: L.divIcon({ className: 'user-dot', html: `<b style="position:absolute; top:-20px; color:white; font-size:9px;">${u.n}</b>` })
+                }).addTo(map);
+            }
+        }
     });
 
-    window.sendMsg = () => {
-        const i = document.getElementById("msg-input");
-        if (i.value.trim()) {
-            push(msgRef, { n: myNick, m: i.value, t: Date.now() });
-            i.value = "";
-        }
-    };
-
-    onChildAdded(msgRef, s => {
+    onChildAdded(ref(db, `v7/global_chat`), (s) => {
         const d = s.val();
         const div = document.createElement("div");
         div.className = "msg";
@@ -609,50 +507,58 @@ function startSystem() {
         box.appendChild(div);
         box.scrollTop = box.scrollHeight;
     });
-
-    // Live logic
-    window.startLive = async () => {
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-            document.getElementById("v-preview").srcObject = stream;
-            document.getElementById("live-container").style.display = "block";
-            const canvas = document.getElementById("v-canvas");
-            const ctx = canvas.getContext('2d');
-            
-            liveInt = setInterval(() => {
-                canvas.width = 300; canvas.height = 225;
-                ctx.drawImage(document.getElementById("v-preview"), 0, 0, canvas.width, canvas.height);
-                set(liveRef, { frame: canvas.toDataURL('image/jpeg', 0.4), t: Date.now(), n: myNick });
-            }, 500);
-        } catch (e) { alert("Cam error"); }
-    };
-
-    window.stopLive = () => {
-        clearInterval(liveInt);
-        document.getElementById("v-preview").srcObject?.getTracks().forEach(t => t.stop());
-        document.getElementById("live-container").style.display = "none";
-        remove(liveRef);
-    };
-
-    // View others
-    onValue(ref(db, `${myPath}/lives`), s => {
-        const container = document.getElementById("remote-streams");
-        const all = s.val() || {};
-        Object.keys(all).forEach(id => {
-            if(id === uid) return;
-            let img = document.getElementById("pi-" + id);
-            if(!img) {
-                const div = document.createElement("div");
-                div.id = "pc-" + id;
-                div.className = "viewer-box";
-                div.innerHTML = `<div class="live-tag" style="position:relative; top:0; left:0; display:inline-block; margin-bottom:5px;">LIVE: ${all[id].n}</div><img id="pi-${id}" style="width:100%; border-radius:15px;">`;
-                container.appendChild(div);
-                img = document.getElementById("pi-" + id);
-            }
-            img.src = all[id].frame;
-        });
-    });
 }
+
+function checkZone() {
+    let minD = Infinity;
+    let found = null;
+
+    for(let city in streetData) {
+        for(let street in streetData[city]) {
+            const d = calcDist(currentPos.lat, currentPos.lon, streetData[city][street].lat, streetData[city][street].lon);
+            if(d < minD) { minD = d; found = street; }
+        }
+    }
+
+    if (minD <= 309) {
+        activeStreet = found;
+        document.getElementById("zone-txt").textContent = `ZONE: ${found}`;
+        document.getElementById("dist-txt").textContent = `📡 ACTIVE`;
+    } else {
+        activeStreet = null;
+        document.getElementById("zone-txt").textContent = `OUTSIDE ZONE`;
+        document.getElementById("dist-txt").textContent = `${Math.round(minD)}m AWAY`;
+    }
+}
+
+window.sendMsg = () => {
+    if (!activeStreet) return alert("Je bent te ver weg! (أنت بعيد جداً عن الشوارع المدعومة)");
+    const input = document.getElementById("msg-input");
+    if (input.value.trim()) {
+        push(ref(db, `v7/global_chat`), { n: myNick, m: input.value, t: Date.now() });
+        input.value = "";
+    }
+};
+
+window.sendSOS = () => {
+    push(ref(db, `v7/global_chat`), { n: "🚨 " + myNick, m: "HELP! I need assistance at my location!", t: Date.now() });
+};
+
+window.reCenter = () => map.setView([currentPos.lat, currentPos.lon], 16);
+
+window.handleAuth = async (m) => {
+    const e = document.getElementById("email-input").value;
+    const p = document.getElementById("pass-input").value;
+    const n = document.getElementById("nick-input").value;
+    try {
+        if(m==='reg') {
+            const r = await createUserWithEmailAndPassword(auth, e, p);
+            await updateProfile(r.user, { displayName: n });
+        } else await signInWithEmailAndPassword(auth, e, p);
+    } catch(err) { alert(err.message); }
+};
+
+window.logout = () => { remove(ref(db, `v7/locations/${myUID}`)); signOut(auth); };
 
 function calcDist(lat1, lon1, lat2, lon2) {
     const R = 6371e3;
