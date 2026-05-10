@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NL TACTICAL V8 .. . RADAR ZONES</title>
+    <title>30066</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
@@ -122,7 +122,6 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
     import { getDatabase, ref, set, push, onChildAdded, onValue, onDisconnect } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
-
     const firebaseConfig = { 
         apiKey: "AIzaSyA7Pu0DJOWmdoDYUUVP1J9aqhxh4f3wyfA", 
         projectId: "a0zai-56c3a", 
@@ -132,7 +131,7 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
     const auth = getAuth(app);
-    const BASE_PATH = 'v8/doetinchem';
+    const BASE_PATH = 'v8/global';
 
     let map, myMarker, myUID, myNick;
     let otherMarkers = {};
@@ -261,7 +260,26 @@
     { name: "WILGENSTRAAT", lat: 51.9732, lon: 6.3005 }, { name: "ZANDPAD", lat: 51.9655, lon: 6.2918 },
     { name: "ZANDSTRAAT", lat: 51.9658, lon: 6.2915 }, { name: "ZONNESTRAAT", lat: 51.9688, lon: 6.3035 },
     { name: "ZUIDERHAVEN", lat: 51.9632, lon: 6.2955 }, { name: "ZUIDERKANAALDIJK", lat: 51.9602, lon: 6.2965 },
-    { name: "ZUIDERLAAN", lat: 51.9595, lon: 6.2752 }, { name: "ZUIDERSTRAAT", lat: 51.9655, lon: 6.2925 }
+    { name: "ZUIDERLAAN", lat: 51.9595, lon: 6.2752 }, { name: "ZUIDERSTRAAT", lat: 51.9655, lon: 6.2925 },
+    { name: "PIEDMONT RD", lat: 33.9875, lon: -84.5125 }, { name: "ROSWELL RD", lat: 33.9750, lon: -84.5012 },
+    { name: "CANTON RD", lat: 34.0125, lon: -84.5245 }, { name: "SANDY PLAINS RD", lat: 34.0210, lon: -84.4785 },
+    { name: "SHALLOWFORD RD", lat: 33.9535, lon: -84.5622 }, { name: "BLACKWELL RD", lat: 34.0285, lon: -84.5022 },
+    { name: "POST OAK TRCE", lat: 34.0045, lon: -84.4435 }, { name: "EBENEZER RD", lat: 34.0412, lon: -84.4912 },
+    { name: "JAMERSON RD", lat: 34.0625, lon: -84.4755 }, { name: "LASSITER RD", lat: 34.0322, lon: -84.4215 },
+    { name: "JOHNSON FERRY RD", lat: 33.9912, lon: -84.4055 }, { name: "MORGANAN DR", lat: 34.0155, lon: -84.4678 },
+    { name: "WIGLEY RD", lat: 34.0485, lon: -84.4322 }, { name: "SWEAT MOUNTAIN RD", lat: 34.0685, lon: -84.4512 },
+    { name: "GARRISON RD", lat: 33.9515, lon: -84.5485 }, { name: "WHITLOCK AVE", lat: 33.9535, lon: -84.5622 },
+    { name: "POWDER SPRINGS ST", lat: 33.9425, lon: -84.5512 }, { name: "DALLAS HWY", lat: 33.9485, lon: -84.6215 },
+    { name: "BURNT HICKORY RD", lat: 33.9625, lon: -84.5885 }, { name: "BARRETT PKWY", lat: 33.9985, lon: -84.6115 },
+    { name: "STILESBORO RD", lat: 34.0015, lon: -84.6255 }, { name: "OLD 41 HWY", lat: 33.9855, lon: -84.5812 },
+    { name: "COBB PKWY", lat: 33.9712, lon: -84.5322 }, { name: "N MARIETTA PKWY", lat: 33.9612, lon: -84.5415 },
+    { name: "S MARIETTA PKWY", lat: 33.9415, lon: -84.5312 }, { name: "FAIRGROUND ST", lat: 33.9522, lon: -84.5385 },
+    { name: "ALLGOOD RD", lat: 33.9815, lon: -84.5212 }, { name: "SCUFFLEGUM RD", lat: 34.0215, lon: -84.4312 },
+    { name: "TRICKUM RD", lat: 34.0312, lon: -84.4615 }, { name: "STEINHAUER RD", lat: 34.0115, lon: -84.4812 },
+    { name: "HOLLY SPRINGS RD", lat: 34.0012, lon: -84.4955 }, { name: "DAVIS RD", lat: 34.0255, lon: -84.4522 },
+    { name: "TERRELL MILL RD", lat: 33.9112, lon: -84.4755 }, { name: "POWERS FERRY RD", lat: 33.9015, lon: -84.4412 },
+    { name: "DELK RD", lat: 33.9215, lon: -84.4812 }, { name: "WINDY HILL RD", lat: 33.8912, lon: -84.5015 },
+    { name: "AUSTELL RD", lat: 33.9012, lon: -84.5615 }, { name: "E PIEDMONT RD", lat: 34.0055, lon: -84.5022 }
 ];
 
     onAuthStateChanged(auth, user => {
@@ -276,10 +294,11 @@
 
     function initRadar() {
         if (map) return;
-        map = L.map('map', { zoomControl: false, attributionControl: false }).setView([51.965, 6.290], 15);
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
-
-        // إنشاء مناطق الرادار (دوائر 300 متر)
+map = L.map('map', { zoomControl: false, attributionControl: false });
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
+const points = sectors.map(s => [s.lat, s.lon]);
+const bounds = L.latLngBounds(points);
+map.fitBounds(bounds);
         sectors.forEach(s => {
             const circle = L.circle([s.lat, s.lon], {
                 radius: 300,
@@ -300,7 +319,6 @@
 
             if (!myMarker) {
                 myMarker = L.circleMarker(pos, { radius: 8, color: '#fff', fillColor: 'var(--neon)', fillOpacity: 1 }).addTo(map);
-                map.panTo(pos);
             } else { myMarker.setLatLng(pos); }
 
             checkZones(latitude, longitude);
