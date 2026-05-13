@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="nl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>30066</title>
+    <title>A0Z - Tactical Global</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
@@ -27,7 +27,6 @@
             filter: brightness(0.6) contrast(1.2) saturate(0.8);
         }
 
-        /* Tactical UI */
         .floating-ui {
             position: absolute; bottom: 20px; left: 50%;
             transform: translateX(-50%);
@@ -92,12 +91,11 @@
 
     <div id="auth-screen">
         <div class="auth-card">
-            <h2 style="color:var(--neon); text-align:center; letter-spacing:3px;">SYSTEM LOGIN</h2>
-            <input id="email" type="email" placeholder="Email">
-            <input id="pass" type="password" placeholder="Password">
-            <input id="nick" type="text" placeholder="Callsign">
-            <button onclick="window.access('login')" style="background:var(--neon); padding:12px; border-radius:10px; border:none; font-weight:bold;">CONNECT</button>
-            <button onclick="window.access('reg')" style="background:transparent; color:#555; border:none; font-size:10px;">REGISTER NEW UNIT</button>
+            <h2 style="color:var(--neon); text-align:center; letter-spacing:3px;">TACTICAL LINK</h2>
+            <input id="room-id" type="text" placeholder="OPERATIONS ROOM ID">
+            <input id="nick" type="text" placeholder="UNIT CALLSIGN">
+            <button onclick="window.launch()" style="background:var(--neon); padding:12px; border-radius:10px; border:none; font-weight:bold; cursor:pointer;">ESTABLISH CONNECTION</button>
+            <p style="color:#444; font-size:9px; text-align:center;">GLOBAL ENCRYPTED NETWORK v8.0</p>
         </div>
     </div>
 
@@ -106,7 +104,7 @@
     <div class="floating-ui" id="main-ui">
         <div class="glass-box">
             <div class="status-header">
-                <div class="sector-info">● <span id="street-name">SEARCHING ZONES...</span></div>
+                <div class="sector-info">● <span id="street-name">SCANNING...</span></div>
                 <div class="coords" id="coords-display">0.000, 0.000</div>
             </div>
             <div id="chat-container"></div>
@@ -114,14 +112,14 @@
                 <input type="text" id="msg-input" placeholder="Secure comms...">
                 <button class="btn-send" onclick="window.sendMsg()">➤</button>
             </div>
-            <button class="btn-sos" onclick="window.sos()">REPORT INCIDENT (SOS)</button>
+            <button class="btn-sos" onclick="window.sos()">SIGNAL MAYDAY (SOS)</button>
         </div>
     </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
     import { getDatabase, ref, set, push, onChildAdded, onValue, onDisconnect } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
+
     const firebaseConfig = { 
         apiKey: "AIzaSyA7Pu0DJOWmdoDYUUVP1J9aqhxh4f3wyfA", 
         projectId: "a0zai-56c3a", 
@@ -130,263 +128,72 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    const auth = getAuth(app);
-    const BASE_PATH = 'v8/global';
-
-    let map, myMarker, myUID, myNick;
+    let myUID = Math.random().toString(36).substr(2, 9);
+    let myNick, roomID, map, myMarker;
     let otherMarkers = {};
-    let zoneVisuals = []; 
-    const sectors = [
-    { name: "2E LOOLAAN", lat: 51.9732, lon: 6.2845 }, { name: "ABDIJLAAN", lat: 51.9705, lon: 6.2978 },
-    { name: "ACACIALAAN", lat: 51.9741, lon: 6.3012 }, { name: "ACHTERHOF", lat: 51.9660, lon: 6.2910 },
-    { name: "ACHTERSTRAAT", lat: 51.9650, lon: 6.2900 }, { name: "ADELAARSTRAAT", lat: 51.9682, lon: 6.3015 },
-    { name: "AIRBORNESTRAAT", lat: 51.9675, lon: 6.2945 }, { name: "AKKERPAD", lat: 51.9535, lon: 6.2658 },
-    { name: "AKKERSTRAAT", lat: 51.9532, lon: 6.2655 }, { name: "ALFRED MOZERPLEIN", lat: 51.9672, lon: 6.3008 },
-    { name: "AMBACHTSTRAAT", lat: 51.9635, lon: 6.3120 }, { name: "AMPERESTRAAT", lat: 51.9628, lon: 6.3145 },
-    { name: "AMPHIONSTRAAT", lat: 51.9665, lon: 6.2942 }, { name: "ANEMOONSTRAAT", lat: 51.9745, lon: 6.3112 },
-    { name: "ANTILLENSTRAAT", lat: 51.9578, lon: 6.2812 }, { name: "ASTERSTRAAT", lat: 51.9738, lon: 6.3095 },
-    { name: "ATJEHSTRAAT", lat: 51.9585, lon: 6.2840 }, { name: "AURORAWEG", lat: 51.9548, lon: 6.2735 },
-    { name: "BADWEG", lat: 51.9698, lon: 6.2845 }, { name: "BARLHAMMERWEG", lat: 51.9845, lon: 6.3150 },
-    { name: "BASTINGLAAN", lat: 51.9688, lon: 6.2952 }, { name: "BEDRIJVENWEG", lat: 51.9610, lon: 6.3180 },
-    { name: "BEEKPAD", lat: 51.9680, lon: 6.2945 }, { name: "BEEKSTRAAT", lat: 51.9675, lon: 6.2942 },
-    { name: "BEETHOVENLAAN", lat: 51.9565, lon: 6.2820 }, { name: "BEGONIASTRAAT", lat: 51.9732, lon: 6.3105 },
-    { name: "BELDERSTRAAT", lat: 51.9645, lon: 6.2875 }, { name: "BERGLAAN", lat: 51.9678, lon: 6.2932 },
-    { name: "BERGPAD", lat: 51.9660, lon: 6.2925 }, { name: "BERGSTRAAT", lat: 51.9655, lon: 6.2920 },
-    { name: "BERLAGELAAN", lat: 51.9695, lon: 6.2965 }, { name: "BEUKENHAGE", lat: 51.9712, lon: 6.2995 },
-    { name: "BEVRIJDINGSSTRAAT", lat: 51.9658, lon: 6.2925 }, { name: "BEZELHORSTWEG", lat: 51.9755, lon: 6.3082 },
-    { name: "BIESLOOKVELD", lat: 51.9532, lon: 6.2645 }, { name: "BILDERDIJKSTRAAT", lat: 51.9572, lon: 6.2865 },
-    { name: "BIZETLAAN", lat: 51.9568, lon: 6.2805 }, { name: "BLOEMERSSTRAAT", lat: 51.9652, lon: 6.2958 },
-    { name: "BLOKHUISLAAN", lat: 51.9708, lon: 6.3055 }, { name: "BODDENS HOSANGSTRAAT", lat: 51.9668, lon: 6.2928 },
-    { name: "BOEKWEITDREEF", lat: 51.9540, lon: 6.2628 }, { name: "BOENINKSTEEG", lat: 51.9782, lon: 6.3210 },
-    { name: "BOESMATE", lat: 51.9525, lon: 6.2612 }, { name: "BOLIESTRAAT", lat: 51.9648, lon: 6.2885 },
-    { name: "BORNEOSTRAAT", lat: 51.9582, lon: 6.2835 }, { name: "BOSSTRAAT", lat: 51.9682, lon: 6.2985 },
-    { name: "BRAAMTSEWEG", lat: 51.9425, lon: 6.3012 }, { name: "BRAMENHOF", lat: 51.9552, lon: 6.2708 },
-    { name: "BRASEM", lat: 51.9495, lon: 6.2585 }, { name: "BROEKSTRAAT", lat: 51.9725, lon: 6.2815 },
-    { name: "BROUWERSKAMP", lat: 51.9635, lon: 6.2862 }, { name: "BRUGGENWEG", lat: 51.9602, lon: 6.3155 },
-    { name: "BULTENSWEG", lat: 51.9815, lon: 6.3188 }, { name: "BUNDERHORST", lat: 51.9528, lon: 6.2605 },
-    { name: "BURGEMEESTER DE BRUIJNSTRAAT", lat: 51.9678, lon: 6.2940 }, { name: "BURGEMEESTER KEHRERSTRAAT", lat: 51.9692, lon: 6.2915 },
-    { name: "BURGEMEESTER TENKINKSTRAAT", lat: 51.9685, lon: 6.2932 }, { name: "BURGEMEESTER VAN NISPENSTRAAT", lat: 51.9668, lon: 6.2948 },
-    { name: "C MISSETSTRAAT", lat: 51.9645, lon: 6.3055 }, { name: "CAENSTRAAT", lat: 51.9695, lon: 6.2905 },
-    { name: "CALSLAAN", lat: 51.9588, lon: 6.2755 }, { name: "CANADAPARKLAAN", lat: 51.9620, lon: 6.2755 },
-    { name: "CATHARINASTRAAT", lat: 51.9658, lon: 6.2912 }, { name: "CATSSTRAAT", lat: 51.9575, lon: 6.2858 },
-    { name: "CELEBESSTRAAT", lat: 51.9588, lon: 6.2828 }, { name: "CHARLEY TOOROPSTRAAT", lat: 51.9525, lon: 6.2715 },
-    { name: "CHURCHILLSTRAAT", lat: 51.9682, lon: 6.2925 }, { name: "COLIJNLAAN", lat: 51.9592, lon: 6.2748 },
-    { name: "COOPSSTRAAT", lat: 51.9642, lon: 6.2855 }, { name: "CROUWELLSTRAAT", lat: 51.9638, lon: 6.2848 },
-    { name: "CURACAOSTRAAT", lat: 51.9575, lon: 6.2795 }, { name: "DE AALBES", lat: 51.9555, lon: 6.2712 },
-    { name: "DE BONGERD", lat: 51.9728, lon: 6.3058 }, { name: "DE ENK", lat: 51.9715, lon: 6.3035 },
-    { name: "DE GAARDE", lat: 51.9535, lon: 6.2695 }, { name: "DE HOVEN", lat: 51.9528, lon: 6.2682 },
-    { name: "DE HUET", lat: 51.9515, lon: 6.2650 }, { name: "DE KEMPEN", lat: 51.9518, lon: 6.2642 },
-    { name: "DE MEERPAAL", lat: 51.9502, lon: 6.2575 }, { name: "DE SCHANS", lat: 51.9538, lon: 6.2702 },
-    { name: "DE WHEEM", lat: 51.9722, lon: 6.3045 }, { name: "DE ZONNEBLOEM", lat: 51.9745, lon: 6.3125 },
-    { name: "DENNENLAAN", lat: 51.9735, lon: 6.2985 }, { name: "DIJKPAD", lat: 51.9635, lon: 6.2962 },
-    { name: "DIJKSTRAAT", lat: 51.9632, lon: 6.2958 }, { name: "DOETINCHEMSEWEG", lat: 51.9545, lon: 6.3255 },
-    { name: "DOKTER BARDENHEUERSTRAAT", lat: 51.9675, lon: 6.2935 }, { name: "DOKTER HUBER NOODTSTRAAT", lat: 51.9672, lon: 6.2922 },
-    { name: "DOKTER SCHAEPMANSTRAAT", lat: 51.9685, lon: 6.2918 }, { name: "DOMINEE VAN DIJKSTRAAT", lat: 51.9688, lon: 6.2908 },
-    { name: "DONKERSGOOT", lat: 51.9505, lon: 6.2592 }, { name: "DOORNBOS", lat: 51.9545, lon: 6.2715 },
-    { name: "DR HOOFTLAAN", lat: 51.9698, lon: 6.2932 }, { name: "EDELWEISSSTRAAT", lat: 51.9742, lon: 6.3105 },
-    { name: "EIKENLAAN", lat: 51.9732, lon: 6.2995 }, { name: "ELZENLAAN", lat: 51.9728, lon: 6.3002 },
-    { name: "EMMASINGEL", lat: 51.9662, lon: 6.2918 }, { name: "ENERGIESTRAAT", lat: 51.9622, lon: 6.3158 },
-    { name: "ENGWEG", lat: 51.9825, lon: 6.2785 }, { name: "ERASMUSLAAN", lat: 51.9692, lon: 6.2942 },
-    { name: "ESDOORNLAAN", lat: 51.9725, lon: 6.2998 }, { name: "ESSENPAD", lat: 51.9728, lon: 6.3018 },
-    { name: "ESSTRAAT", lat: 51.9725, lon: 6.3015 }, { name: "FABRIEKSSTRAAT", lat: 51.9642, lon: 6.3048 },
-    { name: "FOKKEMAWEG", lat: 51.9602, lon: 6.3215 }, { name: "FRANS HALSSTRAAT", lat: 51.9705, lon: 6.2972 },
-    { name: "GAARDEWEG", lat: 51.9532, lon: 6.2688 }, { name: "GAARDERENSTRAAT", lat: 51.9525, lon: 6.2675 },
-    { name: "GAARDERHOF", lat: 51.9528, lon: 6.2680 }, { name: "GASPELDOORNSTRAAT", lat: 51.9735, lon: 6.3088 },
-    { name: "GELEENSTRAAT", lat: 51.9625, lon: 6.3015 }, { name: "GENTIAANSTRAAT", lat: 51.9738, lon: 6.3092 },
-    { name: "GERANIUMSTRAAT", lat: 51.9740, lon: 6.3098 }, { name: "GOORSTRAAT", lat: 51.9508, lon: 6.2595 },
-    { name: "GOUDSBLOEMSTRAAT", lat: 51.9742, lon: 6.3102 }, { name: "GRACHTPAD", lat: 51.9655, lon: 6.2902 },
-    { name: "GRACHTSTRAAT", lat: 51.9652, lon: 6.2898 }, { name: "GROENEWEG", lat: 51.9815, lon: 6.3245 },
-    { name: "GRUTSTRAAT", lat: 51.9655, lon: 6.2885 }, { name: "HAARWEG", lat: 51.9765, lon: 6.3285 },
-    { name: "HAGEN", lat: 51.9635, lon: 6.2825 }, { name: "HALSEWEG", lat: 51.9715, lon: 6.3155 },
-    { name: "HAMBURGERSTRAAT", lat: 51.9654, lon: 6.2903 }, { name: "HANZEWEG", lat: 51.9628, lon: 6.3082 },
-    { name: "HAVENPAD", lat: 51.9668, lon: 6.2952 }, { name: "HAVENSTRAAT", lat: 51.9665, lon: 6.2948 },
-    { name: "HEEZENSTRAAT", lat: 51.9648, lon: 6.2912 }, { name: "HEIDEWEG", lat: 51.9785, lon: 6.3055 },
-    { name: "HEKSELAAR", lat: 51.9512, lon: 6.2625 }, { name: "HELMHOLTZSTRAAT", lat: 51.9625, lon: 6.3142 },
-    { name: "HET TANGH", lat: 51.9515, lon: 6.2625 }, { name: "HOFPAD", lat: 51.9645, lon: 6.2882 },
-    { name: "HOFSTRAAT", lat: 51.9642, lon: 6.2878 }, { name: "HOGE AKKER", lat: 51.9522, lon: 6.2605 },
-    { name: "HOGEWEG", lat: 51.9715, lon: 6.2825 }, { name: "HOLTERWEG", lat: 51.9795, lon: 6.3355 },
-    { name: "HOUTENSTRAAT", lat: 51.9662, lon: 6.2938 }, { name: "IBISSTRAAT", lat: 51.9688, lon: 6.3025 },
-    { name: "INDUSTRIEWEG", lat: 51.9615, lon: 6.3175 }, { name: "IRISSTRAAT", lat: 51.9735, lon: 6.3085 },
-    { name: "J F KENNEDYLAAN", lat: 51.9695, lon: 6.2960 }, { name: "JACHTLAAN", lat: 51.9708, lon: 6.2855 },
-    { name: "JACOB CATSSTRAAT", lat: 51.9575, lon: 6.2858 }, { name: "JACOB MARISSTRAAT", lat: 51.9708, lon: 6.2965 },
-    { name: "JAN STEENSTRAAT", lat: 51.9702, lon: 6.2978 }, { name: "JAN VERMEERSTRAAT", lat: 51.9712, lon: 6.2972 },
-    { name: "JASMĲNSTRAAT", lat: 51.9732, lon: 6.3082 }, { name: "JULIANAPLEIN", lat: 51.9668, lon: 6.2920 },
-    { name: "JULIANASTRAAT", lat: 51.9672, lon: 6.2925 }, { name: "KAMPPAD", lat: 51.9542, lon: 6.2658 },
-    { name: "KAMPSTRAAT", lat: 51.9538, lon: 6.2655 }, { name: "KAPOENIESTRAAT", lat: 51.9658, lon: 6.2882 },
-    { name: "KARWIJZAAD", lat: 51.9535, lon: 6.2635 }, { name: "KASTANJELAAN", lat: 51.9722, lon: 6.2995 },
-    { name: "KEIZER KARELSTRAAT", lat: 51.9685, lon: 6.2930 }, { name: "KEMPENAERSTRAAT", lat: 51.9675, lon: 6.2942 },
-    { name: "KIEVITSTRAAT", lat: 51.9685, lon: 6.3022 }, { name: "KLEIN KWEKERIJPAD", lat: 51.9525, lon: 6.2685 },
-    { name: "KLOOSTERSTRAAT", lat: 51.9655, lon: 6.2908 }, { name: "KORENSTRAAT", lat: 51.9658, lon: 6.2895 },
-    { name: "KORTE BERGSTRAAT", lat: 51.9658, lon: 6.2908 }, { name: "KORTE HEERENSTRAAT", lat: 51.9652, lon: 6.2892 },
-    { name: "KRUISBERGSEWEG", lat: 51.9785, lon: 6.2895 }, { name: "KRUISSTRAAT", lat: 51.9650, lon: 6.2900 },
-    { name: "LAAN VAN SCHUYLENBURG", lat: 51.9705, lon: 6.2865 }, { name: "LAANPAD", lat: 51.9715, lon: 6.3035 },
-    { name: "LANGE HEERENSTRAAT", lat: 51.9655, lon: 6.2898 }, { name: "LANGEBERG", lat: 51.9718, lon: 6.2828 },
-    { name: "LANGELOSTRAAT", lat: 51.9805, lon: 6.3255 }, { name: "LARIKSLAAN", lat: 51.9735, lon: 6.3005 },
-    { name: "LEEUWERIKSTRAAT", lat: 51.9682, lon: 6.3018 }, { name: "LEIDSEWEG", lat: 51.9695, lon: 6.2842 },
-    { name: "LINDELAAN", lat: 51.9725, lon: 6.2992 }, { name: "LOOILAND", lat: 51.9515, lon: 6.2628 },
-    { name: "LOOWEG", lat: 51.9728, lon: 6.2818 }, { name: "MAGNOLIASTRAAT", lat: 51.9735, lon: 6.3085 },
-    { name: "MARGRIETSTRAAT", lat: 51.9675, lon: 6.2928 }, { name: "MARKT", lat: 51.9653, lon: 6.2893 },
-    { name: "MEIDOORNSTRAAT", lat: 51.9732, lon: 6.3078 }, { name: "MELKWEG", lat: 51.9542, lon: 6.2730 },
-    { name: "MERELSTRAAT", lat: 51.9688, lon: 6.3032 }, { name: "MIDDENWEG", lat: 51.9525, lon: 6.2678 },
-    { name: "MOLENPAD", lat: 51.9665, lon: 6.2918 }, { name: "MOLENSTRAAT", lat: 51.9662, lon: 6.2915 },
-    { name: "MONSEIGNEUR NOLENSSTRAAT", lat: 51.9680, lon: 6.2935 }, { name: "MOORSSTRAAT", lat: 51.9658, lon: 6.2908 },
-    { name: "MUNNIKENLAND", lat: 51.9528, lon: 6.2608 }, { name: "NACHTEGAALSTRAAT", lat: 51.9692, lon: 6.3038 },
-    { name: "NIEUWEWEG", lat: 51.9750, lon: 6.2835 }, { name: "NIEUWSTAD", lat: 51.9660, lon: 6.2905 },
-    { name: "NIJVERHEIDSWEG", lat: 51.9625, lon: 6.3165 }, { name: "NOLENSLAAN", lat: 51.9595, lon: 6.2742 },
-    { name: "OLIJFSTRAAT", lat: 51.9735, lon: 6.3082 }, { name: "OLMENSTRAAT", lat: 51.9730, lon: 6.3002 },
-    { name: "ORANJELAAN", lat: 51.9678, lon: 6.2922 }, { name: "ORCHIDEESTRAAT", lat: 51.9738, lon: 6.3088 },
-    { name: "PADDEWEG", lat: 51.9755, lon: 6.3128 }, { name: "PASTOOR VAN AERLESTRAAT", lat: 51.9685, lon: 6.2932 },
-    { name: "PAUL KRUGERSTRAAT", lat: 51.9592, lon: 6.2875 }, { name: "PLANTSOENSTRAAT", lat: 51.9668, lon: 6.2918 },
-    { name: "PLATANENLAAN", lat: 51.9735, lon: 6.3008 }, { name: "POPULIERENLAAN", lat: 51.9738, lon: 6.3012 },
-    { name: "PRINS HENDRIKSTRAAT", lat: 51.9675, lon: 6.2925 }, { name: "RAADHUISSTRAAT", lat: 51.9662, lon: 6.2900 },
-    { name: "REIGERSTRAAT", lat: 51.9685, lon: 6.3025 }, { name: "RIETPAD", lat: 51.9518, lon: 6.2658 },
-    { name: "RIETSTRAAT", lat: 51.9518, lon: 6.2655 }, { name: "RIVIERSTRAAT", lat: 51.9512, lon: 6.2645 },
-    { name: "ROERSTRAAT", lat: 51.9515, lon: 6.2652 }, { name: "ROZENSTRAAT", lat: 51.9735, lon: 6.3075 },
-    { name: "SCHOOLSTRAAT", lat: 51.9665, lon: 6.2912 }, { name: "SCHOUWBURGPLEIN", lat: 51.9658, lon: 6.2905 },
-    { name: "SEINHORSTSTRAAT", lat: 51.9582, lon: 6.2882 }, { name: "SIMONSPLEIN", lat: 51.9652, lon: 6.2895 },
-    { name: "SINGELWEG", lat: 51.9668, lon: 6.2905 }, { name: "SPORTWEG", lat: 51.9715, lon: 6.2855 },
-    { name: "STATIONSPLEIN", lat: 51.9634, lon: 6.2965 }, { name: "STATIONSSTRAAT", lat: 51.9645, lon: 6.2958 },
-    { name: "STEENPAD", lat: 51.9662, lon: 6.2915 }, { name: "STEENSTRAAT", lat: 51.9658, lon: 6.2912 },
-    { name: "TERBORGSEWEG", lat: 51.9625, lon: 6.2982 }, { name: "TOLLENSTRAAT", lat: 51.9578, lon: 6.2868 },
-    { name: "TRANSPORTWEG", lat: 51.9612, lon: 6.3168 }, { name: "TUINSTRAAT", lat: 51.9658, lon: 6.2910 },
-    { name: "TULPENSTRAAT", lat: 51.9740, lon: 6.3105 }, { name: "VAN GOGHSTRAAT", lat: 51.9702, lon: 6.2965 },
-    { name: "VAN LIMBURG STIRUMSTRAAT", lat: 51.9685, lon: 6.2930 }, { name: "VARSSEVELDSEWEG", lat: 51.9662, lon: 6.3050 },
-    { name: "VELDHOF", lat: 51.9525, lon: 6.2685 }, { name: "VELDPAD", lat: 51.9530, lon: 6.2690 },
-    { name: "VELDSTRAAT", lat: 51.9635, lon: 6.2842 }, { name: "VELDWEG", lat: 51.9805, lon: 6.2815 },
-    { name: "VIVALDILAAN", lat: 51.9562, lon: 6.2815 }, { name: "WALSTRAAT", lat: 51.9651, lon: 6.2878 },
-    { name: "WATERSTRAAT", lat: 51.9652, lon: 6.2902 }, { name: "WEEMSTRAAT", lat: 51.9725, lon: 6.3048 },
-    { name: "WEG NAAR GAANDEREN", lat: 51.9592, lon: 6.3185 }, { name: "WEIDEPAD", lat: 51.9532, lon: 6.2695 },
-    { name: "WETERINGSTRAAT", lat: 51.9512, lon: 6.2648 }, { name: "WILHELMINALAAN", lat: 51.9672, lon: 6.2920 },
-    { name: "WILGENSTRAAT", lat: 51.9732, lon: 6.3005 }, { name: "ZANDPAD", lat: 51.9655, lon: 6.2918 },
-    { name: "ZANDSTRAAT", lat: 51.9658, lon: 6.2915 }, { name: "ZONNESTRAAT", lat: 51.9688, lon: 6.3035 },
-    { name: "ZUIDERHAVEN", lat: 51.9632, lon: 6.2955 }, { name: "ZUIDERKANAALDIJK", lat: 51.9602, lon: 6.2965 },
-    { name: "ZUIDERLAAN", lat: 51.9595, lon: 6.2752 }, { name: "ZUIDERSTRAAT", lat: 51.9655, lon: 6.2925 },
-    { name: "PIEDMONT RD", lat: 33.9875, lon: -84.5125 }, { name: "ROSWELL RD", lat: 33.9750, lon: -84.5012 },
-    { name: "CANTON RD", lat: 34.0125, lon: -84.5245 }, { name: "SANDY PLAINS RD", lat: 34.0210, lon: -84.4785 },
-    { name: "SHALLOWFORD RD", lat: 33.9535, lon: -84.5622 }, { name: "BLACKWELL RD", lat: 34.0285, lon: -84.5022 },
-    { name: "POST OAK TRCE", lat: 34.0045, lon: -84.4435 }, { name: "EBENEZER RD", lat: 34.0412, lon: -84.4912 },
-    { name: "JAMERSON RD", lat: 34.0625, lon: -84.4755 }, { name: "LASSITER RD", lat: 34.0322, lon: -84.4215 },
-    { name: "JOHNSON FERRY RD", lat: 33.9912, lon: -84.4055 }, { name: "MORGANAN DR", lat: 34.0155, lon: -84.4678 },
-    { name: "WIGLEY RD", lat: 34.0485, lon: -84.4322 }, { name: "SWEAT MOUNTAIN RD", lat: 34.0685, lon: -84.4512 },
-    { name: "GARRISON RD", lat: 33.9515, lon: -84.5485 }, { name: "WHITLOCK AVE", lat: 33.9535, lon: -84.5622 },
-    { name: "POWDER SPRINGS ST", lat: 33.9425, lon: -84.5512 }, { name: "DALLAS HWY", lat: 33.9485, lon: -84.6215 },
-    { name: "BURNT HICKORY RD", lat: 33.9625, lon: -84.5885 }, { name: "BARRETT PKWY", lat: 33.9985, lon: -84.6115 },
-    { name: "STILESBORO RD", lat: 34.0015, lon: -84.6255 }, { name: "OLD 41 HWY", lat: 33.9855, lon: -84.5812 },
-    { name: "COBB PKWY", lat: 33.9712, lon: -84.5322 }, { name: "N MARIETTA PKWY", lat: 33.9612, lon: -84.5415 },
-    { name: "S MARIETTA PKWY", lat: 33.9415, lon: -84.5312 }, { name: "FAIRGROUND ST", lat: 33.9522, lon: -84.5385 },
-    { name: "ALLGOOD RD", lat: 33.9815, lon: -84.5212 }, { name: "SCUFFLEGUM RD", lat: 34.0215, lon: -84.4312 },
-    { name: "TRICKUM RD", lat: 34.0312, lon: -84.4615 }, { name: "STEINHAUER RD", lat: 34.0115, lon: -84.4812 },
-    { name: "HOLLY SPRINGS RD", lat: 34.0012, lon: -84.4955 }, { name: "DAVIS RD", lat: 34.0255, lon: -84.4522 },
-    { name: "TERRELL MILL RD", lat: 33.9112, lon: -84.4755 }, { name: "POWERS FERRY RD", lat: 33.9015, lon: -84.4412 },
-    { name: "DELK RD", lat: 33.9215, lon: -84.4812 }, { name: "WINDY HILL RD", lat: 33.8912, lon: -84.5015 },
-    { name: "AUSTELL RD", lat: 33.9012, lon: -84.5615 }, { name: "E PIEDMONT RD", lat: 34.0055, lon: -84.5022 }
-];
 
-    onAuthStateChanged(auth, user => {
-        if (user) {
-            myUID = user.uid;
-            myNick = user.displayName || "UNIT";
-            document.getElementById('auth-screen').style.display = 'none';
-            document.getElementById('main-ui').style.display = 'flex';
-            initRadar();
-        }
-    });
+    window.launch = () => {
+        roomID = document.getElementById('room-id').value.trim();
+        myNick = document.getElementById('nick').value.trim();
+        if(!roomID || !myNick) return alert("Enter Room ID and Callsign");
 
-    function initRadar() {
-        if (map) return;
-map = L.map('map', { zoomControl: false, attributionControl: false });
-L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
-const points = sectors.map(s => [s.lat, s.lon]);
-const bounds = L.latLngBounds(points);
-map.fitBounds(bounds);
-        sectors.forEach(s => {
-            const circle = L.circle([s.lat, s.lon], {
-                radius: 300,
-                color: 'var(--neon)',
-                fillColor: 'var(--neon)',
-                fillOpacity: 0.1,
-                weight: 1
-            }).addTo(map);
-            
-            circle.bindTooltip(s.name, { sticky: true, className: 'tactical-label' });
-            zoneVisuals.push({ name: s.name, circle: circle, lat: s.lat, lon: s.lon });
-        });
+        document.getElementById('auth-screen').style.display = 'none';
+        document.getElementById('main-ui').style.display = 'flex';
+        initTacticalMap();
+    };
+
+    function initTacticalMap() {
+        map = L.map('map', { zoomControl: false, attributionControl: false }).setView([0,0], 13);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
 
         navigator.geolocation.watchPosition(p => {
             const { latitude, longitude } = p.coords;
             const pos = [latitude, longitude];
             document.getElementById('coords-display').innerText = `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
-
+            
             if (!myMarker) {
-                myMarker = L.circleMarker(pos, { radius: 8, color: '#fff', fillColor: 'var(--neon)', fillOpacity: 1 }).addTo(map);
+                myMarker = L.circleMarker(pos, { radius: 8, color: '#fff', fillColor: var(--neon), fillOpacity: 1 }).addTo(map);
+                map.panTo(pos);
             } else { myMarker.setLatLng(pos); }
 
-            checkZones(latitude, longitude);
-
-            set(ref(db, `${BASE_PATH}/lives/${myUID}`), { n: myNick, lat: latitude, lon: longitude, t: Date.now() });
+            set(ref(db, `v8/rooms/${roomID}/lives/${myUID}`), { n: myNick, lat: latitude, lon: longitude, t: Date.now() });
+            onDisconnect(ref(db, `v8/rooms/${roomID}/lives/${myUID}`)).remove();
         });
 
-        onValue(ref(db, `${BASE_PATH}/lives`), snap => {
+        onValue(ref(db, `v8/rooms/${roomID}/lives`), snap => {
             const units = snap.val() || {};
             for(let id in units) {
                 if(id === myUID) continue;
                 if(otherMarkers[id]) { otherMarkers[id].setLatLng([units[id].lat, units[id].lon]); }
                 else {
-                    otherMarkers[id] = L.circleMarker([units[id].lat, units[id].lon], { radius: 5, color: 'var(--neon)' })
-                        .addTo(map).bindTooltip(units[id].n, { permanent: true, className: 'tactical-label' });
+                    otherMarkers[id] = L.circleMarker([units[id].lat, units[id].lon], { radius: 6, color: 'var(--neon)' })
+                        .addTo(map).bindTooltip(units[id].n, { permanent: true, className: 'tactical-label', direction: 'top' });
                 }
             }
         });
 
-        onChildAdded(ref(db, `${BASE_PATH}/msgs`), s => {
+        onChildAdded(ref(db, `v8/rooms/${roomID}/msgs`), s => {
             const d = s.val();
             const container = document.getElementById('chat-container');
             const div = document.createElement('div');
             div.className = `message ${d.m.includes('MAYDAY') ? 'mayday' : ''}`;
-            div.innerHTML = `<b>${d.n}</b>${d.m}`;
+            div.innerHTML = `<b>${d.n}: </b>${d.m}`;
             container.appendChild(div);
             container.scrollTop = container.scrollHeight;
         });
-    }
 
-    function checkZones(lat, lon) {
-        let userPos = L.latLng(lat, lon);
-        let activeName = "OUT OF RANGE";
-        
-        zoneVisuals.forEach(zone => {
-            let dist = userPos.distanceTo([zone.lat, zone.lon]);
-            if(dist <= 300) {
-                zone.circle.setStyle({ fillOpacity: 0.4, color: 'var(--danger)', weight: 2 });
-                activeName = zone.name;
-            } else {
-                zone.circle.setStyle({ fillOpacity: 0.1, color: 'var(--neon)', weight: 1 });
-            }
-        });
-        document.getElementById('street-name').innerText = activeName;
+        document.getElementById('street-name').innerText = `ROOM: ${roomID}`;
     }
 
     window.sendMsg = () => {
         const input = document.getElementById('msg-input');
         if(!input.value) return;
-        push(ref(db, `${BASE_PATH}/msgs`), { n: myNick, m: input.value });
+        push(ref(db, `v8/rooms/${roomID}/msgs`), { n: myNick, m: input.value });
         input.value = '';
     };
 
     window.sos = () => {
-        push(ref(db, `${BASE_PATH}/msgs`), { n: "🚨 " + myNick, m: "!!! MAYDAY - WITHIN RANGE !!!" });
-    };
-
-    window.access = async mode => {
-        const e = document.getElementById('email').value;
-        const p = document.getElementById('pass').value;
-        const n = document.getElementById('nick').value;
-        try {
-            if(mode === 'reg') {
-                const res = await createUserWithEmailAndPassword(auth, e, p);
-                await updateProfile(res.user, { displayName: n });
-                location.reload();
-            } else { await signInWithEmailAndPassword(auth, e, p); }
-        } catch(err) { alert(err.message); }
+        push(ref(db, `v8/rooms/${roomID}/msgs`), { n: "🚨 " + myNick, m: "MAYDAY MAYDAY - POSITION BROADCASTED" });
     };
 </script>
 </body>
