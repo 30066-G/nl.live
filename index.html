@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>A0Z - Tactical Global</title>
+    <title>A0Z - Private Rooms</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
@@ -27,6 +27,13 @@
             filter: brightness(0.6) contrast(1.2) saturate(0.8);
         }
 
+        /* UI Screens */
+        #auth-screen {
+            position: fixed; inset: 0; background: var(--bg-deep); z-index: 1000;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .auth-card { width: 90%; max-width: 320px; display: flex; flex-direction: column; gap: 15px; }
+
         .floating-ui {
             position: absolute; bottom: 20px; left: 50%;
             transform: translateX(-50%);
@@ -48,78 +55,73 @@
             border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px; margin-bottom: 10px;
         }
 
-        .sector-info { color: var(--neon); font-weight: bold; font-size: 13px; letter-spacing: 1px; }
-        .coords { font-size: 10px; color: #555; }
-
         #chat-container {
-            height: 120px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;
+            height: 130px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;
             scrollbar-width: none; margin-bottom: 10px;
         }
 
         .message {
             background: rgba(255,255,255,0.03); padding: 8px; border-radius: 10px;
-            border-left: 3px solid var(--neon); font-size: 11px;
+            border-left: 3px solid var(--neon); font-size: 11px; word-break: break-all;
         }
-        .message.mayday { border-left-color: var(--danger); background: rgba(255, 62, 62, 0.05); }
 
-        .input-row { display: flex; gap: 8px; margin-bottom: 8px; }
+        .input-row { display: flex; gap: 8px; }
         input {
             flex: 1; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 10px; padding: 10px; color: white; font-size: 13px;
+            border-radius: 10px; padding: 12px; color: white; font-size: 14px;
         }
 
-        .btn-send { background: var(--neon); border: none; width: 45px; border-radius: 10px; cursor: pointer; }
+        button {
+            background: var(--neon); border: none; padding: 12px; 
+            border-radius: 10px; font-weight: bold; cursor: pointer;
+        }
+
         .btn-sos {
             background: rgba(255, 62, 62, 0.1); border: 1px solid var(--danger);
-            color: var(--danger); padding: 10px; border-radius: 10px;
-            font-weight: bold; font-size: 10px; width: 100%; cursor: pointer;
+            color: var(--danger); margin-top: 10px; font-size: 11px;
         }
 
         .tactical-label {
             background: rgba(0,0,0,0.9) !important; border: 1px solid var(--neon) !important;
-            color: var(--neon) !important; font-size: 9px !important; text-transform: uppercase;
+            color: var(--neon) !important; font-size: 10px !important;
         }
-
-        #auth-screen {
-            position: fixed; inset: 0; background: var(--bg-deep); z-index: 1000;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .auth-card { width: 100%; max-width: 300px; display: flex; flex-direction: column; gap: 12px; }
     </style>
 </head>
 <body>
 
+    <!-- شاشة الدخول -->
     <div id="auth-screen">
         <div class="auth-card">
-            <h2 style="color:var(--neon); text-align:center; letter-spacing:3px;">TACTICAL LINK</h2>
-            <input id="room-id" type="text" placeholder="OPERATIONS ROOM ID">
-            <input id="nick" type="text" placeholder="UNIT CALLSIGN">
-            <button onclick="window.launch()" style="background:var(--neon); padding:12px; border-radius:10px; border:none; font-weight:bold; cursor:pointer;">ESTABLISH CONNECTION</button>
-            <p style="color:#444; font-size:9px; text-align:center;">GLOBAL ENCRYPTED NETWORK v8.0</p>
+            <h2 style="color:var(--neon); text-align:center; letter-spacing:2px;">JOIN OPERATIONS</h2>
+            <input id="room-input" type="text" placeholder="Room ID (e.g. 777)">
+            <input id="nick-input" type="text" placeholder="Your Name">
+            <button onclick="enterRoom()">ENTER ROOM</button>
         </div>
     </div>
 
     <div id="map"></div>
 
+    <!-- واجهة التحكم -->
     <div class="floating-ui" id="main-ui">
         <div class="glass-box">
             <div class="status-header">
-                <div class="sector-info">● <span id="street-name">SCANNING...</span></div>
-                <div class="coords" id="coords-display">0.000, 0.000</div>
+                <div style="color:var(--neon); font-size:12px;">ROOM: <span id="room-display">---</span></div>
+                <div id="coords-display" style="font-size:10px; color:#555;">0.000, 0.000</div>
             </div>
             <div id="chat-container"></div>
             <div class="input-row">
-                <input type="text" id="msg-input" placeholder="Secure comms...">
-                <button class="btn-send" onclick="window.sendMsg()">➤</button>
+                <input type="text" id="msg-input" placeholder="Message...">
+                <button onclick="sendMsg()">➤</button>
             </div>
-            <button class="btn-sos" onclick="window.sos()">SIGNAL MAYDAY (SOS)</button>
+            <button class="btn-sos" style="width:100%" onclick="sendSOS()">SIGNAL EMERGENCY (SOS)</button>
         </div>
     </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
-    import { getDatabase, ref, set, push, onChildAdded, onValue, onDisconnect } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
+    import { getDatabase, ref, set, push, onChildAdded, onValue, onDisconnect } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.app.js";
 
+    // ✅ نفس الإعدادات الخاصة بك
     const firebaseConfig = { 
         apiKey: "AIzaSyA7Pu0DJOWmdoDYUUVP1J9aqhxh4f3wyfA", 
         projectId: "a0zai-56c3a", 
@@ -128,72 +130,88 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    let myUID = Math.random().toString(36).substr(2, 9);
+
+    let myID = "U-" + Math.floor(Math.random() * 10000);
     let myNick, roomID, map, myMarker;
     let otherMarkers = {};
 
-    window.launch = () => {
-        roomID = document.getElementById('room-id').value.trim();
-        myNick = document.getElementById('nick').value.trim();
-        if(!roomID || !myNick) return alert("Enter Room ID and Callsign");
+    // ✅ وظيفة الدخول
+    window.enterRoom = () => {
+        roomID = document.getElementById('room-input').value.trim();
+        myNick = document.getElementById('nick-input').value.trim();
+
+        if (!roomID || !myNick) return alert("Fill all fields!");
 
         document.getElementById('auth-screen').style.display = 'none';
         document.getElementById('main-ui').style.display = 'flex';
-        initTacticalMap();
+        document.getElementById('room-display').innerText = roomID;
+
+        startSystem();
     };
 
-    function initTacticalMap() {
-        map = L.map('map', { zoomControl: false, attributionControl: false }).setView([0,0], 13);
+    function startSystem() {
+        // تهيئة الخريطة
+        map = L.map('map', { zoomControl: false, attributionControl: false }).setView([0, 0], 2);
         L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
 
+        // مراقبة الموقع
         navigator.geolocation.watchPosition(p => {
-            const { latitude, longitude } = p.coords;
-            const pos = [latitude, longitude];
-            document.getElementById('coords-display').innerText = `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+            const lat = p.coords.latitude;
+            const lon = p.coords.longitude;
             
-            if (!myMarker) {
-                myMarker = L.circleMarker(pos, { radius: 8, color: '#fff', fillColor: var(--neon), fillOpacity: 1 }).addTo(map);
-                map.panTo(pos);
-            } else { myMarker.setLatLng(pos); }
+            document.getElementById('coords-display').innerText = `${lat.toFixed(4)}, ${lon.toFixed(4)}`;
 
-            set(ref(db, `v8/rooms/${roomID}/lives/${myUID}`), { n: myNick, lat: latitude, lon: longitude, t: Date.now() });
-            onDisconnect(ref(db, `v8/rooms/${roomID}/lives/${myUID}`)).remove();
+            if (!myMarker) {
+                myMarker = L.circleMarker([lat, lon], { radius: 8, color: '#fff', fillColor: '#00ffa3', fillOpacity: 1 }).addTo(map);
+                map.setView([lat, lon], 15);
+            } else {
+                myMarker.setLatLng([lat, lon]);
+            }
+
+            // تحديث الموقع في الداتابيز
+            const userRef = ref(db, `rooms/${roomID}/users/${myID}`);
+            set(userRef, { name: myNick, lat: lat, lon: lon, lastSeen: Date.now() });
+            onDisconnect(userRef).remove();
         });
 
-        onValue(ref(db, `v8/rooms/${roomID}/lives`), snap => {
-            const units = snap.val() || {};
-            for(let id in units) {
-                if(id === myUID) continue;
-                if(otherMarkers[id]) { otherMarkers[id].setLatLng([units[id].lat, units[id].lon]); }
-                else {
-                    otherMarkers[id] = L.circleMarker([units[id].lat, units[id].lon], { radius: 6, color: 'var(--neon)' })
-                        .addTo(map).bindTooltip(units[id].n, { permanent: true, className: 'tactical-label', direction: 'top' });
+        // متابعة المستخدمين الآخرين
+        onValue(ref(db, `rooms/${roomID}/users`), snap => {
+            const data = snap.val() || {};
+            for (let id in data) {
+                if (id === myID) continue;
+                const u = data[id];
+                if (otherMarkers[id]) {
+                    otherMarkers[id].setLatLng([u.lat, u.lon]);
+                } else {
+                    otherMarkers[id] = L.circleMarker([u.lat, u.lon], { radius: 6, color: '#00ffa3' })
+                        .addTo(map)
+                        .bindTooltip(u.name, { permanent: true, className: 'tactical-label', direction: 'top' });
                 }
             }
         });
 
-        onChildAdded(ref(db, `v8/rooms/${roomID}/msgs`), s => {
-            const d = s.val();
+        // استقبال الرسائل
+        onChildAdded(ref(db, `rooms/${roomID}/chat`), snap => {
+            const msg = snap.val();
             const container = document.getElementById('chat-container');
             const div = document.createElement('div');
-            div.className = `message ${d.m.includes('MAYDAY') ? 'mayday' : ''}`;
-            div.innerHTML = `<b>${d.n}: </b>${d.m}`;
+            div.className = 'message';
+            div.innerHTML = `<b>${msg.user}:</b> ${msg.text}`;
             container.appendChild(div);
             container.scrollTop = container.scrollHeight;
         });
-
-        document.getElementById('street-name').innerText = `ROOM: ${roomID}`;
     }
+
 
     window.sendMsg = () => {
         const input = document.getElementById('msg-input');
-        if(!input.value) return;
-        push(ref(db, `v8/rooms/${roomID}/msgs`), { n: myNick, m: input.value });
+        if (!input.value) return;
+        push(ref(db, `rooms/${roomID}/chat`), { user: myNick, text: input.value });
         input.value = '';
     };
 
-    window.sos = () => {
-        push(ref(db, `v8/rooms/${roomID}/msgs`), { n: "🚨 " + myNick, m: "MAYDAY MAYDAY - POSITION BROADCASTED" });
+    window.sendSOS = () => {
+        push(ref(db, `rooms/${roomID}/chat`), { user: "⚠️ " + myNick, text: "MAYDAY! SOS AT MY LOCATION!" });
     };
 </script>
 </body>
