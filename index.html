@@ -1,138 +1,166 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RAFT - BLACKLISH EDITION</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <title>A0Z</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Roboto+Condensed:wght@700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Cinzel:wght@900&display=swap');
 
         :root {
-            --sea: #0077be;
-            --wood: #c19a6b;
-            --wood-dark: #5d4037;
             --gold: #ffd700;
+            --stone: #4a2c0f;
+            --accent: #ff4500;
         }
 
         body, html { 
             margin: 0; padding: 0; height: 100%; width: 100%;
-            background: #004d7a; font-family: 'Roboto Condensed', sans-serif;
-            overflow: hidden; color: white;
-        }
-
-        /* --- El Ba7r --- */
-        .ocean-bg {
-            position: fixed; inset: 0; z-index: -1;
-            background: url('https://images.unsplash.com/photo-1505118380757-91f5f5632de0?q=80&w=2000') no-repeat center center;
+            background: #000 url('https://img.freepik.com/free-photo/ancient-temple-ruins-jungle-generative-ai_188544-12595.jpg') no-repeat center center fixed;
             background-size: cover;
-            animation: oceanSway 20s ease-in-out infinite alternate;
-        }
-        @keyframes oceanSway { 0% { transform: scale(1.1) rotate(-1deg); } 100% { transform: scale(1.2) rotate(1deg); } }
-
-        /* --- Stats Bar --- */
-        .stats-bar {
-            position: fixed; top: 10px; right: 10px; z-index: 60;
-            display: flex; gap: 10px;
-        }
-        .stat-item {
-            background: rgba(0,0,0,0.7); padding: 8px 15px; border-radius: 5px;
-            border: 2px solid var(--wood); font-size: 14px; color: var(--gold);
+            font-family: 'Cinzel', serif;
+            color: var(--gold);
+            overflow: hidden;
         }
 
-        /* --- El Radar --- */
-        .radar {
-            position: fixed; top: 65px; left: 50%; transform: translateX(-50%);
-            z-index: 60; text-align: center;
-        }
-        .distance-card {
-            background: var(--wood-dark); padding: 10px 20px; border-radius: 0;
-            box-shadow: 0 5px 0 #211512; font-family: 'Permanent Marker'; font-size: 18px;
+        /* الفراشات المتحركة */
+        .wildlife {
+            position: absolute; width: 100%; height: 100%;
+            pointer-events: none; z-index: 2;
         }
 
-        /* --- El Raft Container --- */
-        .raft-frame {
-            height: 100%; display: flex; flex-direction: column;
-            animation: raftFloat 6s ease-in-out infinite;
-        }
-        @keyframes raftFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
-
-        /* --- Wood Buttons --- */
-        .wood-btn {
-            background: var(--wood) url('https://www.transparenttextures.com/patterns/wood-pattern.png');
-            border: 3px solid var(--wood-dark); box-shadow: 0 6px #3e2723;
-            color: #3e2723; font-family: 'Permanent Marker'; cursor: pointer;
-            text-transform: uppercase; transition: 0.1s;
-        }
-        .wood-btn:active { transform: translateY(4px); box-shadow: 0 2px #3e2723; }
-
-        /* --- Chat area --- */
-        #chat-log { flex: 1; overflow-y: auto; padding: 120px 20px 20px; display: flex; flex-direction: column; gap: 12px; }
-        .msg-plank {
-            background: #fdf5e6 url('https://www.transparenttextures.com/patterns/wood-pattern.png');
-            padding: 12px; border-bottom: 5px solid #d2b48c; color: #5d4037;
-            align-self: flex-start; max-width: 85%; box-shadow: 5px 5px 0 rgba(0,0,0,0.1);
+        .creature {
+            position: absolute;
+            font-size: 20px;
+            filter: drop-shadow(0 0 5px rgba(255,255,255,0.5));
+            animation: roam 15s linear infinite;
+            opacity: 0.7;
         }
 
-        .controls { 
-            padding: 20px; background: rgba(0,0,0,0.4); 
-            display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
-            backdrop-filter: blur(5px);
+        @keyframes roam {
+            0% { transform: translate(-10vw, 20vh) rotate(0deg); }
+            25% { transform: translate(30vw, 10vh) rotate(20deg); }
+            50% { transform: translate(60vw, 40vh) rotate(-10deg); }
+            75% { transform: translate(90vw, 20vh) rotate(15deg); }
+            100% { transform: translate(110vw, 50vh) rotate(0deg); }
         }
 
-        #landing-page {
-            position: fixed; inset: 0; z-index: 150; 
-            background: rgba(0,77,122,0.95); display: flex; flex-direction: column; 
-            align-items: center; justify-content: center; text-align: center;
+        /* زر العودة الصخري */
+        .btn-back {
+            position: absolute; top: 10px; left: 10px;
+            background: linear-gradient(to bottom, #555, #222);
+            border: 2px solid #000; border-radius: 5px;
+            color: #ccc; padding: 5px 12px; font-size: 12px;
+            cursor: pointer; z-index: 100; font-family: 'Cinzel';
         }
+
+        /* الطبقة السينمائية والضباب */
+        body::after {
+            content: ""; position: absolute; inset: 0;
+            background: radial-gradient(circle, transparent 20%, rgba(0,0,0,0.8) 100%);
+            pointer-events: none; z-index: 5;
+        }
+
+        #auth-screen {
+            position: fixed; inset: 0; z-index: 100;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(8px);
+        }
+
+        .game-logo {
+            font-family: 'Cinzel Decorative', cursive;
+            font-size: clamp(60px, 12vw, 90px);
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5), 6px 6px 0 #000;
+            margin-bottom: 40px; animation: float 3s ease-in-out infinite;
+        }
+
+        .zuma-btn-container { display: flex; flex-direction: column; gap: 15px; width: 300px; }
+
+        .zuma-input {
+            background: rgba(0,0,0,0.8); border: 3px solid var(--stone);
+            border-radius: 50px; padding: 18px; color: var(--gold);
+            font-family: 'Cinzel'; text-align: center; font-size: 18px; outline: none;
+        }
+
+        .btn-stone {
+            background: linear-gradient(145deg, #8b7355, #4a2c0f);
+            border: 4px solid #261a15; border-radius: 8px;
+            padding: 18px; color: var(--gold); font-family: 'Cinzel';
+            font-weight: 900; font-size: 20px; cursor: pointer;
+            text-transform: uppercase; box-shadow: 4px 4px 0px #000; transition: 0.1s;
+        }
+
+        .btn-stone:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0px #000; }
+
+        /* واجهة الشات ملء الشاشة */
+        #main-ui {
+            display: none; position: fixed; inset: 0; z-index: 50;
+            flex-direction: column; background: rgba(0, 0, 0, 0.8);
+        }
+
+        .temple-header {
+            background: #2a1b0a; padding: 20px; text-align: center;
+            border-bottom: 4px solid var(--gold);
+        }
+
+        #chat-container {
+            flex: 1; overflow-y: auto; padding: 20px;
+            display: flex; flex-direction: column; gap: 10px;
+        }
+
+        .msg-box {
+            background: rgba(255, 255, 255, 0.07); border-left: 4px solid var(--accent);
+            padding: 12px; border-radius: 0 8px 8px 0; animation: slideIn 0.3s ease;
+        }
+
+        .msg-user { color: var(--gold); font-size: 11px; margin-bottom: 4px; display: block; }
+        .msg-text { color: #f1e5ac; font-size: 17px; }
+
+        .control-panel { background: #1a1108; padding: 15px; display: flex; gap: 8px; border-top: 2px solid var(--stone); }
+
+        #msg-input { flex: 1; background: #000; border: 2px solid var(--stone); color: #fff; padding: 15px; font-family: 'Cinzel'; border-radius: 5px; outline: none; }
+
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
     </style>
 </head>
 <body>
 
-    <div class="ocean-bg"></div>
-
-    <!-- El Mawarid -->
-    <div class="stats-bar">
-        <div class="stat-item">🪵 <span id="wood-count">0</span></div>
-        <div class="stat-item">🥤 <span id="plastic-count">0</span></div>
+    <!-- عناصر الحياة البرية (الحيوانات) -->
+    <div class="wildlife">
+        <div class="creature" style="animation-delay: 0s; top: 20%;">🦋</div>
+        <div class="creature" style="animation-delay: 5s; top: 40%; font-size: 25px;">🦜</div>
+        <div class="creature" style="animation-delay: 2s; top: 70%;">🦋</div>
+        <div class="creature" style="animation-delay: 8s; top: 10%; font-size: 30px;">🦅</div>
     </div>
 
-    <!-- El Jazirah Distance -->
-    <div class="radar">
-        <div class="distance-card">
-            EL JAZIRAH: <span id="km-left">500</span>m
+    <!-- شاشة الدخول -->
+    <div id="auth-screen">
+        <h1 class="game-logo">A0Z</h1>
+        <div class="zuma-btn-container">
+            <input id="room-input" class="zuma-input" type="text" placeholder="REALM ID">
+            <input id="nick-input" class="zuma-input" type="text" placeholder="WARRIOR NAME">
+            <button class="btn-stone" onclick="enterRoom()">ADVENTURE</button>
         </div>
     </div>
 
-    <!-- Login Screen -->
-    <div id="landing-page">
-        <h1 class="animate__animated animate__rubberBand" style="font-family:'Permanent Marker'; font-size:65px; text-shadow:5px 5px #3e2723; margin:0;">A0Z RAFT</h1>
-        <p style="color:var(--gold); margin-bottom:30px;">Survival bel Blacklish yalla!</p>
-        <input id="user-name" style="padding:15px; width:260px; margin-bottom:15px; border:4px solid #3e2723; font-family:'Permanent Marker';" placeholder="ESM EL SURVIVOR..">
-        <button class="wood-btn" style="padding:15px 50px; font-size:22px;" onclick="startVoyage()">YALLAH BENA</button>
-    </div>
-
-    <!-- El Game UI -->
-    <div id="game-ui" class="raft-frame" style="display:none;">
-        <div id="chat-log"></div>
+    <div id="main-ui">
+        <button class="btn-back" onclick="exitRoom()">EXIT REALM</button>
         
-        <div class="controls">
-            <button class="wood-btn" style="grid-column: span 2; height: 55px; background:var(--gold); font-size:20px;" onclick="useHook()">🪝 ERMI EL KHATTAF</button>
-            <button class="wood-btn" style="height: 50px;" onclick="moveRaft()">⛵ HARRIK EL RAFT</button>
-            <input id="chat-input" style="padding:10px; border:3px solid var(--wood-dark); font-weight:bold;" placeholder="Ekteb ay shi..">
+        <div class="temple-header">
+            <span id="room-display" style="letter-spacing: 5px; font-size: 20px;">---</span>
         </div>
-    </div>
+        
+        <div id="chat-container"></div>
 
-    <!-- Island Win Screen -->
-    <div id="win-screen" style="position:fixed; inset:0; background:rgba(0,0,0,0.9); display:none; flex-direction:column; align-items:center; justify-content:center; z-index:200;">
-        <h1 style="font-family:'Permanent Marker'; font-size:50px; color:var(--gold);">LAND AHOY! 🏝️</h1>
-        <p>Hamdullah 3ala el Salama, wasalt el Jazirah!</p>
-        <button class="wood-btn" style="padding:15px 30px;" onclick="location.reload()">ERJA3 EL BA7R TANI</button>
+        <div class="control-panel">
+            <input id="msg-input" type="text" placeholder="Write spell...">
+            <button class="btn-stone" style="padding: 10px 20px; font-size: 14px;" onclick="sendMsg()">CAST</button>
+        </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
-        import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
+        import { getDatabase, ref, push, onChildAdded, off } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
 
         const firebaseConfig = { 
             apiKey: "AIzaSyA7Pu0DJOWmdoDYUUVP1J9aqhxh4f3wyfA", 
@@ -142,64 +170,53 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        let myNick, distance = 500, khashab = 0, plastik = 0;
+        let myNick, roomID, chatRef;
 
-        window.startVoyage = () => {
-            myNick = document.getElementById('user-name').value.trim() || "Survivor";
-            document.getElementById('landing-page').style.display = 'none';
-            document.getElementById('game-ui').style.display = 'flex';
-            initSeaSync();
-        };
+        window.enterRoom = () => {
+            roomID = document.getElementById('room-input').value.trim();
+            myNick = document.getElementById('nick-input').value.trim();
+            if (!roomID || !myNick) return;
 
-        // Hook Logic
-        window.useHook = () => {
-            const chance = Math.random();
-            let itemFound = "Wala shi";
+            document.getElementById('auth-screen').style.display = 'none';
+            document.getElementById('main-ui').style.display = 'flex';
+            document.getElementById('room-display').innerText = roomID.toUpperCase();
             
-            if(chance > 0.7) { 
-                khashab++; 
-                document.getElementById('wood-count').innerText = khashab;
-                itemFound = "Khashab 🪵";
-            } else if(chance > 0.4) {
-                plastik++;
-                document.getElementById('plastic-count').innerText = plastik;
-                itemFound = "Plastik 🥤";
-            }
-
-            const statusMsg = itemFound === "Wala shi" ? "Ramma el khattaf wa ma jebsh 7aga! 🌊" : `Lamma l2at ${itemFound} mel ba7r!`;
-            push(ref(db, `rooms/raft_live/chat`), { user: myNick, text: statusMsg, isAction: true });
+            listenForMsgs();
         };
 
-        // Move Raft
-        window.moveRaft = () => {
-            if(distance <= 0) return;
-            distance -= 25;
-            document.getElementById('km-left').innerText = distance;
-            if(distance <= 0) document.getElementById('win-screen').style.display = 'flex';
-            
-            push(ref(db, `rooms/raft_live/chat`), { user: myNick, text: "Shadd el shera3.. El Jazirah bet2arrab! ⛵", isAction: true });
+        window.exitRoom = () => {
+            if (chatRef) off(chatRef);
+            document.getElementById('chat-container').innerHTML = '';
+            document.getElementById('main-ui').style.display = 'none';
+            document.getElementById('auth-screen').style.display = 'flex';
         };
 
-        function initSeaSync() {
-            onChildAdded(ref(db, `rooms/raft_live/chat`), (snap) => {
+        function listenForMsgs() {
+            chatRef = ref(db, `rooms/${roomID}/chat`);
+            onChildAdded(chatRef, (snap) => {
                 const data = snap.val();
+                const container = document.getElementById('chat-container');
                 const div = document.createElement('div');
-                div.className = 'msg-plank animate__animated animate__fadeInLeft';
-                if(data.isAction) div.style.background = '#e3f2fd';
-                
-                div.innerHTML = `<small style="font-size:10px; color:var(--wood-dark);">${data.user}:</small> <div style="font-size:15px;">${data.text}</div>`;
-                document.getElementById('chat-log').appendChild(div);
-                document.getElementById('chat-log').scrollTop = document.getElementById('chat-log').scrollHeight;
+                div.className = 'msg-box';
+                div.innerHTML = `
+                    <span class="msg-user">${data.user}</span>
+                    <span class="msg-text">${data.text}</span>
+                `;
+                container.appendChild(div);
+                container.scrollTop = container.scrollHeight;
             });
         }
 
-        window.sendChat = () => {
-            const input = document.getElementById('chat-input');
-            if(!input.value.trim()) return;
-            push(ref(db, `rooms/raft_live/chat`), { user: myNick, text: input.value.trim() });
+        window.sendMsg = () => {
+            const input = document.getElementById('msg-input');
+            if (!input.value.trim()) return;
+            push(ref(db, `rooms/${roomID}/chat`), { user: myNick, text: input.value.trim() });
             input.value = '';
         };
-        document.getElementById('chat-input').addEventListener('keypress', (e) => { if(e.key === 'Enter') window.sendChat(); });
+
+        document.getElementById('msg-input').addEventListener('keypress', (e) => {
+            if(e.key === 'Enter') window.sendMsg();
+        });
     </script>
 </body>
 </html>
