@@ -121,30 +121,39 @@
 
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
         @keyframes slideIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+
+@keyframes flap {
+    0%, 100% { transform: scaleX(1); }
+    50% { transform: scaleX(0.3); } 
+}
+
+.butterfly {
+    display: inline-block;
+    animation: flap 0.4s ease-in-out infinite; 
+}
+
     </style>
 </head>
 <body>
-
-    <!-- عناصر الحياة البرية (الحيوانات) -->
     <div class="wildlife">
-        <div class="creature" style="animation-delay: 0s; top: 20%;">🦋</div>
-        <div class="creature" style="animation-delay: 5s; top: 40%; font-size: 25px;">🦜</div>
-        <div class="creature" style="animation-delay: 2s; top: 70%;">🦋</div>
-        <div class="creature" style="animation-delay: 8s; top: 10%; font-size: 30px;">🦅</div>
+    <div class="creature" style="animation-delay: 0s; top: 20%;">
+        <span class="butterfly">🦋</span>
     </div>
-
-    <!-- شاشة الدخول -->
+    <div class="creature" style="animation-delay: 4s; top: 50%;">
+        <span class="butterfly">🦋</span>
+    </div>
+</div>
     <div id="auth-screen">
         <h1 class="game-logo">A0Z</h1>
         <div class="zuma-btn-container">
-            <input id="room-input" class="zuma-input" type="text" placeholder="REALM ID">
+            <input id="room-input" class="zuma-input" type="text" placeholder="Room ID">
             <input id="nick-input" class="zuma-input" type="text" placeholder="WARRIOR NAME">
             <button class="btn-stone" onclick="enterRoom()">ADVENTURE</button>
         </div>
     </div>
 
     <div id="main-ui">
-        <button class="btn-back" onclick="exitRoom()">EXIT REALM</button>
+        <button class="btn-back" onclick="exitRoom()">EXIT</button>
         
         <div class="temple-header">
             <span id="room-display" style="letter-spacing: 5px; font-size: 20px;">---</span>
