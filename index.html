@@ -3,155 +3,131 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>A0Z - LIVING TEMPLE</title>
+    <title>A0Z</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Cinzel:wght@900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto+Mono&display=swap');
 
         :root {
-            --gold: #ffd700;
-            --magic: #8a2be2;
-            --fire: #ff4500;
+            --neon: #00d4ff;
+            --bg: #0a0a0a;
+            --panel: rgba(15, 15, 15, 0.98);
         }
 
         body, html { 
             margin: 0; padding: 0; height: 100%; width: 100%;
-            background: #000;
-            font-family: 'Cinzel', serif;
-            color: var(--gold);
-            overflow: hidden;
+            background: var(--bg); font-family: 'Roboto Mono', monospace;
+            color: white; overflow: hidden;
         }
 
-        .temple-bg {
+        /* Tech Background */
+        .grid {
             position: fixed; inset: 0;
-            background: url('https://img.freepik.com/free-photo/ancient-temple-ruins-jungle-generative-ai_188544-12595.jpg') no-repeat center center;
-            background-size: cover;
-            animation: templeBreath 20s ease-in-out infinite;
-            z-index: -1;
+            background-image: radial-gradient(var(--neon) 0.5px, transparent 0.5px);
+            background-size: 30px 30px; opacity: 0.1; z-index: -1;
         }
 
-        @keyframes templeBreath {
-            0%, 100% { transform: scale(1.0); filter: brightness(1); }
-            50% { transform: scale(1.05); filter: brightness(1.2); }
+        /* Central Search */
+        .main-gateway {
+            position: absolute; top: 30%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%; max-width: 600px; text-align: center;
         }
 
-        .wildlife { position: absolute; inset: 0; pointer-events: none; z-index: 5; }
-        
-        .butterfly {
-            position: absolute;
-            font-size: 25px;
-            animation: flyAround 12s linear infinite, wings 0.3s ease-in-out infinite;
-            filter: drop-shadow(0 0 10px var(--gold));
+        .main-gateway h1 {
+            font-family: 'Orbitron'; font-size: 3rem; letter-spacing: 15px;
+            color: var(--neon); text-shadow: 0 0 20px var(--neon); margin: 0;
         }
 
-        @keyframes flyAround {
-            0% { left: -10%; top: 20%; transform: rotate(0deg); }
-            25% { left: 30%; top: 80%; transform: rotate(45deg); }
-            50% { left: 60%; top: 10%; transform: rotate(-20deg); }
-            75% { left: 90%; top: 50%; transform: rotate(10deg); }
-            100% { left: 110%; top: 20%; transform: rotate(0deg); }
+        .search-bar {
+            width: 100%; padding: 18px; margin-top: 30px;
+            background: rgba(255,255,255,0.03); border: 1px solid var(--neon);
+            border-radius: 5px; color: white; font-size: 1.1rem;
+            outline: none; box-shadow: inset 0 0 10px rgba(0,212,255,0.1);
         }
 
-        @keyframes wings {
-            0%, 100% { transform: scaleX(1); }
-            50% { transform: scaleX(0.2); }
+        /* Internal Browser Window (The "No Exit" Logic) */
+        #internal-browser {
+            position: fixed; inset: 50px; 
+            background: #fff; border: 2px solid var(--neon);
+            border-radius: 10px; display: none; z-index: 1000;
+            box-shadow: 0 0 50px #000;
         }
 
-        #auth-screen {
-            position: fixed; inset: 0; z-index: 100;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            background: rgba(0,0,0,0.8); backdrop-filter: blur(15px);
+        .browser-header {
+            background: #222; padding: 10px; display: flex; justify-content: space-between;
+            align-items: center; border-bottom: 1px solid var(--neon);
         }
 
-        #magic-tablet {
-            width: 85%; max-width: 320px; margin: 20px auto;
-            border: 3px solid var(--magic);
-            border-radius: 15px;
-            display: none;
-            position: relative;
-            animation: pulseMagic 3s ease-in-out infinite;
-            background: #000;
+        .close-btn { cursor: pointer; color: #ff4500; font-weight: bold; padding: 0 10px; }
+
+        /* Dock System */
+        .dock {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            display: flex; gap: 30px; background: var(--panel);
+            padding: 15px 40px; border-radius: 50px; border: 1px solid var(--neon);
+            box-shadow: 0 0 20px rgba(0,212,255,0.2);
         }
 
-        @keyframes pulseMagic {
-            0%, 100% { transform: translateY(0); box-shadow: 0 0 20px var(--magic); }
-            50% { transform: translateY(-10px); box-shadow: 0 0 40px var(--fire); }
+        .dock-item { font-size: 24px; cursor: pointer; transition: 0.3s; }
+        .dock-item:hover { transform: scale(1.3); text-shadow: 0 0 10px var(--neon); }
+
+        /* Small Side Panels */
+        #chat-widget {
+            position: fixed; right: 20px; bottom: 100px;
+            width: 280px; height: 350px; background: var(--panel);
+            border: 1px solid var(--neon); border-radius: 10px;
+            display: none; flex-direction: column;
         }
 
-        .video-wrapper { position: relative; width: 100%; padding-top: 177%; overflow: hidden; border-radius: 12px; }
-        .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
-
-        #main-ui { display: none; position: fixed; inset: 0; z-index: 50; flex-direction: column; background: rgba(0,0,0,0.6); }
-        
-        #chat-container { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
-        
-        .msg-box { 
-            background: rgba(138, 43, 226, 0.2); 
-            border-left: 4px solid var(--gold); 
-            padding: 12px; 
-            border-radius: 0 10px 10px 0;
-            animation: emerge 0.5s ease-out;
+        #video-mini {
+            position: fixed; top: 20px; left: 20px;
+            width: 180px; height: 300px; border: 1px solid var(--neon);
+            display: none; background: #000;
         }
 
-        @keyframes emerge {
-            from { opacity: 0; transform: scale(0.5) translateY(20px); }
-            to { opacity: 1; transform: scale(1) translateY(0); }
-        }
-
-        .control-panel { padding: 20px; background: rgba(20, 10, 30, 0.95); border-top: 2px solid var(--gold); }
-        
-        input { 
-            width: 100%; background: transparent; border: 1px solid var(--gold); 
-            color: #fff; padding: 12px; margin-bottom: 10px; border-radius: 5px;
-            font-family: 'Cinzel'; box-sizing: border-box;
-        }
-
-        .btn-mystic {
-            width: 100%; padding: 15px; border: none; 
-            background: linear-gradient(45deg, var(--magic), var(--fire));
-            color: #fff; font-family: 'Cinzel'; font-weight: bold;
-            cursor: pointer; border-radius: 5px; transition: 0.3s;
-        }
-
-        .screen-shake { animation: shake 0.4s ease-in-out; }
-        @keyframes shake {
-            0%, 100% { transform: translate(0,0); }
-            25% { transform: translate(5px, 5px); }
-            50% { transform: translate(-5px, -5px); }
-            75% { transform: translate(5px, -5px); }
-        }
     </style>
 </head>
 <body>
 
-    <div class="temple-bg"></div>
+    <div class="grid"></div>
 
-    <div class="wildlife">
-        <div class="butterfly" style="animation-duration: 15s; color: cyan;">🦋</div>
-        <div class="butterfly" style="animation-delay: -5s; animation-duration: 18s; color: magenta;">✨</div>
-        <div class="butterfly" style="animation-delay: -2s; animation-duration: 12s; color: gold;">🦋</div>
+    <!-- Main Gateway -->
+    <div class="main-gateway">
+        <h1>A0Z</h1>
+        <input type="text" class="search-bar" placeholder="Enter Command or URL..." id="os-search">
     </div>
 
-    <div id="auth-screen">
-        <h1 style="font-size: 50px; margin-bottom: 20px;">A0Z</h1>
-        <input id="room-input" placeholder="REALM ID">
-        <input id="nick-input" placeholder="WARRIOR NAME">
-        <button class="btn-mystic" onclick="enterRoom()">AWAKEN THE SPIRIT</button>
+    <!-- Internal Browser (The Magic Box) -->
+    <div id="internal-browser">
+        <div class="browser-header">
+            <span style="font-size: 10px; color: var(--neon);">ENCRYPTED_STREAM_ACTIVE</span>
+            <span class="close-btn" onclick="closeBrowser()">[X] CLOSE</span>
+        </div>
+        <iframe id="browser-frame" src="" style="width:100%; height:calc(100% - 40px); border:none;"></iframe>
     </div>
 
-    <div id="main-ui">
-        <div id="magic-tablet">
-            <div class="video-wrapper" id="video-frame"></div>
-        </div>
-        <div id="chat-container"></div>
-        <div class="control-panel">
-            <input id="msg-input" placeholder="Whisper to the forest...">
-            <button class="btn-mystic" onclick="sendMsg()">CAST SPELL</button>
-            <input id="tiktok-input" placeholder="Summon vision (Link)..." style="margin-top: 10px;">
-            <button class="btn-mystic" style="background: var(--gold); color: #000;" onclick="sendVideo()">SUMMON</button>
-        </div>
+    <!-- Video Mini -->
+    <div id="video-mini">
+        <div id="v-frame" style="width:100%; height:100%;"></div>
+    </div>
+
+    <!-- Chat Widget -->
+    <div id="chat-widget">
+        <div style="padding: 10px; border-bottom: 1px solid #333; font-size: 10px;">COMM_LINK: ACTIVE</div>
+        <div id="logs" style="flex:1; overflow:auto; padding:10px; font-size: 12px;"></div>
+        <input id="msg" style="background:transparent; border:none; border-top:1px solid #333; color:white; padding:10px;" placeholder="Type message...">
+    </div>
+
+    <!-- Navigation Dock -->
+    <div class="dock">
+        <div class="dock-item" onclick="toggleChat()">📧</div>
+        <div class="dock-item" onclick="summonVideo()">📽️</div>
+        <div class="dock-item" onclick="openInternalLink('https://www.bing.com')">🌐</div>
+        <div class="dock-item" onclick="location.reload()">🔄</div>
     </div>
 
     <script type="module">
+        // Firebase Logic (Same as before)
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
         import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
 
@@ -160,59 +136,61 @@
             projectId: "a0zai-56c3a", 
             databaseURL: "https://a0zai-56c3a-default-rtdb.europe-west1.firebasedatabase.app" 
         };
-
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        let myNick, roomID;
+        const roomID = "GLOBAL_NODE";
 
-        window.enterRoom = () => {
-            roomID = document.getElementById('room-input').value.trim();
-            myNick = document.getElementById('nick-input').value.trim();
-            if (!roomID || !myNick) return;
-            document.getElementById('auth-screen').style.display = 'none';
-            document.getElementById('main-ui').style.display = 'flex';
-            listenForData();
+        // Internal Browser Control
+        window.openInternalLink = (url) => {
+            const browser = document.getElementById('internal-browser');
+            const frame = document.getElementById('browser-frame');
+            frame.src = url;
+            browser.style.display = 'block';
         };
 
-        function triggerShake() {
-            const ui = document.getElementById('main-ui');
-            ui.classList.add('screen-shake');
-            setTimeout(() => ui.classList.remove('screen-shake'), 400);
-        }
-
-        function listenForData() {
-            onChildAdded(ref(db, `rooms/${roomID}/data`), (snap) => {
-                const data = snap.val();
-                const chat = document.getElementById('chat-container');
-                triggerShake();
-
-                if (data.type === "video") {
-                    document.getElementById('magic-tablet').style.display = 'block';
-                    document.getElementById('video-frame').innerHTML = `<iframe src="https://www.tiktok.com/embed/v2/${data.vId}" allowfullscreen></iframe>`;
-                } else {
-                    const div = document.createElement('div');
-                    div.className = 'msg-box';
-                    div.innerHTML = `<small>${data.user}</small><br>${data.text}`;
-                    chat.appendChild(div);
-                }
-                chat.scrollTop = chat.scrollHeight;
-            });
-        }
-
-        window.sendMsg = () => {
-            const input = document.getElementById('msg-input');
-            if (!input.value.trim()) return;
-            push(ref(db, `rooms/${roomID}/data`), { user: myNick, text: input.value, type: "text" });
-            input.value = '';
+        window.closeBrowser = () => {
+            document.getElementById('internal-browser').style.display = 'none';
+            document.getElementById('browser-frame').src = '';
         };
 
-        window.sendVideo = () => {
-            const input = document.getElementById('tiktok-input');
-            const match = input.value.match(/(\d{17,21})/);
-            if (!match) return alert("Vision failed! Need full link.");
-            push(ref(db, `rooms/${roomID}/data`), { user: myNick, vId: match[1], type: "video" });
-            input.value = '';
+        // Search Redirect to Internal
+        document.getElementById('os-search').addEventListener('keypress', (e) => {
+            if(e.key === 'Enter') {
+                const query = e.target.value;
+                // Using Bing because it allows Iframe embedding more often than Google
+                openInternalLink(`https://www.bing.com/search?q=${encodeURIComponent(query)}`);
+            }
+        });
+
+        window.toggleChat = () => {
+            const c = document.getElementById('chat-widget');
+            c.style.display = c.style.display === 'flex' ? 'none' : 'flex';
         };
+
+        window.summonVideo = () => {
+            const url = prompt("TikTok URL:");
+            const vId = url?.match(/(\d{17,21})/)?.[1];
+            if(vId) push(ref(db, `rooms/${roomID}/data`), { user: 'Admin', vId: vId, type: "video" });
+        };
+
+        onChildAdded(ref(db, `rooms/${roomID}/data`), (snap) => {
+            const data = snap.val();
+            if(data.type === 'video') {
+                document.getElementById('video-mini').style.display = 'block';
+                document.getElementById('v-frame').innerHTML = `<iframe src="https://www.tiktok.com/embed/v2/${data.vId}" style="width:100%; height:100%; border:none;"></iframe>`;
+            } else {
+                const logs = document.getElementById('logs');
+                logs.innerHTML += `<div>> ${data.text}</div>`;
+                logs.scrollTop = logs.scrollHeight;
+            }
+        });
+
+        document.getElementById('msg').addEventListener('keypress', (e) => {
+            if(e.key === 'Enter') {
+                push(ref(db, `rooms/${roomID}/data`), { text: e.target.value, type: "text" });
+                e.target.value = '';
+            }
+        });
     </script>
 </body>
 </html>
