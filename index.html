@@ -2,48 +2,303 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>SYSTEM CRITICAL</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مساعد الرسم الآيزومتري للأنابيب</title>
     <style>
-        body { font-family: 'Courier New', Courier, monospace; background-color: #050505; color: #0f0; text-align: center; padding: 50px; }
-        .box { border: 3px solid #f00; padding: 30px; border-radius: 10px; display: inline-block; background-color: #111; box-shadow: 0 0 30px #f00; }
-        h1 { font-size: 50px; color: #f00; text-shadow: 2px 2px #500; }
-        #timer { font-size: 80px; font-weight: bold; color: #fff; margin: 20px 0; }
-        .download-btn { background-color: #f00; color: #fff; padding: 25px 50px; text-decoration: none; border-radius: 5px; font-weight: bold; display: none; font-size: 24px; animation: blink 1s infinite; }
-        @keyframes blink { 0% {opacity: 1;} 50% {opacity: 0.3;} 100% {opacity: 1;} }
-        p { font-size: 20px; }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* شريط الأدوات العلوي */
+        #toolbar {
+            background-color: #2c3e50;
+            color: white;
+            padding: 10px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 10;
+        }
+
+        .tool-btn {
+            background-color: #34495e;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .tool-btn:hover, .tool-btn.active {
+            background-color: #3498db;
+        }
+
+        .tool-btn.danger {
+            background-color: #e74c3c;
+        }
+        .tool-btn.danger:hover {
+            background-color: #c0392b;
+        }
+
+        label {
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        input[type="color"], input[type="range"] {
+            cursor: pointer;
+        }
+
+        /* منطقة الرسم */
+        #canvas-container {
+            flex: 1;
+            position: relative;
+            overflow: auto;
+            background-color: #eef1f6;
+        }
+
+        canvas {
+            display: block;
+            background-color: white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            margin: 20px auto;
+            cursor: crosshair;
+            touch-action: none; /* لمنع اهتزاز الشاشة أثناء الرسم على الجوال */
+        }
     </style>
 </head>
 <body>
-    <div class="box">
-        <h1>⚠️ تحذير: تدمير ذاتي 😝</h1>
-        <p>تم اكتشاف محاولة اختراق لجهازك من قبل "RAFAT"</p>
-        <p>سيتم قفل النظام نهائياً خلال:</p>
-        
-        <div id="timer">10</div>
 
-        <a href="https://github.com/30066-G/nl.live/releases/download/v1.0/gateway.exe" id="btn" class="download-btn" download="Emergency_Fix.exe">إيقاف التدمير الآن!</a>
+    <div id="toolbar">
+        <button class="tool-btn active" onclick="setTool('pipe')" id="btn-pipe">🖊️ خط أنابيب سميك</button>
+        <button class="tool-btn" onclick="setTool('arrow')" id="btn-arrow">🏹 سهم اتجاه</button>
+        <button class="tool-btn" onclick="setTool('text')" id="btn-text">🔤 إضافة نص/قياس</button>
+        <button class="tool-btn" onclick="setTool('eraser')" id="btn-eraser">🧽 ممحاة</button>
         
-        <p id="msg">انتظر حتى يتم تجهيز أداة الطوارئ...</p>
+        <div style="border-left: 1px solid #555; height: 25px; margin: 0 10px;"></div>
+
+        <label>🎨 اللون: <input type="color" id="colorPicker" value="#2980b9"></label>
+        <label>📏 السمك: <input type="range" id="sizeSlider" min="2" max="15" value="6"></label>
+        
+        <div style="border-left: 1px solid #555; height: 25px; margin: 0 10px;"></div>
+
+        <button class="tool-btn danger" onclick="clearCanvas()">🗑️ مسح الكل</button>
+        <button class="tool-btn" style="background-color: #27ae60;" onclick="downloadImage()">💾 حفظ الرسمة</button>
+    </div>
+
+    <div id="canvas-container">
+        <canvas id="isometricCanvas" width="1200" height="800"></canvas>
     </div>
 
     <script>
-        let count = 10;
-        const timerElement = document.getElementById('timer');
-        const btnElement = document.getElementById('btn');
-        const msgElement = document.getElementById('msg');
+        const canvas = document.getElementById('isometricCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // المتغيرات الأساسية
+        let currentTool = 'pipe';
+        let isDrawing = false;
+        let startX = 0;
+        let startY = 0;
+        let snapshot;
 
-        const countdown = setInterval(() => {
-            count--;
-            timerElement.innerText = count;
+        // إعدادات افتراضية للشبكة الآيزومترية (مثل الأوراق الهندسية)
+        const gridAngle = 30 * Math.PI / 180; // زاوية 30 درجة لخطوط الأنابيب
+        const gridSpacing = 25; // المسافة بين الخطوط
 
-            if (count <= 0) {
-                clearInterval(countdown);
-                timerElement.style.color = "#f00";
-                timerElement.innerText = "00";
-                btnElement.style.display = "inline-block";
-                msgElement.innerText = "اضغط فوراً لإيقاف العملية!";
+        // تشغيل رسم الخلفية عند فتح الصفحة
+        initCanvas();
+
+        function initCanvas() {
+            drawIsometricGrid();
+            // حفظ نسخة فارغة من الشبكة لإنعاش الرسم عند سحب الماوس
+            snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        }
+
+        // دالة رسم الشبكة الآيزومترية (خلفية الورقة المخططة)
+        function drawIsometricGrid() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = '#d1e1e9'; // لون خطوط الشبكة خفيف جداً ومريح للعين
+            ctx.lineWidth = 0.8;
+
+            // رسم الخطوط المائلة باتجاه اليمين وللأعلى
+            for (let i = -canvas.height; i < canvas.width; i += gridSpacing) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i + canvas.height * Math.tan(gridAngle), canvas.height);
+                ctx.stroke();
             }
-        }, 1000);
+
+            // رسم الخطوط المائلة باتجاه اليسار وللأعلى
+            for (let i = 0; i < canvas.width + canvas.height; i += gridSpacing) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i - canvas.height * Math.tan(gridAngle), canvas.height);
+                ctx.stroke();
+            }
+        }
+
+        // تبديل الأدوات
+        function setTool(tool) {
+            currentTool = tool;
+            document.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`btn-${tool}`).classList.add('active');
+        }
+
+        // الحصول على إحداثيات الماوس أو اللمس بشكل صحيح
+        function getCoordinates(e) {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return {
+                x: clientX - rect.left,
+                y: clientY - rect.top
+            };
+        }
+
+        // بدء الرسم (ماوس أو لمس)
+        function startDraw(e) {
+            isDrawing = true;
+            const coords = getCoordinates(e);
+            startX = coords.x;
+            startY = coords.y;
+
+            // إذا كانت الأداة نص، يتم إضافته فوراً مكان النقرة
+            if (currentTool === 'text') {
+                addText(startX, startY);
+                isDrawing = false;
+                return;
+            }
+
+            // حفظ الحالة الحالية للرسم للتحديث أثناء السحب
+            snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        }
+
+        // أثناء التحريك وسحب الخطوط
+        function drawing(e) {
+            if (!isDrawing) return;
+            e.preventDefault();
+            
+            const coords = getCoordinates(e);
+            const currentX = coords.x;
+            const currentY = coords.y;
+
+            // استعادة الرسمة القديمة حتى لا تتكرر الخطوط أثناء السحب
+            ctx.putImageData(snapshot, 0, 0);
+
+            ctx.strokeStyle = document.getElementById('colorPicker').value;
+            ctx.lineWidth = document.getElementById('sizeSlider').value;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+
+            if (currentTool === 'pipe') {
+                // رسم الأنبوب (خط سميك ومستقيم)
+                ctx.beginPath();
+                ctx.moveTo(startX, startY);
+                ctx.lineTo(currentX, currentY);
+                ctx.stroke();
+            } else if (currentTool === 'arrow') {
+                // رسم سهم توجيهي مثل الأسهم الموجودة في الصور لتحديد التدفق
+                drawArrow(startX, startY, currentX, currentY, ctx.lineWidth + 5);
+            } else if (currentTool === 'eraser') {
+                // الممحاة تمسح المحتوى وتعيد إظهار الشبكة أسفله
+                erase(currentX, currentY);
+            }
+        }
+
+        // إنهاء الرسم وثبات الخط
+        function stopDraw() {
+            if (isDrawing) {
+                isDrawing = false;
+                // حفظ التعديل الجديد في الذاكرة المؤقتة للقطات
+                snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            }
+        }
+
+        // دالة رسم السهم الهندسية
+        function drawArrow(fromx, fromy, tox, toy, arrowWidth) {
+            const headlen = 12; // طول رأس السهم
+            const angle = Math.atan2(toy - fromy, fromx - tox);
+            
+            ctx.beginPath();
+            ctx.moveTo(fromx, fromy);
+            ctx.lineTo(tox, toy);
+            ctx.stroke();
+
+            // رسم رأس السهم
+            ctx.beginPath();
+            ctx.moveTo(tox, toy);
+            ctx.lineTo(tox + headlen * Math.cos(angle - Math.PI / 6), toy - headlen * Math.sin(angle - Math.PI / 6));
+            ctx.lineTo(tox + headlen * Math.cos(angle + Math.PI / 6), toy - headlen * Math.sin(angle + Math.PI / 6));
+            ctx.closePath();
+            ctx.fillStyle = ctx.strokeStyle;
+            ctx.fill();
+        }
+
+        // إضافة كتابة (مثل القياسات: 500, 730, ø220)
+        function addText(x, y) {
+            const text = prompt("أدخل القياس أو الملاحظة النصية (مثال: 730 أو ø220):");
+            if (text) {
+                ctx.fillStyle = document.getElementById('colorPicker').value;
+                ctx.font = "bold 16px Arial";
+                ctx.fillText(text, x, y);
+                snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            }
+        }
+
+        // دالة المسح المتقدم الذكي
+        function erase(x, y) {
+            const size = parseInt(document.getElementById('sizeSlider').value) * 3;
+            ctx.clearRect(x - size/2, y - size/2, size, size);
+            
+            // إعادة رسم أجزاء من الشبكة المخترقة فقط لتظل الخلفية نظيفة ومربعاتها مرسومة
+            ctx.save();
+            ctx.beginPath();
+            ctx.rect(x - size/2, y - size/2, size, size);
+            ctx.clip();
+            drawIsometricGrid();
+            ctx.restore();
+        }
+
+        // مسح اللوحة كاملة والبدء من جديد
+        function clearCanvas() {
+            if (confirm("هل أنت متأكد من مسح الرسمة بالكامل؟")) {
+                initCanvas();
+            }
+        }
+
+        // حفظ الصورة إلى الجهاز بصيغة PNG نظيفة وجاهزة للإرسال
+        function downloadImage() {
+            const link = document.createElement('a');
+            link.download = 'isometric-pipe-sketch.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+
+        // ربط الأحداث للكمبيوتر (الماوس)
+        canvas.addEventListener('mousedown', startDraw);
+        canvas.addEventListener('mousemove', drawing);
+        canvas.addEventListener('mouseup', stopDraw);
+        canvas.addEventListener('mouseleave', stopDraw);
+
+        // ربط الأحداث للجوال (اللمس)
+        canvas.addEventListener('touchstart', startDraw);
+        canvas.addEventListener('touchmove', drawing);
+        canvas.addEventListener('touchend', stopDraw);
+
     </script>
 </body>
 </html>
