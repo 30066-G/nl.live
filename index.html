@@ -3,321 +3,379 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>تطبيق الرسم الآيزومتري للأنابيب</title>
+    <title>مهندس الأنابيب الآيزومتري الذكي</title>
     <style>
         body {
             margin: 0;
             padding: 0;
-            overflow: hidden; /* لمنع التمرير غير المرغوب فيه على الجوال */
+            overflow: hidden;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f7f9fc;
+            background-color: #1e272e;
             display: flex;
             flex-direction: column;
             height: 100vh;
+            color: #ef5777;
         }
 
-        /* شريط الأدوات */
+        /* شريط الأدوات العلوي */
         #toolbar {
-            background-color: #2c3e50;
-            color: white;
-            padding: 10px;
+            background-color: #2f3640;
+            padding: 12px;
             display: flex;
-            gap: 10px;
+            gap: 8px;
             align-items: center;
-            justify-content: start;
             flex-wrap: wrap;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
             z-index: 10;
         }
 
+        .section-title {
+            color: #f5f6fa;
+            font-size: 12px;
+            font-weight: bold;
+            background: #718093;
+            padding: 3px 8px;
+            border-radius: 4px;
+            margin-left: 5px;
+        }
+
         .tool-btn {
-            background-color: #34495e;
-            color: white;
-            border: none;
-            padding: 8px 15px;
+            background-color: #3f48cc;
+            background: #353b48;
+            color: #f5f6fa;
+            border: 1px solid #718093;
+            padding: 10px 14px;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 14px;
-            transition: background 0.2s, transform 0.1s;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s;
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 6px;
         }
 
         .tool-btn:hover {
-            background-color: #3e5871;
+            background-color: #718093;
         }
 
         .tool-btn.active {
-            background-color: #3498db;
-            font-weight: bold;
+            background-color: #00a8ff;
+            border-color: #0097e6;
+            color: white;
+            box-shadow: 0 0 8px rgba(0, 168, 255, 0.5);
         }
 
-        .tool-btn.danger {
-            background-color: #e74c3c;
-        }
-        .tool-btn.danger:hover {
-            background-color: #c0392b;
-        }
+        .tool-btn.danger { background-color: #c23616; border-color: #9c2710; }
+        .tool-btn.danger:hover { background-color: #b33921; }
+        .tool-btn.success { background-color: #44bd32; border-color: #44bd32; }
 
         label {
-            font-size: 14px;
+            font-size: 13px;
             display: flex;
             align-items: center;
             gap: 5px;
-            color: #ecf0f1;
+            color: #f5f6fa;
         }
 
-        input[type="color"], input[type="range"] {
-            cursor: pointer;
-            border: none;
-            background: transparent;
-        }
-
-        /* منطقة الرسم */
+        /* حاوية الرسم */
         #canvas-container {
             flex: 1;
             position: relative;
-            background-color: #ecf0f1;
-            overflow: auto; /* السماح بالتمرير داخل منطقة الرسم */
+            overflow: auto;
+            background-color: #2f3640;
         }
 
         canvas {
             display: block;
-            background-color: white;
-            margin: 20px auto;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            background-color: #ffffff;
+            margin: 15px auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             cursor: crosshair;
-            touch-action: none; /* لمنع تداخل حركات الجوال مع الرسم */
+            touch-action: none;
         }
-
     </style>
 </head>
 <body>
 
     <div id="toolbar">
-        <button class="tool-btn active" onclick="setTool('pipe')" id="btn-pipe">🖊️ خط أنابيب سميك</button>
-        <button class="tool-btn" onclick="setTool('arrow')" id="btn-arrow">🏹 سهم اتجاه</button>
-        <button class="tool-btn" onclick="setTool('text')" id="btn-text">🔤 إضافة نص/قياس</button>
-        <button class="tool-btn" onclick="setTool('eraser')" id="btn-eraser">🧽 ممحاة</button>
-        
-        <div style="border-left: 1px solid #7f8c8d; height: 25px; margin: 0 10px;"></div>
+        <span class="section-title">الأدوات المحاذية للمحاور 🧲</span>
+        <button class="tool-btn active" onclick="setTool('pipe')" id="btn-pipe">📐 أنبوب آيزومتري</button>
+        <button class="tool-btn" onclick="setTool('arrow')" id="btn-arrow">🏹 سهم توجيهي</button>
+        <button class="tool-btn" onclick="setTool('cube')" id="btn-cube">📦 مكعب/صندوق آيزومتري</button>
 
-        <label>🎨 اللون: <input type="color" id="colorPicker" value="#2c3e50"></label>
-        <label>📏 السمك: <input type="range" id="sizeSlider" min="2" max="20" value="8"></label>
-        
-        <div style="border-left: 1px solid #7f8c8d; height: 25px; margin: 0 10px;"></div>
+        <span class="section-title">رموز ومحابس 🕹️</span>
+        <button class="tool-btn" onclick="setTool('valve')" id="btn-valve">⏳ صمام/محبس</button>
+        <button class="tool-btn" onclick="setTool('pump')" id="btn-pump">🔄 مضخة تدفق</button>
+        <button class="tool-btn" onclick="setTool('text')" id="btn-text">🔤 قياس/نص</button>
+        <button class="tool-btn" onclick="setTool('eraser')" id="btn-eraser">🧽 ممحاة الشبكة</button>
 
-        <button class="tool-btn danger" onclick="clearCanvas()">🗑️ مسح الكل</button>
-        <button class="tool-btn" style="background-color: #27ae60;" onclick="downloadImage()">💾 حفظ الرسمة</button>
+        <div style="border-left: 2px solid #718093; height: 30px; margin: 0 5px;"></div>
+
+        <label>🎨 اللون: <input type="color" id="colorPicker" value="#1e272e"></label>
+        <label>📏 السمك: <input type="range" id="sizeSlider" min="2" max="15" value="5"></label>
+
+        <button class="tool-btn danger" onclick="clearCanvas()" style="margin-right: auto;">🗑️ مسح</button>
+        <button class="tool-btn success" onclick="downloadImage()">💾 حفظ</button>
     </div>
 
     <div id="canvas-container">
-        <canvas id="isometricCanvas" width="1600" height="1200"></canvas>
+        <canvas id="isoCanvas" width="1400" height="1000"></canvas>
     </div>
 
     <script>
-        const canvas = document.getElementById('isometricCanvas');
+        const canvas = document.getElementById('isoCanvas');
         const ctx = canvas.getContext('2d');
-        
-        // المتغيرات الأساسية للتحكم بالرسم
+
         let currentTool = 'pipe';
         let isDrawing = false;
-        let startX = 0;
-        let startY = 0;
+        let startX = 0, startY = 0;
         let snapshot;
 
-        // إعدادات الشبكة الآيزومترية (لمحاكاة ورق الرسم الهندسي)
-        const gridAngle = 30 * Math.PI / 180; // زاوية الـ 30 درجة لخطوط الشبكة
-        const gridSpacing = 25; // المسافة بين الخطوط
+        // إعدادات الشبكة الآيزومتري الهندسية
+        const isoAngle = 30 * Math.PI / 180; 
+        const gridSpacing = 25; 
 
-        // تشغيل التهيئة الأولية عند تحميل الصفحة
-        initCanvas();
+        // تشغيل البداية
+        init();
 
-        function initCanvas() {
-            // تهيئة لوحة الرسم ورسم الشبكة
-            drawIsometricGrid();
-            // حفظ نسخة فارغة من الشبكة لإنعاش الرسم أثناء السحب
+        function init() {
+            drawBackgroundGrid();
+            drawCompassOverlay(); // رسم بوصلة الاتجاهات الثابتة في الزاوية
             snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
         }
 
-        // دالة رسم الشبكة الآيزومترية (خلفية الورقة الهندسية)
-        function drawIsometricGrid() {
+        // 1. رسم ورق الرسم المخطط هندسياً
+        function drawBackgroundGrid() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.strokeStyle = '#d9eaf1'; // لون الشبكة خفيف ومريح للعين
-            ctx.lineWidth = 0.8;
+            ctx.strokeStyle = '#c7ecee'; 
+            ctx.lineWidth = 0.7;
 
-            // رسم الخطوط المائلة باتجاه اليمين للأعلى
             for (let i = -canvas.height; i < canvas.width; i += gridSpacing) {
-                ctx.beginPath();
-                ctx.moveTo(i, 0);
-                ctx.lineTo(i + canvas.height * Math.tan(gridAngle), canvas.height);
-                ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(i, 0);
+                ctx.lineTo(i + canvas.height * Math.tan(isoAngle), canvas.height); ctx.stroke();
             }
-
-            // رسم الخطوط المائلة باتجاه اليسار للأعلى
             for (let i = 0; i < canvas.width + canvas.height; i += gridSpacing) {
-                ctx.beginPath();
-                ctx.moveTo(i, 0);
-                ctx.lineTo(i - canvas.height * Math.tan(gridAngle), canvas.height);
-                ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(i, 0);
+                ctx.lineTo(i - canvas.height * Math.tan(isoAngle), canvas.height); ctx.stroke();
             }
         }
 
-        // دالة لتبديل الأدوات وتحديث الواجهة
+        // 2. رسم بوصلة الاتجاهات (o, u, h, r, l, v) مثل موقع Bosy تماماً
+        function drawCompassOverlay() {
+            ctx.save();
+            ctx.translate(100, 120);
+            ctx.strokeStyle = '#2f3640';
+            ctx.lineWidth = 1.5;
+            ctx.font = "bold 14px Arial";
+            ctx.fillStyle = "#2f3640";
+            ctx.textAlign = "center";
+
+            const directions = [
+                { dx: 0, dy: -50, label: 'o' },  // أعلى
+                { dx: 0, dy: 50, label: 'u' },   // أسفل
+                { dx: -43, dy: -25, label: 'h' }, // خلف
+                { dx: 43, dy: 25, label: 'v' },  // أمام
+                { dx: 43, dy: -25, label: 'r' }, // يمين
+                { dx: -43, dy: 25, label: 'l' }  // يسار
+            ];
+
+            directions.forEach(d => {
+                ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(d.dx, d.dy); ctx.stroke();
+                // رأس سهم صغير للبوصلة
+                ctx.fillText(d.label, d.dx * 1.3, d.dy * 1.3 + 5);
+            });
+
+            ctx.beginPath(); ctx.arc(0,0,4,0,2*Math.PI); ctx.fill();
+            ctx.restore();
+        }
+
+        // 3. ميزة السناب المغناطيسي (Snap to Isometric Axes) لمنع الرسم الحر العشوائي
+        function getSnappedValues(x1, y1, x2, y2) {
+            let dx = x2 - x1;
+            let dy = y2 - y1;
+            let distance = Math.sqrt(dx * dx + dy * dy);
+            let angle = Math.atan2(dy, dx);
+
+            // الزوايا الآيزومترية المسموحة بالراديان
+            const allowedAngles = [
+                -Math.PI / 2,       // أعلى (o)
+                Math.PI / 2,        // أسفل (u)
+                -Math.PI / 6,       // يمين للأعلى (r)
+                5 * Math.PI / 6,    // يسار للأسفل (l)
+                -5 * Math.PI / 6,   // يسار للأعلى (h)
+                Math.PI / 6         // يمين للأسفل (v)
+            ];
+
+            // إيجاد أقرب محور هندسي لاتجاه يد المستخدم
+            let closestAngle = allowedAngles[0];
+            let minDiff = Math.abs(angle - closestAngle);
+
+            allowedAngles.forEach(a => {
+                let diff = Math.abs(angle - a);
+                if (diff > Math.PI) diff = 2 * Math.PI - diff;
+                if (diff < minDiff) {
+                    minDiff = diff;
+                    closestAngle = a;
+                }
+            });
+
+            return {
+                x: x1 + distance * Math.cos(closestAngle),
+                y: y1 + distance * Math.sin(closestAngle)
+            };
+        }
+
         function setTool(tool) {
             currentTool = tool;
             document.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById(`btn-${tool}`).classList.add('active');
         }
 
-        // الحصول على إحداثيات دقيقة داخل الـ canvas للماوس أو اللمس
-        function getCoordinates(e) {
+        function getMousePos(e) {
             const rect = canvas.getBoundingClientRect();
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
             const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-            return {
-                x: clientX - rect.left,
-                y: clientY - rect.top
-            };
+            return { x: clientX - rect.left, y: clientY - rect.top };
         }
 
-        // بدء عملية الرسم (عند الضغط بالماوس أو اللمس)
-        function startDraw(e) {
+        // بدء الضغط واللمس
+        function startDrawing(e) {
             isDrawing = true;
-            const coords = getCoordinates(e);
-            startX = coords.x;
-            startY = coords.y;
+            const pos = getMousePos(e);
+            startX = pos.x; startY = pos.y;
 
-            // إذا كانت الأداة هي النص، يتم إضافته فوراً مكان النقرة
-            if (currentTool === 'text') {
-                addText(startX, startY);
+            if (['valve', 'pump', 'text'].includes(currentTool)) {
+                executeStampTools(startX, startY);
                 isDrawing = false;
                 return;
             }
-
-            // حفظ الحالة الحالية للرسم للتحديث أثناء السحب
             snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
         }
 
-        // أثناء حركة الماوس أو اللمس (الرسم الفعلي)
-        function drawing(e) {
+        // حركة الرسم والسحب التفاعلي
+        function draw(e) {
             if (!isDrawing) return;
-            e.preventDefault(); // لمنع حركة الصفحة أثناء الرسم على الجوال
-            
-            const coords = getCoordinates(e);
-            const currentX = coords.x;
-            const currentY = coords.y;
+            e.preventDefault();
+            const pos = getMousePos(e);
 
-            // استعادة الرسمة القديمة حتى لا تتكرر الخطوط أثناء السحب
+            // تطبيق المحاذاة المغناطيسية على الأنابيب والأسهم والمكعبات فورا
+            let snapped = getSnappedValues(startX, startY, pos.x, pos.y);
+
             ctx.putImageData(snapshot, 0, 0);
-
-            // إعدادات الفرشاة
             ctx.strokeStyle = document.getElementById('colorPicker').value;
+            ctx.fillStyle = document.getElementById('colorPicker').value;
             ctx.lineWidth = document.getElementById('sizeSlider').value;
-            ctx.lineCap = 'round';
-            ctx.lineJoin = 'round';
+            ctx.lineCap = 'round'; ctx.lineJoin = 'round';
 
-            // تطبيق وظيفة الأداة المختارة
             if (currentTool === 'pipe') {
-                // رسم أنبوب مستقيم
-                ctx.beginPath();
-                ctx.moveTo(startX, startY);
-                ctx.lineTo(currentX, currentY);
-                ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(startX, startY); ctx.lineTo(snapped.x, snapped.y); ctx.stroke();
             } else if (currentTool === 'arrow') {
-                // رسم سهم توجيهي هندسي
-                drawArrow(startX, startY, currentX, currentY, parseInt(ctx.lineWidth));
+                drawIsoArrow(startX, startY, snapped.x, snapped.y, ctx.lineWidth);
+            } else if (currentTool === 'cube') {
+                drawIsoCube(startX, startY, pos.x, pos.y); // رسم صندوق ثلاثي الأبعاد متناسق الشبكة
             } else if (currentTool === 'eraser') {
-                // الممحاة تمسح المحتوى وتعيد إظهار الشبكة
-                erase(currentX, currentY);
+                eraseGridArea(pos.x, pos.y);
             }
         }
 
-        // إنهاء عملية الرسم وثبات الخط (عند رفع الماوس أو الإصبع)
-        function stopDraw() {
+        function stopDrawing() {
             if (isDrawing) {
                 isDrawing = false;
-                // حفظ التعديل الجديد في اللقطة للرسم التالي
                 snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
             }
         }
 
-        // دالة رسم سهم هندسي دقيق
-        function drawArrow(fromx, fromy, tox, toy, arrowWidth) {
-            const headlen = arrowWidth * 2.5; // طول رأس السهم يتناسب مع سمك الخط
-            const angle = Math.atan2(toy - fromy, tox - fromx);
-            
-            // رسم جسم السهم
-            ctx.beginPath();
-            ctx.moveTo(fromx, fromy);
-            ctx.lineTo(tox, toy);
-            ctx.stroke();
+        // رسم سهم آيزومتري موجه وثابت الاتجاه
+        function drawIsoArrow(x1, y1, x2, y2, width) {
+            const headLength = width * 3 > 15 ? width * 3 : 15;
+            const angle = Math.atan2(y2 - y1, x2 - x1);
 
-            // رسم رأس السهم المثلث
+            ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+
             ctx.beginPath();
-            ctx.moveTo(tox, toy);
-            ctx.lineTo(tox - headlen * Math.cos(angle - Math.PI / 7), toy - headlen * Math.sin(angle - Math.PI / 7));
-            ctx.lineTo(tox - headlen * Math.cos(angle + Math.PI / 7), toy - headlen * Math.sin(angle + Math.PI / 7));
-            ctx.closePath();
-            ctx.fillStyle = ctx.strokeStyle;
-            ctx.fill();
+            ctx.moveTo(x2, y2);
+            ctx.lineTo(x2 - headLength * Math.cos(angle - Math.PI / 6), y2 - headLength * Math.sin(angle - Math.PI / 6));
+            ctx.lineTo(x2 - headLength * Math.cos(angle + Math.PI / 6), y2 - headLength * Math.sin(angle + Math.PI / 6));
+            ctx.closePath(); ctx.fill();
         }
 
-        // دالة إضافة كتابة نصية (مثل القياسات أو الزوايا)
-        function addText(x, y) {
-            const text = prompt("أدخل القياس أو الملاحظة النصية (مثال: 730, ø220):");
-            if (text) {
-                ctx.fillStyle = document.getElementById('colorPicker').value;
-                ctx.font = "bold 16px Arial";
-                ctx.fillText(text, x, y);
-                // حفظ اللقطة بعد إضافة النص
-                snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        // رسم مكعب/صندوق آيزومتري كامل منسق هندسياً بناءً على السحب
+        function drawIsoCube(x1, y1, x2, y2) {
+            let w = x2 - x1;
+            let h = (y2 - y1) * 0.5; 
+
+            // دالة رسم الأوجه لإنشاء المعينات والمربعات والمستطيلات المتناسقة
+            const drawFace = (p1, p2, p3, p4) => {
+                ctx.beginPath();
+                ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y);
+                ctx.lineTo(p3.x, p3.y); ctx.lineTo(p4.x, p4.y);
+                ctx.closePath(); ctx.stroke();
+            };
+
+            let topA = {x: x1, y: y1 - h}, topB = {x: x1 + w, y: y1 - h/2},
+                topC = {x: x1, y: y1 + h}, topD = {x: x1 - w, y: y1 - h/2};
+            
+            let botA = {x: topA.x, y: topA.y + 100}, botB = {x: topB.x, y: topB.y + 100},
+                botC = {x: topC.x, y: topC.y + 100}, botD = {x: topD.x, y: topD.y + 100};
+
+            drawFace(topA, topB, topC, topD); // الوجه العلوي المعين
+            drawFace(topD, topC, botC, botD); // الوجه الجانبي
+            drawFace(topC, topB, botB, botC); // الوجه الأمامي
+        }
+
+        // تنفيذ أدوات الختم الفوري (عند النقر المباشر على الشاشة)
+        function executeStampTools(x, y) {
+            ctx.strokeStyle = document.getElementById('colorPicker').value;
+            ctx.fillStyle = document.getElementById('colorPicker').value;
+            
+            if (currentTool === 'valve') {
+                // رسم محبس (صمام الفراشة/المثلثين المتقابلين) كامل كما بالصور
+                ctx.save(); ctx.translate(x, y);
+                ctx.beginPath();
+                ctx.moveTo(-15, -10); ctx.lineTo(15, 10); ctx.lineTo(15, -10); ctx.lineTo(-15, 10);
+                ctx.closePath(); ctx.fill(); ctx.restore();
+            } else if (currentTool === 'pump') {
+                // رسم رمز المضخة الهندسية (دائرة بداخلها مثلث توجيهي)
+                ctx.beginPath(); ctx.arc(x, y, 15, 0, 2 * Math.PI); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(x - 8, y + 8); ctx.lineTo(x + 10, y); ctx.lineTo(x - 8, y - 8);
+                ctx.closePath(); ctx.fill();
+            } else if (currentTool === 'text') {
+                const txt = prompt("أدخل المقاس أو النص المطلوب (مثال 500 أو ø220):");
+                if (txt) {
+                    ctx.font = "bold 15px Arial";
+                    ctx.fillText(txt, x, y);
+                }
             }
+            snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
         }
 
-        // دالة الممحاة الذكية المتقدمة
-        function erase(x, y) {
-            const size = parseInt(document.getElementById('sizeSlider').value) * 3; // حجم الممحاة يتناسب مع شريط التمرير
-            
-            // مسح محتوى الرسمة في منطقة الممحاة
+        // ممحاة ذكية تمسح الخطوط وتعيد توليد مربعات الشبكة الخلفية نظيفة
+        function eraseGridArea(x, y) {
+            const size = 40;
             ctx.clearRect(x - size/2, y - size/2, size, size);
-            
-            // إعادة رسم الشبكة الآيزومترية تحت الممحاة للحفاظ على مظهر الورقة
-            ctx.save();
-            ctx.beginPath();
-            ctx.rect(x - size/2, y - size/2, size, size);
-            ctx.clip(); // حصر الرسم في منطقة الممحاة فقط
-            drawIsometricGrid();
-            ctx.restore();
+            ctx.save(); ctx.beginPath(); ctx.rect(x - size/2, y - size/2, size, size); ctx.clip();
+            drawBackgroundGrid(); drawCompassOverlay(); ctx.restore();
         }
 
-        // مسح لوحة الرسم بالكامل
         function clearCanvas() {
-            if (confirm("هل أنت متأكد من مسح الرسمة بالكامل والبدء من جديد؟")) {
-                initCanvas();
-            }
+            if (confirm("هل تريد مسح لوحة الرسم بالكامل؟")) init();
         }
 
-        // حفظ الصورة النهائية إلى الكمبيوتر أو الجوال
         function downloadImage() {
             const link = document.createElement('a');
-            link.download = 'isometric-pipe-sketch.png';
-            link.href = canvas.toDataURL('image/png');
-            link.click();
+            link.download = 'isometric-piping-system.png';
+            link.href = canvas.toDataURL(); link.click();
         }
 
-        // ربط الأحداث للكمبيوتر (الماوس)
-        canvas.addEventListener('mousedown', startDraw);
-        window.addEventListener('mousemove', drawing); // التتبع على مستوى النافذة لمنع تقطع الرسم
-        window.addEventListener('mouseup', stopDraw);
-        canvas.addEventListener('mouseleave', stopDraw);
+        // ربط الأحداث المشتركة للجوال والكمبيوتر
+        canvas.addEventListener('mousedown', startDrawing);
+        window.addEventListener('mousemove', draw);
+        window.addEventListener('mouseup', stopDrawing);
 
-        // ربط الأحداث للجوال (اللمس)
-        canvas.addEventListener('touchstart', startDraw);
-        canvas.addEventListener('touchmove', drawing);
-        canvas.addEventListener('touchend', stopDraw);
-
+        canvas.addEventListener('touchstart', startDrawing);
+        canvas.addEventListener('touchmove', draw);
+        canvas.addEventListener('touchend', stopDrawing);
     </script>
 </body>
 </html>
