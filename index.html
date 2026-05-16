@@ -3,93 +3,138 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>رسم الأنابيب الذكي بالنقرات</title>
+    <title>مساعد رسم الأنابيب الذكي للموبايل</title>
     <style>
+        /* إعدادات التهيئة العامة للجوال */
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
         body {
             margin: 0; padding: 0; overflow: hidden;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #2c3e50;
+            background-color: #1e272e;
             display: flex; flex-direction: column; height: 100vh;
+            user-select: none;
         }
 
-        /* شريط الأدوات العلوي */
+        /* شريط الأدوات العلوي المتجاوب */
         #toolbar {
-            background-color: #34495e; color: white; padding: 10px;
-            display: flex; gap: 10px; align-items: center; z-index: 10;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            background-color: #2c3e50; color: white; padding: 8px;
+            display: flex; gap: 6px; align-items: center; z-index: 10;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.4);
+            flex-wrap: wrap;
         }
 
         .tool-btn {
-            background-color: #2c3e50; color: white; border: 1px solid #7f8c8d;
-            padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 13px;
+            background-color: #34495e; color: white; border: 1px solid #7f8c8d;
+            padding: 10px 12px; border-radius: 6px; cursor: pointer; 
+            font-size: 13px; font-weight: bold; display: flex; align-items: center; gap: 4px;
         }
 
-        .tool-btn.active { background-color: #2980b9; border-color: #3498db; font-weight: bold; }
-        .tool-btn.danger { background-color: #e74c3c; }
-
-        /* منطقة الرسم */
-        #canvas-container { flex: 1; position: relative; overflow: auto; background-color: #bdc3c7; }
-        canvas { display: block; background-color: white; margin: 10px auto; box-shadow: 0 5px 15px rgba(0,0,0,0.2); touch-action: none; }
-
-        /* لوحة التحكم بالاتجاهات الطائرة (D-Pad) تماماً مثل الصورة */
-        #dpad-container {
-            position: fixed; bottom: 20px; left: 20px;
-            background-color: rgba(52, 73, 94, 0.95);
-            border: 2px solid #3498db; padding: 15px; border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.4); z-index: 100;
-            display: flex; flex-direction: column; align-items: center; gap: 8px;
+        .tool-btn:active, .tool-btn.active { 
+            background-color: #2980b9; border-color: #3498db; 
         }
-
-        .dpad-title { color: #3498db; font-size: 11px; font-weight: bold; text-align: center; margin-bottom: 5px; }
         
-        .dpad-row { display: flex; gap: 8px; justify-content: center; }
+        .tool-btn.danger { background-color: #e74c3c; border-color: #c0392b; }
+        .tool-btn.danger:active { background-color: #c0392b; }
+
+        .control-group {
+            display: flex; align-items: center; gap: 8px;
+            background: #34495e; padding: 4px 8px; border-radius: 6px;
+            border: 1px solid #7f8c8d;
+        }
+
+        label { color: white; font-size: 12px; display: flex; align-items: center; gap: 4px; }
+        input[type="range"] { width: 70px; accent-color: #3498db; }
+
+        /* حاوية لوحة الرسم القابلة للتمرير */
+        #canvas-container { 
+            flex: 1; position: relative; overflow: auto; 
+            background-color: #718093; -webkit-overflow-scrolling: touch; 
+        }
+        
+        canvas { 
+            display: block; background-color: white; 
+            margin: 10px auto; box-shadow: 0 8px 20px rgba(0,0,0,0.3); 
+            touch-action: none; 
+        }
+
+        /* لوحة التحكم بالاتجاهات (D-Pad) المطورة للجوال */
+        #dpad-container {
+            position: fixed; bottom: 15px; left: 15px;
+            background-color: rgba(44, 62, 80, 0.96);
+            border: 2px solid #3498db; padding: 12px; border-radius: 16px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.5); z-index: 100;
+        }
+
+        .dpad-title { 
+            color: #3498db; font-size: 11px; font-weight: bold; 
+            text-align: center; margin-bottom: 8px; text-transform: uppercase;
+        }
+        
+        /* تصميم أزرار الاتجاهات بنظام الشبكة المتناسق */
+        .dpad-grid { 
+            display: grid; 
+            grid-template-columns: repeat(3, 55px); 
+            grid-template-rows: repeat(3, 55px); 
+            gap: 8px; 
+        }
 
         .dpad-btn {
-            width: 45px; height: 45px; background-color: #2c3e50; color: white;
-            border: 1px solid #7f8c8d; border-radius: 8px; font-size: 16px; font-weight: bold;
-            cursor: pointer; display: flex; align-items: center; justify-content: center;
-            transition: background 0.1s;
+            background-color: #34495e; color: white;
+            border: 1px solid #7f8c8d; border-radius: 10px; 
+            font-size: 15px; font-weight: bold;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            cursor: pointer; transition: background 0.1s;
         }
-        .dpad-btn:active { background-color: #e67e22; transform: scale(0.95); }
-        .dpad-btn.center-node { background-color: #e74c3c; border-color: #c0392b; font-size: 12px; }
-
-        label { color: white; font-size: 13px; display: flex; align-items: center; gap: 5px; }
+        
+        .dpad-btn:active { 
+            background-color: #e67e22; border-color: #d35400; color: white; 
+        }
+        
+        /* زر نقطة الصفر المركزية */
+        .dpad-btn.center-node { 
+            background-color: #e74c3c; border-color: #c0392b; font-size: 11px; 
+        }
+        .dpad-btn.center-node:active { background-color: #c0392b; }
+        
+        .dpad-btn.empty { background: transparent; border: none; cursor: default; pointer-events: none; }
     </style>
 </head>
 <body>
 
     <div id="toolbar">
-        <button class="tool-btn active" onclick="setTool('pipe')" id="btn-pipe">🖊️ أنبوب سميك</button>
-        <button class="tool-btn" onclick="setTool('arrow')" id="btn-arrow">🏹 سهم اتجاه</button>
-        <button class="tool-btn" onclick="setTool('valve')" id="btn-valve">⏳ صمام/محبس</button>
-        <button class="tool-btn" onclick="setTool('text')" id="btn-text">🔤 نص/قياس</button>
+        <button class="tool-btn active" onclick="setTool('pipe')" id="btn-pipe">🖊️ أنبوب</button>
+        <button class="tool-btn" onclick="setTool('arrow')" id="btn-arrow">🏹 سهم</button>
+        <button class="tool-btn" onclick="setTool('valve')" id="btn-valve">⏳ محبس</button>
+        <button class="tool-btn" onclick="setTool('text')" id="btn-text">🔤 نص</button>
         
-        <div style="border-left: 1px solid #555; height: 20px; margin: 0 5px;"></div>
-        <label>🎨 <input type="color" id="colorPicker" value="#2c3e50"></label>
-        <label>📏 <input type="range" id="sizeSlider" min="2" max="12" value="6"></label>
-        <label>📏 طول السهم: <input type="range" id="lengthSlider" min="30" max="150" value="70"></label>
+        <div class="control-group">
+            <label>🎨 <input type="color" id="colorPicker" value="#2c3e50" style="width:25px; height:25px; border:none; padding:0;"></label>
+            <label>📏 <input type="range" id="sizeSlider" min="2" max="12" value="6"></label>
+            <label>↕️ الطول <input type="range" id="lengthSlider" min="40" max="150" value="75"></label>
+        </div>
         
         <button class="tool-btn danger" onclick="clearCanvas()" style="margin-right: auto;">🗑️ مسح</button>
     </div>
 
     <div id="canvas-container">
-        <canvas id="isoCanvas" width="1200" height="900"></canvas>
+        <canvas id="isoCanvas" width="1300" height="1000"></canvas>
     </div>
 
     <div id="dpad-container">
-        <div class="dpad-title">انقر الاتجاه للرسم الفوري</div>
-        
-        <div class="dpad-row">
+        <div class="dpad-title">لوحة التوجيه الفوري</div>
+        <div class="dpad-grid">
+            <button class="dpad-btn empty"></button>
             <button class="dpad-btn" onclick="drawInDirection('o')">↑<br>o</button>
-        </div>
-        
-        <div class="dpad-row">
+            <button class="dpad-btn empty"></button>
+            
             <button class="dpad-btn" onclick="drawInDirection('h')">↖<br>h</button>
-            <button class="dpad-btn center-node" id="status-node">نقطة<br>الصفر</button>
+            <button class="dpad-btn center-node" id="status-node">نقطة<br>الارتكاز</button>
             <button class="dpad-btn" onclick="drawInDirection('r')">↗<br>r</button>
-        </div>
-
-        <div class="dpad-row">
+            
             <button class="dpad-btn" onclick="drawInDirection('l')">↙<br>l</button>
             <button class="dpad-btn" onclick="drawInDirection('u')">↓<br>u</button>
             <button class="dpad-btn" onclick="drawInDirection('v')">↘<br>v</button>
@@ -103,8 +148,8 @@
         let currentTool = 'pipe';
         let snapshot;
         
-        // نقطة الصفر الحالية (الارتكاز) - تبدأ من منتصف اللوحة افتراضياً
-        let tapPoint = { x: 600, y: 450 }; 
+        // نقطة الارتكاز (الصفر) الافتراضية
+        let tapPoint = { x: 650, y: 500 }; 
         const gridSpacing = 25;
         const isoAngle = 30 * Math.PI / 180;
 
@@ -113,10 +158,10 @@
         function init() {
             drawGrid();
             saveSnapshot();
-            drawTapPointMarker(); // رسم الدائرة المحددة لنقطة الصفر
+            drawTapPointMarker();
         }
 
-        // رسم خلفية الورقة الهندسية الآيزومترية
+        // بناء خلفية شبكة خطوط الورق الهندسي بدقة
         function drawGrid() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.strokeStyle = '#d1e1e9';
@@ -132,24 +177,23 @@
             }
         }
 
-        // حفظ الرسمة الحالية في الذاكرة
         function saveSnapshot() {
             snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
         }
 
-        // رسم مؤشر دائرة الارتكاز (نقطة الصفر) الحالية
+        // رسم مؤشر نقطة الصفر التفاعلية بلون أحمر بارز ليوضح مكان بدء الرسم القادم
         function drawTapPointMarker() {
             ctx.putImageData(snapshot, 0, 0);
             ctx.beginPath();
-            ctx.arc(tapPoint.x, tapPoint.y, 6, 0, 2 * Math.PI);
-            ctx.fillStyle = '#e74c3c'; // لون أحمر منبه للنقطة النشطة
+            ctx.arc(tapPoint.x, tapPoint.y, 7, 0, 2 * Math.PI);
+            ctx.fillStyle = '#e74c3c';
             ctx.fill();
-            ctx.strokeStyle = 'white';
-            ctx.lineWidth = 2;
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 2.5;
             ctx.stroke();
         }
 
-        // عند الضغط على الشاشة: نغير موقع "نقطة الصفر" إلى المكان الجديد فوراً
+        // دعم دقة اللمس والنقر على المتصفحات والجوالات لتحديث نقطة الصفر
         canvas.addEventListener('pointerdown', (e) => {
             const rect = canvas.getBoundingClientRect();
             tapPoint.x = e.clientX - rect.left;
@@ -163,13 +207,12 @@
             document.getElementById(`btn-${tool}`).classList.add('active');
         }
 
-        // الدالة السحرية: ترسم عند الضغط على أزرار الاتجاهات بناءً على نقطة الصفر الحالية
+        // معالجة الرسم والحسابات الرياضية المتقدمة لجميع المحاور الستة
         function drawInDirection(direction) {
             const length = parseInt(document.getElementById('lengthSlider').value);
             let targetX = tapPoint.x;
             let targetY = tapPoint.y;
 
-            // حساب الإحداثيات الهندسية الدقيقة لكل اتجاه (o, u, h, r, l, v)
             switch (direction) {
                 case 'o': // أعلى عمودي
                     targetY -= length; break;
@@ -189,39 +232,39 @@
                     targetY += length * Math.sin(Math.PI / 6); break;
             }
 
-            // إعدادات الفرشاة المحددة من الأعلى
-            ctx.putImageData(snapshot, 0, 0); // استعادة الرسمة بدون مؤشر النقطة الحمراء مؤقتاً
+            ctx.putImageData(snapshot, 0, 0); 
             ctx.strokeStyle = document.getElementById('colorPicker').value;
             ctx.fillStyle = document.getElementById('colorPicker').value;
             ctx.lineWidth = document.getElementById('sizeSlider').value;
             ctx.lineCap = 'round'; ctx.lineJoin = 'round';
 
-            // تنفيذ الرسم حسب الأداة المختارة
             if (currentTool === 'pipe') {
                 ctx.beginPath(); ctx.moveTo(tapPoint.x, tapPoint.y); ctx.lineTo(targetX, targetY); ctx.stroke();
             } else if (currentTool === 'arrow') {
                 drawArrow(tapPoint.x, tapPoint.y, targetX, targetY, ctx.lineWidth);
             } else if (currentTool === 'valve') {
-                // يرسم أنبوب ثم يضع محبس في منتصفه
                 ctx.beginPath(); ctx.moveTo(tapPoint.x, tapPoint.y); ctx.lineTo(targetX, targetY); ctx.stroke();
                 drawValve((tapPoint.x + targetX)/2, (tapPoint.y + targetY)/2);
             } else if (currentTool === 'text') {
                 ctx.beginPath(); ctx.moveTo(tapPoint.x, tapPoint.y); ctx.lineTo(targetX, targetY); ctx.stroke();
-                const text = prompt("أدخل المقاس (مثال: 350):");
-                if(text) { ctx.font="bold 14px Arial"; ctx.fillText(text, (tapPoint.x + targetX)/2 - 10, (tapPoint.y + targetY)/2 - 10); }
+                const text = prompt("أدخل المقاس المطلوب وضعه فوق هذا الأنبوب:");
+                if(text) { 
+                    ctx.font = "bold 14px Arial"; 
+                    ctx.fillText(text, (tapPoint.x + targetX)/2 - 12, (tapPoint.y + targetY)/2 - 12); 
+                }
             }
 
-            // الابتكار التفاعلي: نقل نقطة الصفر تلقائياً لتصبح هي نهاية السهم المرسوم لتستمر بالرسم المتسلسل!
+            // ترحيل تلقائي ذكي لنقطة الصفر لتتبع نهاية الرسم الجديد تلقائياً
             tapPoint.x = targetX;
             tapPoint.y = targetY;
 
-            saveSnapshot(); // حفظ الخط الجديد في ذاكرة اللوحة
-            drawTapPointMarker(); // إعادة رسم نقطة الصفر عند موقعها الجديد
+            saveSnapshot();
+            drawTapPointMarker();
         }
 
-        // دالة رسم السهم التوجيهي المتناسق
+        // دالة رسم الأسهم
         function drawArrow(x1, y1, x2, y2, width) {
-            const headlen = width * 3 > 15 ? width * 3 : 15;
+            const headlen = width * 3.5 > 16 ? width * 3.5 : 16;
             const angle = Math.atan2(y2 - y1, x2 - x1);
             ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
             ctx.beginPath(); ctx.moveTo(x2, y2);
@@ -230,15 +273,18 @@
             ctx.closePath(); ctx.fill();
         }
 
-        // دالة ختم رمز الصمام (المحبس الهندي)
+        // دالة هندسة الرموز (المحابس والأقفال)
         function drawValve(x, y) {
             ctx.save(); ctx.translate(x, y); ctx.beginPath();
-            ctx.moveTo(-12, -8); ctx.lineTo(12, 8); ctx.lineTo(12, -8); ctx.lineTo(-12, 8);
+            ctx.moveTo(-14, -9); ctx.lineTo(14, 9); ctx.lineTo(14, -9); ctx.lineTo(-14, 9);
             ctx.closePath(); ctx.fill(); ctx.restore();
         }
 
         function clearCanvas() {
-            if (confirm("مسح اللوحة؟")) { tapPoint = { x: 600, y: 450 }; init(); }
+            if (confirm("هل تود تنظيف اللوحة وبدء رسمة جديدة؟")) { 
+                tapPoint = { x: 650, y: 500 }; 
+                init(); 
+            }
         }
     </script>
 </body>
