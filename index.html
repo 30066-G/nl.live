@@ -1,34 +1,50 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
-<title>test</title>
+<title>ISO CAD v2</title>
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Segoe UI}
 body{overflow:hidden;background:#181818}
 
-canvas{position:absolute;top:0;left:0;touch-action:none}
+canvas{
+position:absolute;
+top:0;left:0;
+touch-action:none;
+}
 
 #topbar{
-position:fixed;top:0;left:0;right:0;
-display:flex;gap:8px;padding:10px;
-background:#202020;z-index:10;
+position:fixed;
+top:0;left:0;right:0;
+display:flex;
+gap:8px;
+padding:10px;
+background:#202020;
+z-index:10;
 }
 
 button{
-height:40px;padding:0 12px;
-border:none;border-radius:10px;
-background:#333;color:#fff;font-weight:600;
+height:40px;
+padding:0 12px;
+border:none;
+border-radius:10px;
+background:#333;
+color:#fff;
+font-weight:600;
 }
+
 button.active{background:#ff9800}
 
 #hud{
-position:fixed;bottom:10px;left:10px;
-color:#fff;font-size:13px;
+position:fixed;
+bottom:10px;left:10px;
+color:#fff;
+font-size:13px;
 background:rgba(0,0,0,.5);
-padding:10px;border-radius:10px;
+padding:10px;
+border-radius:10px;
 }
 </style>
 </head>
@@ -38,29 +54,29 @@ padding:10px;border-radius:10px;
 <div id="topbar">
 <button onclick="setMode('draw')" id="drawBtn">Draw</button>
 <button onclick="setMode('edit')" id="editBtn">Edit</button>
-<button onclick="exportJSON()">Export</button>
+<button onclick="deleteSelected()">Delete</button>
 <button onclick="clearAll()">Clear</button>
 </div>
 
 <div id="hud">
 <div>Mode: <span id="modeText">draw</span></div>
-<div id="info"></div>
+<div>Zoom: <span id="zoomText">100%</span></div>
 </div>
 
 <canvas id="grid"></canvas>
 <canvas id="main"></canvas>
 
 <script>
-
-// ---------------- CORE ----------------
 const grid=document.getElementById("grid")
 const main=document.getElementById("main")
-const ctx=main.getContext("2d")
 const gtx=grid.getContext("2d")
+const ctx=main.getContext("2d")
 
 let w,h
+
 function resize(){
-w=innerWidth;h=innerHeight
+w=innerWidth
+h=innerHeight
 grid.width=w;grid.height=h
 main.width=w;main.height=h
 }
@@ -70,143 +86,48 @@ resize()
 // ---------------- CAMERA ----------------
 let camera={x:0,y:0,zoom:1,targetZoom:1}
 
-// ---------------- DATA (V10 STRUCTURED ENGINE) ----------------
+// ---------------- DATA ----------------
 let nodes=[]
-let pipes=[]
-let fittings=[]
+let edges=[]
 
 // ---------------- STATE ----------------
 let mode="draw"
-let startNode=null
+let selectedNode=null
+let dragging=false
 
+let startNode=null
+let currentPoint={x:0,y:0}
+
+// ---------------- GRID SNAP ----------------
 const gridSize=40
 
-// ---------------- SNAP ----------------
 function snap(v){
 return Math.round(v/gridSize)*gridSize
 }
 
-// ---------------- NODE ----------------
-function createNode(x,y){
-const n={id:crypto.randomUUID(),x,y}
-nodes.push(n)
-return n
-}
-
-function getNode(p){
-return nodes.find(n=>Math.hypot(n.x-p.x,n.y-p.y)<12/camera.zoom)
-}
-
-// ---------------- PIPE OBJECT ----------------
-function createPipe(path,flowDir=1){
-return {
-id:crypto.randomUUID(),
-path,
-diameter:4,
-flow:flowDir
+// world/screen
+function worldToScreen(x,y){
+return{
+x:x*camera.zoom+camera.x+w/2,
+y:y*camera.zoom+camera.y+h/2
 }
 }
 
-// ---------------- FITTING ENGINE ----------------
-function createFitting(type,pos){
-const f={id:crypto.randomUUID(),type,pos}
-fittings.push(f)
-return f
-}
-
-function detectFittingType(deg){
-if(deg<=1)return "end"
-if(deg===2)return "straight"
-if(deg===3)return "tee"
-if(deg>=4)return "cross"
-}
-
-// ---------------- A* PATHFINDING (FINAL FIXED) ----------------
-function aStar(start,end){
-
-const open=[start]
-const came=new Map()
-const g=new Map()
-
-function key(p){return p.x+","+p.y}
-
-function heuristic(a,b){
-return Math.abs(a.x-b.x)+Math.abs(a.y-b.y)
-}
-
-function neighbors(p){
-return [
-{x:p.x+gridSize,y:p.y},
-{x:p.x-gridSize,y:p.y},
-{x:p.x,y:p.y+gridSize},
-{x:p.x,y:p.y-gridSize}
-]
-}
-
-while(open.length){
-
-open.sort((a,b)=>heuristic(a,end)-heuristic(b,end))
-const current=open.shift()
-
-if(Math.hypot(current.x-end.x,current.y-end.y)<gridSize){
-return reconstruct(current,came)
-}
-
-for(const n of neighbors(current)){
-
-const k=key(n)
-if(nodes.find(nd=>nd.x===n.x&&nd.y===n.y&&nd!==start))continue
-
-const cost=(g.get(key(current))||0)+1
-
-if(cost<(g.get(k)||Infinity)){
-g.set(k,cost)
-came.set(k,current)
-open.push(n)
-}
+function screenToWorld(x,y){
+return{
+x:(x-w/2-camera.x)/camera.zoom,
+y:(y-h/2-camera.y)/camera.zoom
 }
 }
 
-return [start,end]
-}
-
-function reconstruct(node,came){
-const path=[node]
-let current=node
-
-while(came.has(current.x+","+current.y)){
-current=came.get(current.x+","+current.y)
-path.unshift(current)
-}
-
-return path
-}
-
-// ---------------- PIPE ROUTE ----------------
-function route(a,b){
-return aStar({x:a.x,y:a.y},{x:b.x,y:b.y})
-}
-
-// ---------------- CLEAN TOPOLOGY ----------------
-function clean(){
-for(let i=0;i<nodes.length;i++){
-for(let j=i+1;j<nodes.length;j++){
-if(Math.hypot(nodes[i].x-nodes[j].x,nodes[i].y-nodes[j].y)<5){
-nodes[j].x=nodes[i].x
-nodes[j].y=nodes[i].y
-}
-}
-}
-}
-
-// ---------------- DRAW ----------------
+// ---------------- DRAW GRID ----------------
 function drawGrid(){
 gtx.clearRect(0,0,w,h)
 gtx.save()
 gtx.translate(camera.x+w/2,camera.y+h/2)
 gtx.scale(camera.zoom,camera.zoom)
 
-gtx.strokeStyle="rgba(255,255,255,0.08)"
+gtx.strokeStyle="rgba(120,120,120,0.15)"
 gtx.lineWidth=1/camera.zoom
 
 for(let i=-2000;i<2000;i+=gridSize){
@@ -226,7 +147,6 @@ gtx.restore()
 
 // ---------------- RENDER ----------------
 function render(){
-
 camera.zoom+=(camera.targetZoom-camera.zoom)*0.15
 
 drawGrid()
@@ -236,130 +156,123 @@ ctx.save()
 ctx.translate(camera.x+w/2,camera.y+h/2)
 ctx.scale(camera.zoom,camera.zoom)
 
-clean()
-
-// DRAW PIPES + FLOW
-pipes.forEach(p=>{
-
+// edges
 ctx.strokeStyle="#4caf50"
-ctx.lineWidth=p.diameter/camera.zoom
+ctx.lineWidth=3/camera.zoom
 ctx.lineCap="round"
 
+edges.forEach(e=>{
+const a=nodes.find(n=>n.id===e.a)
+const b=nodes.find(n=>n.id===e.b)
+if(!a||!b)return
+
 ctx.beginPath()
-p.path.forEach((pt,i)=>{
-if(i===0)ctx.moveTo(pt.x,pt.y)
-else ctx.lineTo(pt.x,pt.y)
-})
+ctx.moveTo(a.x,a.y)
+ctx.lineTo(b.x,b.y)
 ctx.stroke()
-
-// flow direction marker
-const mid=p.path[Math.floor(p.path.length/2)]
-ctx.fillStyle="#00e5ff"
-ctx.beginPath()
-ctx.arc(mid.x,mid.y,3/camera.zoom,0,Math.PI*2)
-ctx.fill()
 })
 
-// DRAW NODES + FITTINGS
+// nodes
 nodes.forEach(n=>{
-
-const deg=pipes.reduce((c,p)=>{
-return c + p.path.filter(pt=>pt.x===n.x&&pt.y===n.y).length
-},0)
-
-const type=detectFittingType(deg)
-
-let color="#2196f3"
-if(type==="tee")color="#ff9800"
-if(type==="cross")color="red"
-if(type==="end")color="#00e676"
-
-ctx.fillStyle=color
+ctx.fillStyle=(n===selectedNode)?"#ff9800":"#2196f3"
 ctx.beginPath()
 ctx.arc(n.x,n.y,6/camera.zoom,0,Math.PI*2)
 ctx.fill()
-
-ctx.fillStyle="#fff"
-ctx.font=`10px Arial`
-ctx.fillText(type,n.x+6,n.y-6)
 })
 
 ctx.restore()
 
-info.innerText=`pipes:${pipes.length} nodes:${nodes.length} fittings:${fittings.length}`
-
+zoomText.innerText=Math.round(camera.zoom*100)+"%"
 requestAnimationFrame(render)
+}
+
+// ---------------- NODE HELPERS ----------------
+function getNodeAt(pos){
+return nodes.find(n=>{
+return Math.hypot(n.x-pos.x,n.y-pos.y)<15/camera.zoom
+})
+}
+
+function createNode(x,y){
+const n={id:Math.random().toString(36),x,y}
+nodes.push(n)
+return n
 }
 
 // ---------------- INPUT ----------------
 main.addEventListener("pointerdown",e=>{
-
-const p=screenToWorld(e.clientX,e.clientY)
-p.x=snap(p.x)
-p.y=snap(p.y)
-
-const hit=getNode(p)
+const pos=screenToWorld(e.clientX,e.clientY)
+pos.x=snap(pos.x)
+pos.y=snap(pos.y)
 
 if(mode==="draw"){
+const hit=getNodeAt(pos)
 
 if(!startNode){
-startNode=hit||createNode(p.x,p.y)
+startNode=hit||createNode(pos.x,pos.y)
 }
 else{
-const endNode=hit||createNode(p.x,p.y)
+const endNode=hit||createNode(pos.x,pos.y)
 
-const path=route(startNode,endNode)
-
-pipes.push(createPipe(path))
-
+edges.push({a:startNode.id,b:endNode.id})
 startNode=null
 }
 }
+
+if(mode==="edit"){
+selectedNode=getNodeAt(pos)
+dragging=!!selectedNode
+}
 })
 
-// ---------------- EXPORT ----------------
-function exportJSON(){
-const data={nodes,pipes,fittings}
-const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"})
-const a=document.createElement("a")
-a.href=URL.createObjectURL(blob)
-a.download="iso_cad_v10.json"
-a.click()
+main.addEventListener("pointermove",e=>{
+if(mode!=="edit"||!dragging||!selectedNode)return
+
+const pos=screenToWorld(e.clientX,e.clientY)
+selectedNode.x=snap(pos.x)
+selectedNode.y=snap(pos.y)
+})
+
+main.addEventListener("pointerup",()=>{
+dragging=false
+})
+
+// ---------------- MODE ----------------
+function setMode(m){
+mode=m
+document.getElementById("modeText").innerText=m
+document.querySelectorAll("button").forEach(b=>b.classList.remove("active"))
+if(m==="draw")drawBtn.classList.add("active")
+if(m==="edit")editBtn.classList.add("active")
+}
+
+// ---------------- DELETE ----------------
+function deleteSelected(){
+if(!selectedNode)return
+
+edges=edges.filter(e=>e.a!==selectedNode.id&&e.b!==selectedNode.id)
+nodes=nodes.filter(n=>n!==selectedNode)
+selectedNode=null
+}
+
+// ---------------- CLEAR ----------------
+function clearAll(){
+nodes=[]
+edges=[]
+selectedNode=null
+startNode=null
 }
 
 // ---------------- ZOOM ----------------
 main.addEventListener("wheel",e=>{
 e.preventDefault()
 camera.targetZoom*=e.deltaY<0?1.1:0.9
-camera.targetZoom=Math.max(0.3,Math.min(6,camera.targetZoom))
+camera.targetZoom=Math.max(0.4,Math.min(5,camera.targetZoom))
 })
-
-// ---------------- UTIL ----------------
-function screenToWorld(x,y){
-return{
-x:(x-w/2-camera.x)/camera.zoom,
-y:(y-h/2-camera.y)/camera.zoom
-}
-}
-
-// ---------------- UI ----------------
-function setMode(m){
-mode=m
-modeText.innerText=m
-document.querySelectorAll("button").forEach(b=>b.classList.remove("active"))
-if(m==="draw")drawBtn.classList.add("active")
-if(m==="edit")editBtn.classList.add("active")
-}
-
-function clearAll(){
-nodes=[]
-pipes=[]
-fittings=[]
-}
 
 setMode("draw")
 render()
-
 </script>
+
 </body>
 </html>
