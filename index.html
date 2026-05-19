@@ -463,12 +463,35 @@ const ids=Object.keys(pointers)
 
 if(ids.length===1){
 
-drawing=true
-
-startPoint=screenToWorld(
+const pos=screenToWorld(
 e.clientX,
 e.clientY
 )
+
+const hit=objects.find(o=>{
+
+const d=Math.hypot(
+o.b.x-pos.x,
+o.b.y-pos.y
+)
+
+return d<20/camera.zoom
+
+})
+
+if(hit){
+
+current.x=hit.b.x
+current.y=hit.b.y
+
+}else{
+
+current.x=pos.x
+current.y=pos.y
+
+}
+
+drawing=true
 
 px=e.clientX
 py=e.clientY
