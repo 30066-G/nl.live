@@ -2,489 +2,456 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Mo style</title>
-
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<title>ISO CAD Mobile</title>
 <style>
+
 *{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    touch-action:none;
-    font-family:Arial,Helvetica,sans-serif
+margin:0;
+padding:0;
+box-sizing:border-box;
+-webkit-user-select:none;
+user-select:none;
+font-family:Segoe UI,Arial,sans-serif
 }
 
 body{
-    overflow:hidden;
-    background:#1a1a1a;
-    color:#fff
+overflow:hidden;
+background:#1a1a1a
 }
 
-#toolbar{
-    position:fixed;
-    top:0;
-    left:0;
-    width:100%;
-    z-index:1000;
-    background:#222;
-    display:flex;
-    flex-wrap:wrap;
-    gap:5px;
-    padding:6px;
-    border-bottom:2px solid #444
+#topbar{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+z-index:999;
+background:#1f1f1f;
+padding:8px;
+display:flex;
+gap:6px;
+flex-wrap:wrap;
+border-bottom:2px solid #333
 }
 
 .btn{
-    background:#333;
-    color:#fff;
-    border:none;
-    padding:7px 10px;
-    border-radius:4px;
-    font-size:11px;
-    font-weight:bold;
-    cursor:pointer
+background:#2e2e2e;
+border:none;
+color:#fff;
+padding:8px 12px;
+border-radius:8px;
+font-size:12px;
+font-weight:600
 }
 
 .btn:active{
-    background:#d87a00
+background:#d97800
 }
 
 .group{
-    display:flex;
-    align-items:center;
-    gap:4px;
-    background:#2d2d2d;
-    padding:4px 6px;
-    border-radius:4px
+display:flex;
+align-items:center;
+gap:5px;
+background:#2a2a2a;
+padding:5px 8px;
+border-radius:8px
 }
 
-.group label{
-    font-size:10px;
-    color:#ccc
+.group input{
+background:#111;
+border:1px solid #555;
+color:#fff;
+padding:4px;
+border-radius:5px
 }
 
 .group input[type=text]{
-    width:90px;
-    background:#111;
-    color:#fff;
-    border:1px solid #555;
-    border-radius:4px;
-    padding:3px;
-    text-align:center
+width:100px;
+text-align:center
 }
 
-.group input[type=range]{
-    width:70px
-}
-
-#canvasBox{
-    width:100vw;
-    height:100vh;
-    overflow:hidden;
-    position:relative
+.group label{
+font-size:11px;
+color:#ccc
 }
 
 canvas{
-    width:100%;
-    height:100%;
-    display:block
-}
-
-#side{
-    position:fixed;
-    right:10px;
-    top:110px;
-    z-index:999;
-    background:rgba(20,20,20,.9);
-    border:1px solid #444;
-    border-radius:8px;
-    padding:6px;
-    display:flex;
-    flex-direction:column;
-    gap:5px
-}
-
-.sbtn{
-    background:#2d2d2d;
-    color:#fff;
-    border:none;
-    padding:7px;
-    border-radius:4px;
-    font-size:10px;
-    cursor:pointer
-}
-
-.sbtn:active{
-    background:#d87a00
-}
-
-#pad{
-    position:fixed;
-    bottom:15px;
-    right:15px;
-    z-index:999
-}
-
-.grid{
-    display:grid;
-    grid-template-columns:repeat(3,50px);
-    grid-template-rows:repeat(3,50px);
-    gap:5px
-}
-
-.pbtn{
-    border:none;
-    background:#2d89ef;
-    color:#fff;
-    font-size:18px;
-    border-radius:8px;
-    cursor:pointer;
-    font-weight:bold
-}
-
-.pbtn:active{
-    background:#d87a00
-}
-
-.center{
-    background:#c0392b;
-    font-size:11px
+position:absolute;
+top:0;
+left:0;
+touch-action:none
 }
 
 #info{
-    position:fixed;
-    left:10px;
-    top:110px;
-    z-index:999;
-    background:rgba(0,0,0,.85);
-    border:2px solid #d87a00;
-    border-radius:8px;
-    padding:10px;
-    width:210px;
-    font-size:11px
+position:fixed;
+left:10px;
+top:110px;
+z-index:999;
+background:rgba(25,25,25,.92);
+border:2px solid #d97800;
+padding:14px;
+border-radius:12px;
+width:240px;
+color:#fff
 }
 
 #info h3{
-    color:#d87a00;
-    margin-bottom:8px;
-    border-bottom:1px solid #d87a00;
-    padding-bottom:5px
+color:#ff9800;
+margin-bottom:8px;
+font-size:16px
+}
+
+#symbols{
+position:fixed;
+right:10px;
+top:110px;
+z-index:999;
+display:flex;
+flex-direction:column;
+gap:6px;
+background:rgba(20,20,20,.92);
+padding:8px;
+border-radius:12px
+}
+
+.sym{
+background:#2c2c2c;
+border:none;
+color:#fff;
+padding:10px;
+border-radius:8px;
+font-size:12px
 }
 
 #zoom{
-    position:fixed;
-    bottom:20px;
-    left:20px;
-    z-index:999;
-    background:rgba(0,0,0,.7);
-    padding:5px 10px;
-    border-radius:5px;
-    font-size:11px
+position:fixed;
+bottom:20px;
+left:20px;
+z-index:999;
+background:rgba(0,0,0,.7);
+padding:6px 12px;
+border-radius:8px;
+color:#fff;
+font-size:12px
 }
+
 </style>
 </head>
 
 <body>
 
-<div id="toolbar">
+<div id="topbar">
 
 <button class="btn" onclick="resetView()">Zentrieren</button>
 
 <div class="group">
 <label>Projekt</label>
-<input type="text" id="projekt" value="Rentschler">
+<input type="text" id="project" value="Rentschler">
 </div>
 
 <div class="group">
 <label>Isolierung</label>
-<input type="text" id="isolierung" value="K-Flex">
+<input type="text" id="iso" value="K-Flex">
+</div>
+
+<div class="group">
+<label>Rohr</label>
+<input type="text" id="pipe" value="Ø220">
 </div>
 
 <div class="group">
 <label>Länge</label>
-<input type="range" id="len" min="20" max="180" value="60">
+<input type="range" id="len" min="20" max="220" value="60">
 <span id="lenText">350 mm</span>
 </div>
 
-<div class="group">
-<label>Text</label>
-<input type="range" id="font" min="10" max="28" value="16">
-</div>
-
+<button class="btn" onclick="undo()">Undo</button>
 <button class="btn" onclick="clearAll()">Löschen</button>
-<button class="btn" onclick="download()">Exportieren</button>
+<button class="btn" onclick="exportPNG()">Export</button>
 
-</div>
-
-<div id="side">
-<button class="sbtn" onclick="symbol('valve')">Ventil</button>
-<button class="sbtn" onclick="symbol('pump')">Pumpe</button>
-<button class="sbtn" onclick="symbol('flange')">Flansch</button>
-<button class="sbtn" onclick="symbol('gauge')">Messgerät</button>
-<button class="sbtn" onclick="symbol('cube')">Behälter</button>
-<button class="sbtn" onclick="symbol('elbow')">Bogen</button>
 </div>
 
 <div id="info">
 <h3>Technische Daten</h3>
-<div>Gesamtlänge: <span id="sum">0</span> mm</div>
-<div style="margin-top:5px">Rohrdurchmesser: Ø220</div>
+<div style="margin-top:8px">
+Gesamtlänge:
+<span id="sum">0</span> mm
 </div>
 
-<div id="zoom">Zoom: <span id="zoomVal">100%</span></div>
-
-<div id="canvasBox">
-<canvas id="cv"></canvas>
+<div style="margin-top:6px">
+Rohrdurchmesser:
+<span id="pipeInfo">Ø220</span>
 </div>
 
-<div id="pad">
-<div class="grid">
-<div></div>
-<button class="pbtn" onclick="draw('up')">↑</button>
-<div></div>
-
-<button class="pbtn" onclick="draw('leftUp')">↖</button>
-<button class="pbtn center" onclick="resetView()">ISO</button>
-<button class="pbtn" onclick="draw('rightUp')">↗</button>
-
-<button class="pbtn" onclick="draw('leftDown')">↙</button>
-<button class="pbtn" onclick="draw('down')">↓</button>
-<button class="pbtn" onclick="draw('rightDown')">↘</button>
+<div style="margin-top:6px">
+Projekt:
+<span id="projectInfo">Rentschler</span>
 </div>
 </div>
+
+<div id="symbols">
+<button class="sym" onclick="setSymbol('valve')">Ventil</button>
+<button class="sym" onclick="setSymbol('flange')">Flansch</button>
+<button class="sym" onclick="setSymbol('pump')">Pumpe</button>
+<button class="sym" onclick="setSymbol('gauge')">Messgerät</button>
+<button class="sym" onclick="setSymbol('elbow')">Bogen</button>
+</div>
+
+<div id="zoom">
+Zoom:
+<span id="zoomText">100%</span>
+</div>
+
+<canvas id="bg"></canvas>
+<canvas id="draw"></canvas>
 
 <script>
 
-const canvas=document.getElementById('cv')
-const ctx=canvas.getContext('2d')
+const bg=document.getElementById("bg")
+const draw=document.getElementById("draw")
 
-canvas.width=window.innerWidth
-canvas.height=window.innerHeight
+const bgx=bg.getContext("2d")
+const ctx=draw.getContext("2d")
 
-let transform={x:0,y:0,scale:1}
-let start={x:window.innerWidth/2,y:window.innerHeight/2-70}
+let w=window.innerWidth
+let h=window.innerHeight
+
+const dpr=window.devicePixelRatio||1
+
+bg.width=w*dpr
+bg.height=h*dpr
+draw.width=w*dpr
+draw.height=h*dpr
+
+bg.style.width=w+"px"
+bg.style.height=h+"px"
+
+draw.style.width=w+"px"
+draw.style.height=h+"px"
+
+bgx.scale(dpr,dpr)
+ctx.scale(dpr,dpr)
+
+let camera={
+x:0,
+y:0,
+zoom:1
+}
+
+let pipes=[]
 let total=0
-let objects=[]
 
-const ratio=5.833
+let current={
+x:w/2,
+y:h/2
+}
+
+let selectedSymbol=null
 
 function resize(){
-canvas.width=window.innerWidth
-canvas.height=window.innerHeight
-render()
+
+location.reload()
+
 }
 
 window.onresize=resize
 
-function isoPaper(){
+function snap(v){
 
-ctx.fillStyle="#fff"
-ctx.fillRect(0,0,canvas.width,canvas.height)
-
-ctx.save()
-
-ctx.translate(transform.x,transform.y)
-ctx.scale(transform.scale,transform.scale)
-
-ctx.strokeStyle="rgba(130,170,190,.45)"
-ctx.lineWidth=.5
-
-let space=24
-let a=Math.PI/6
-
-for(let i=-4000;i<4000;i+=space){
-
-ctx.beginPath()
-ctx.moveTo(i,-4000)
-ctx.lineTo(i+4000*Math.tan(a),4000)
-ctx.stroke()
-
-ctx.beginPath()
-ctx.moveTo(i,-4000)
-ctx.lineTo(i-4000*Math.tan(a),4000)
-ctx.stroke()
+return Math.round(v/16)*16
 
 }
 
-ctx.restore()
+function drawGrid(){
 
-footer()
+bgx.clearRect(0,0,w,h)
+
+bgx.fillStyle="#ffffff"
+bgx.fillRect(0,0,w,h)
+
+bgx.save()
+
+bgx.translate(camera.x,camera.y)
+bgx.scale(camera.zoom,camera.zoom)
+
+const step=32
+const angle=Math.PI/6
+
+bgx.strokeStyle="rgba(130,160,190,.22)"
+bgx.lineWidth=.7
+
+for(let i=-6000;i<6000;i+=step){
+
+bgx.beginPath()
+bgx.moveTo(i,-6000)
+bgx.lineTo(i+6000*Math.tan(angle),6000)
+bgx.stroke()
+
+bgx.beginPath()
+bgx.moveTo(i,-6000)
+bgx.lineTo(i-6000*Math.tan(angle),6000)
+bgx.stroke()
+
 }
 
-function footer(){
+bgx.strokeStyle="rgba(90,110,130,.12)"
 
-let y=canvas.height-120
+for(let y=-6000;y<6000;y+=step){
 
-ctx.fillStyle="#fafafa"
-ctx.fillRect(0,y,canvas.width,120)
+bgx.beginPath()
+bgx.moveTo(-6000,y)
+bgx.lineTo(6000,y)
+bgx.stroke()
 
-ctx.strokeStyle="#222"
-ctx.lineWidth=2
+}
 
-ctx.beginPath()
-ctx.moveTo(0,y)
-ctx.lineTo(canvas.width,y)
-ctx.stroke()
+bgx.restore()
 
-ctx.font="10px Arial"
-ctx.fillStyle="#222"
+drawFooter()
+
+}
+
+function drawFooter(){
+
+let y=h-110
+
+bgx.fillStyle="#fafafa"
+bgx.fillRect(0,y,w,110)
+
+bgx.strokeStyle="#222"
+bgx.lineWidth=2
+
+bgx.beginPath()
+bgx.moveTo(0,y)
+bgx.lineTo(w,y)
+bgx.stroke()
 
 const cols=[21,27,33,42,48,60,76,89,114,140,168,219,273,324,457]
-let w=canvas.width/(cols.length+2)
+let cw=w/(cols.length+2)
+
+bgx.font="10px Segoe UI"
+bgx.fillStyle="#111"
 
 for(let i=0;i<cols.length;i++){
 
-let x=(i+1)*w
+let x=(i+1)*cw
 
-ctx.beginPath()
-ctx.moveTo(x,y)
-ctx.lineTo(x,y+40)
-ctx.stroke()
+bgx.beginPath()
+bgx.moveTo(x,y)
+bgx.lineTo(x,y+40)
+bgx.stroke()
 
-ctx.fillText(cols[i],x+8,y+15)
-ctx.fillText(Math.round(cols[i]*1.37),x+4,y+33)
-
-}
-
-ctx.beginPath()
-ctx.moveTo(0,y+20)
-ctx.lineTo(canvas.width,y+20)
-ctx.stroke()
-
-ctx.beginPath()
-ctx.moveTo(0,y+40)
-ctx.lineTo(canvas.width,y+40)
-ctx.stroke()
-
-ctx.font="bold 12px Arial"
-ctx.fillStyle="#d87a00"
-ctx.fillText("Frech Dämmtechnik",canvas.width-180,y+60)
-
-ctx.fillStyle="#333"
-ctx.font="10px Arial"
-
-ctx.fillText("Projekt: "+document.getElementById('projekt').value,canvas.width-180,y+80)
-ctx.fillText("Isolierung: "+document.getElementById('isolierung').value,canvas.width-180,y+98)
+bgx.fillText(cols[i],x+7,y+14)
+bgx.fillText(Math.round(cols[i]*1.37),x+4,y+32)
 
 }
 
-function draw(dir){
+bgx.beginPath()
+bgx.moveTo(0,y+20)
+bgx.lineTo(w,y+20)
+bgx.stroke()
 
-let len=parseFloat(document.getElementById('len').value)
-let a=Math.PI/6
+bgx.beginPath()
+bgx.moveTo(0,y+40)
+bgx.lineTo(w,y+40)
+bgx.stroke()
 
-let target={x:start.x,y:start.y}
+bgx.font="bold 13px Segoe UI"
+bgx.fillStyle="#d97800"
+bgx.fillText("Frech Dämmtechnik",w-190,y+62)
 
-if(dir==="up")target.y-=len
-if(dir==="down")target.y+=len
+bgx.fillStyle="#111"
+bgx.font="11px Segoe UI"
 
-if(dir==="rightUp"){
-target.x+=len*Math.cos(a)
-target.y-=len*Math.sin(a)
-}
-
-if(dir==="leftUp"){
-target.x-=len*Math.cos(a)
-target.y-=len*Math.sin(a)
-}
-
-if(dir==="rightDown"){
-target.x+=len*Math.cos(a)
-target.y+=len*Math.sin(a)
-}
-
-if(dir==="leftDown"){
-target.x-=len*Math.cos(a)
-target.y+=len*Math.sin(a)
-}
-
-let mm=Math.round(len*ratio)
-
-objects.push({
-type:"pipe",
-from:{...start},
-to:{...target},
-label:mm
-})
-
-total+=mm
-
-document.getElementById('sum').innerText=total
-
-start=target
-
-render()
-
-}
-
-function symbol(t){
-
-objects.push({
-type:"symbol",
-symbol:t,
-x:start.x,
-y:start.y
-})
-
-render()
+bgx.fillText("Projekt: "+document.getElementById("project").value,w-190,y+82)
+bgx.fillText("Isolierung: "+document.getElementById("iso").value,w-190,y+100)
 
 }
 
 function render(){
 
-ctx.clearRect(0,0,canvas.width,canvas.height)
+ctx.clearRect(0,0,w,h)
 
-isoPaper()
+drawGrid()
 
 ctx.save()
 
-ctx.translate(transform.x,transform.y)
-ctx.scale(transform.scale,transform.scale)
+ctx.translate(camera.x,camera.y)
+ctx.scale(camera.zoom,camera.zoom)
 
-let fs=parseInt(document.getElementById('font').value)
+pipes.forEach(p=>{
 
-objects.forEach(o=>{
-
-if(o.type==="pipe"){
-
-ctx.strokeStyle="#333"
-ctx.lineWidth=5
+ctx.strokeStyle="#202020"
+ctx.lineWidth=2.2
 ctx.lineCap="round"
 
 ctx.beginPath()
-ctx.moveTo(o.from.x,o.from.y)
-ctx.lineTo(o.to.x,o.to.y)
+ctx.moveTo(p.from.x,p.from.y)
+ctx.lineTo(p.to.x,p.to.y)
 ctx.stroke()
 
-let mx=(o.from.x+o.to.x)/2
-let my=(o.from.y+o.to.y)/2-8
-
-ctx.font="bold "+fs+"px Arial"
-ctx.textAlign="center"
-
-ctx.strokeStyle="#fff"
-ctx.lineWidth=4
-
-ctx.strokeText(o.label,mx,my)
-
-ctx.fillStyle="#d87a00"
-ctx.fillText(o.label,mx,my)
-
-}
-
-if(o.type==="symbol"){
+let mx=(p.from.x+p.to.x)/2
+let my=(p.from.y+p.to.y)/2-10
 
 ctx.save()
 
-ctx.translate(o.x,o.y)
+ctx.translate(mx,my)
 
-ctx.strokeStyle="#1e8449"
-ctx.fillStyle="#1e8449"
-ctx.lineWidth=3
+let ang=Math.atan2(
+p.to.y-p.from.y,
+p.to.x-p.from.x
+)
 
-let s=18
+ctx.rotate(ang)
 
-if(o.symbol==="valve"){
+ctx.font="600 14px Segoe UI"
+ctx.textAlign="center"
+
+ctx.strokeStyle="#fff"
+ctx.lineWidth=5
+
+ctx.strokeText(p.len+"",0,0)
+
+ctx.fillStyle="#111"
+ctx.fillText(p.len+"",0,0)
+
+ctx.restore()
+
+if(p.symbol){
+
+drawSymbol(
+p.symbol,
+p.to.x,
+p.to.y
+)
+
+}
+
+})
+
+ctx.fillStyle="red"
+
+ctx.beginPath()
+ctx.arc(current.x,current.y,5,0,Math.PI*2)
+ctx.fill()
+
+ctx.restore()
+
+}
+
+function drawSymbol(type,x,y){
+
+ctx.save()
+
+ctx.translate(x,y)
+
+ctx.strokeStyle="#178f4d"
+ctx.fillStyle="#178f4d"
+ctx.lineWidth=2
+
+let s=12
+
+if(type==="valve"){
 
 ctx.beginPath()
 ctx.moveTo(-s,-s/2)
@@ -496,7 +463,19 @@ ctx.stroke()
 
 }
 
-if(o.symbol==="pump"){
+if(type==="flange"){
+
+ctx.beginPath()
+ctx.moveTo(0,-s)
+ctx.lineTo(s,0)
+ctx.lineTo(0,s)
+ctx.lineTo(-s,0)
+ctx.closePath()
+ctx.stroke()
+
+}
+
+if(type==="pump"){
 
 ctx.beginPath()
 ctx.arc(0,0,s,0,Math.PI*2)
@@ -511,19 +490,7 @@ ctx.fill()
 
 }
 
-if(o.symbol==="flange"){
-
-ctx.beginPath()
-ctx.moveTo(0,-s)
-ctx.lineTo(s,0)
-ctx.lineTo(0,s)
-ctx.lineTo(-s,0)
-ctx.closePath()
-ctx.stroke()
-
-}
-
-if(o.symbol==="gauge"){
+if(type==="gauge"){
 
 ctx.beginPath()
 ctx.arc(0,0,s,0,Math.PI*2)
@@ -536,13 +503,7 @@ ctx.stroke()
 
 }
 
-if(o.symbol==="cube"){
-
-ctx.strokeRect(-s,-s,s*2,s*2)
-
-}
-
-if(o.symbol==="elbow"){
+if(type==="elbow"){
 
 ctx.beginPath()
 ctx.moveTo(-s,0)
@@ -556,55 +517,112 @@ ctx.restore()
 
 }
 
+function addPipe(dx,dy){
+
+let len=parseFloat(document.getElementById("len").value)
+
+let nx=current.x+dx*len
+let ny=current.y+dy*len
+
+nx=snap(nx)
+ny=snap(ny)
+
+let mm=Math.round(len*5.833)
+
+pipes.push({
+from:{x:current.x,y:current.y},
+to:{x:nx,y:ny},
+len:mm,
+symbol:selectedSymbol
 })
 
-ctx.fillStyle="red"
+selectedSymbol=null
 
-ctx.beginPath()
-ctx.arc(start.x,start.y,7,0,Math.PI*2)
-ctx.fill()
+current.x=nx
+current.y=ny
 
-ctx.restore()
+total+=mm
 
-}
-
-function clearAll(){
-
-objects=[]
-total=0
-document.getElementById('sum').innerText=0
-resetView()
-
-}
-
-function resetView(){
-
-transform={x:0,y:0,scale:1}
-start={x:window.innerWidth/2,y:window.innerHeight/2-70}
-
-document.getElementById('zoomVal').innerText="100%"
+document.getElementById("sum").innerText=total
 
 render()
 
 }
 
-document.getElementById('len').oninput=function(){
+function setSymbol(s){
 
-document.getElementById('lenText').innerText=
-Math.round(this.value*ratio)+" mm"
+selectedSymbol=s
+
+}
+
+draw.addEventListener("touchstart",startTouch)
+
+let sx=0
+let sy=0
+
+function startTouch(e){
+
+if(e.touches.length===1){
+
+sx=e.touches[0].clientX
+sy=e.touches[0].clientY
+
+}
+
+}
+
+draw.addEventListener("touchend",endTouch)
+
+function endTouch(e){
+
+let ex=e.changedTouches[0].clientX
+let ey=e.changedTouches[0].clientY
+
+let dx=ex-sx
+let dy=ey-sy
+
+if(Math.abs(dx)>Math.abs(dy)){
+
+if(dx>0){
+
+if(dy<0){
+addPipe(.86,-.5)
+}else{
+addPipe(.86,.5)
+}
+
+}else{
+
+if(dy<0){
+addPipe(-.86,-.5)
+}else{
+addPipe(-.86,.5)
+}
+
+}
+
+}else{
+
+if(dy<0){
+addPipe(0,-1)
+}else{
+addPipe(0,1)
+}
+
+}
 
 }
 
 let pointers={}
-let dist=0
-let baseScale=1
+let startDist=0
+let startZoom=1
 let pan=false
-let sx=0
-let sy=0
-let tx=0
-let ty=0
+let px=0
+let py=0
+let ox=0
+let oy=0
 
-canvas.addEventListener('pointerdown',e=>{
+draw.addEventListener("pointerdown",e=>{
 
 pointers[e.pointerId]=e
 
@@ -615,12 +633,12 @@ if(ids.length===2){
 let p1=pointers[ids[0]]
 let p2=pointers[ids[1]]
 
-dist=Math.hypot(
+startDist=Math.hypot(
 p2.clientX-p1.clientX,
 p2.clientY-p1.clientY
 )
 
-baseScale=transform.scale
+startZoom=camera.zoom
 
 }
 
@@ -628,17 +646,17 @@ if(ids.length===1){
 
 pan=true
 
-sx=e.clientX
-sy=e.clientY
+px=e.clientX
+py=e.clientY
 
-tx=transform.x
-ty=transform.y
+ox=camera.x
+oy=camera.y
 
 }
 
 })
 
-canvas.addEventListener('pointermove',e=>{
+draw.addEventListener("pointermove",e=>{
 
 if(!pointers[e.pointerId])return
 
@@ -656,10 +674,13 @@ p2.clientX-p1.clientX,
 p2.clientY-p1.clientY
 )
 
-transform.scale=Math.min(Math.max(baseScale*(nd/dist),0.4),4)
+camera.zoom=Math.min(
+Math.max(startZoom*(nd/startDist),.3),
+5
+)
 
-document.getElementById('zoomVal').innerText=
-Math.round(transform.scale*100)+"%"
+document.getElementById("zoomText").innerText=
+Math.round(camera.zoom*100)+"%"
 
 render()
 
@@ -667,8 +688,8 @@ render()
 
 if(ids.length===1&&pan){
 
-transform.x=tx+(e.clientX-sx)
-transform.y=ty+(e.clientY-sy)
+camera.x=ox+(e.clientX-px)
+camera.y=oy+(e.clientY-py)
 
 render()
 
@@ -676,41 +697,67 @@ render()
 
 })
 
-canvas.addEventListener('pointerup',e=>{
+draw.addEventListener("pointerup",e=>{
 
 delete pointers[e.pointerId]
 
-if(Object.keys(pointers).length===0)pan=false
+if(Object.keys(pointers).length===0){
+
+pan=false
+
+}
 
 })
 
-canvas.addEventListener('wheel',e=>{
+function undo(){
 
-e.preventDefault()
-
-if(e.deltaY<0){
-transform.scale*=1.1
-}else{
-transform.scale/=1.1
-}
-
-transform.scale=Math.min(Math.max(transform.scale,0.4),4)
-
-document.getElementById('zoomVal').innerText=
-Math.round(transform.scale*100)+"%"
+pipes.pop()
 
 render()
 
-},{passive:false})
+}
 
-function download(){
+function clearAll(){
 
-let a=document.createElement('a')
+pipes=[]
+total=0
 
-a.download='Isometrie.png'
-a.href=canvas.toDataURL()
+document.getElementById("sum").innerText=0
+
+render()
+
+}
+
+function resetView(){
+
+camera={
+x:0,
+y:0,
+zoom:1
+}
+
+document.getElementById("zoomText").innerText="100%"
+
+render()
+
+}
+
+function exportPNG(){
+
+const a=document.createElement("a")
+
+a.download="ISO_CAD.png"
+
+a.href=draw.toDataURL()
 
 a.click()
+
+}
+
+document.getElementById("len").oninput=function(){
+
+document.getElementById("lenText").innerText=
+Math.round(this.value*5.833)+" mm"
 
 }
 
