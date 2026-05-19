@@ -1,86 +1,79 @@
 <!DOCTYPE html>
-<html lang="de" dir="ltr">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FUTUR-ISO PLANUNGS-SYSTEM</title>
+    <title>نظام الرسم الميداني - ISO PRO</title>
     <style>
         * { box-sizing: border-box; touch-action: none; }
-        body { margin: 0; background: #1a1a1a; color: #fff; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
+        body { margin: 0; background: #1a1a1a; color: white; font-family: sans-serif; overflow: hidden; }
 
-        /* شريط الأدوات الألماني */
-        #toolbar { position: absolute; top: 0; width: 100%; height: 120px; background: #2c3e50; padding: 10px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; z-index: 1000; }
-        .btn { background: #34495e; border: 1px solid #455a64; color: #fff; padding: 5px; border-radius: 4px; font-size: 10px; font-weight: bold; cursor: pointer; }
-        .btn.main { background: #e67e22; }
+        /* شريط الأدوات */
+        #toolbar { position: absolute; top: 0; width: 100%; height: 80px; background: #2c3e50; padding: 10px; display: flex; gap: 10px; align-items: center; z-index: 1000; }
+        .btn { background: #34495e; border: 1px solid #7f8c8d; color: white; padding: 10px; border-radius: 5px; cursor: pointer; font-size: 12px; }
 
-        /* حاوية الرسم */
-        #container { width: 100vw; height: 100vh; position: relative; background: #fff; }
-        #paper { width: 100%; height: 100%; position: absolute; z-index: 1; }
-        #canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; }
+        /* منطقة الورقة */
+        #container { width: 100vw; height: 100vh; position: relative; background: white; }
+        canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+
+        /* جدول المواصفات السفلي */
+        #footer-table { position: absolute; bottom: 0; width: 100%; height: 120px; background: #f9f9f9; border-top: 2px solid #333; z-index: 500; padding: 10px; color: #333; font-size: 10px; }
     </style>
 </head>
 <body>
 
     <div id="toolbar">
-        <button class="btn main" onclick="drawPipe()">FUTUR-ROHR ZEICHNEN</button>
-        <button class="btn" onclick="addText()">TEXT HINZUFÜGEN</button>
-        <button class="btn" onclick="exportPlan()">PLAN SPEICHERN (PNG)</button>
-        <div style="grid-column: span 3; display: flex; align-items: center; gap: 10px; font-size: 12px;">
-            <span>LÄNGE:</span><input type="range" id="len" min="10" max="200" value="50">
-            <span id="lenVal">50mm</span>
-        </div>
+        <button class="btn" onclick="drawMode()">رسم خط</button>
+        <button class="btn" onclick="addLabel()">إضافة نص</button>
+        <button class="btn" style="background:#27ae60" onclick="savePlan()">تصدير كـ PNG</button>
     </div>
 
     <div id="container">
-        <canvas id="paper"></canvas>
-        <canvas id="canvas"></canvas>
+        <canvas id="gridCanvas"></canvas>
+        <canvas id="drawCanvas"></canvas>
+    </div>
+
+    <div id="footer-table">
+        <strong>FUTUR-STAHL SPEZIFIKATION</strong>
+        <div style="display:flex; gap:10px; margin-top:5px;">
+            <div>اسم المشروع: <input type="text" value="Rentschler"></div>
+            <div>نوع العزل: <input type="text" value="K-Flex"></div>
+        </div>
     </div>
 
     <script>
-        const pCanvas = document.getElementById('paper');
-        const cCanvas = document.getElementById('canvas');
-        const pCtx = pCanvas.getContext('2d');
-        const cCtx = cCanvas.getContext('2d');
+        const gc = document.getElementById('gridCanvas');
+        const dc = document.getElementById('drawCanvas');
+        const gCtx = gc.getContext('2d');
+        const dCtx = dc.getContext('2d');
 
-        function resize() {
-            pCanvas.width = cCanvas.width = window.innerWidth;
-            pCanvas.height = cCanvas.height = window.innerHeight;
-            drawGrid();
+        function init() {
+            gc.width = dc.width = window.innerWidth;
+            gc.height = dc.height = window.innerHeight;
+            drawIsometricGrid();
         }
 
-        function drawGrid() {
-            pCtx.fillStyle = "#fff"; pCtx.fillRect(0,0, pCanvas.width, pCanvas.height);
-            // رسم الشبكة المائلة (Isometric Grid)
-            pCtx.strokeStyle = "#e0e0e0"; pCtx.lineWidth = 1;
-            for(let i=0; i<pCanvas.width; i+=20) {
-                pCtx.beginPath(); pCtx.moveTo(i, 0); pCtx.lineTo(i, pCanvas.height); pCtx.stroke();
+        function drawIsometricGrid() {
+            gCtx.strokeStyle = "#d1d1d1";
+            for(let i=0; i<gc.width; i+=25) {
+                gCtx.beginPath(); gCtx.moveTo(i,0); gCtx.lineTo(i, gc.height); gCtx.stroke();
             }
-            // رسم الجدول السفلي (المواصفات الألمانية)
-            pCtx.fillStyle = "#f0f0f0"; pCtx.fillRect(0, pCanvas.height - 150, pCanvas.width, 150);
-            pCtx.strokeStyle = "#333"; pCtx.strokeRect(0, pCanvas.height - 150, pCanvas.width, 150);
-            pCtx.fillStyle = "#000"; pCtx.font = "12px Arial";
-            pCtx.fillText("FUTUR-STAHL SPEZIFIKATION", 20, pCanvas.height - 130);
+            // رسم خطوط مائلة للآيزومتريك (بسيط للتمثيل)
+            gCtx.beginPath(); gCtx.moveTo(0,0); gCtx.lineTo(gc.width, gc.height); gCtx.stroke();
         }
 
-        window.onresize = resize;
-        resize();
-
-        // منطق الرسم والتحكم المستقبلي
-        function drawPipe() {
-            alert("FUTUR-ROHR MODUS AKTIVIERT. BITTE AUF DAS FUTUR-BLATT KLICKEN.");
-        }
-
-        function addText() {
-            const txt = prompt("TEXT EINGEBEN:");
-            if(txt) cCtx.fillText(txt, 100, 100);
-        }
-
-        function exportPlan() {
+        function drawMode() { alert("وضع الرسم: اضغط على الورقة لرسم المسار."); }
+        function addLabel() { prompt("اكتب القياس:"); }
+        
+        function savePlan() {
+            const dataURL = dc.toDataURL("image/png");
             const link = document.createElement('a');
-            link.download = 'FUTUR-PLAN.png';
-            link.href = cCanvas.toDataURL();
+            link.download = "Isometric_Plan.png";
+            link.href = dataURL;
             link.click();
         }
+
+        window.onload = init;
     </script>
 </body>
 </html>
