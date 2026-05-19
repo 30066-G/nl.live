@@ -3,26 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>محطة القياس الميدانية الذكية - النسخة الشاملة</title>
+    <title>محطة القياس والآيزومتريك الميدانية الذكية</title>
     <style>
         * { box-sizing: border-box; touch-action: manipulation; }
         body { margin: 0; padding: 0; overflow: hidden; font-family: sans-serif; background-color: #000; color: white; -webkit-user-select: none; user-select: none; }
 
         /* شريط الأدوات العلوي */
-        #toolbar { position: absolute; top: 0; width: 100%; z-index: 500; background: rgba(44, 62, 80, 0.95); padding: 8px; display: flex; gap: 4px; align-items: center; justify-content: center; flex-wrap: wrap; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-        .tool-btn { background: #34495e; color: white; border: 1px solid #7f8c8d; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: bold; }
+        #toolbar { position: absolute; top: 0; width: 100%; z-index: 500; background: rgba(44, 62, 80, 0.95); padding: 8px; display: flex; gap: 6px; align-items: center; justify-content: center; flex-wrap: wrap; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        .tool-btn { background: #34495e; color: white; border: 1px solid #7f8c8d; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: bold; }
         .tool-btn.active { background: #e67e22; border-color: #d35400; }
         .tool-btn.success { background: #27ae60; border-color: #27ae60; }
         .tool-btn.danger { background: #e74c3c; border-color: #c0392b; }
+        .tool-select { background: #2c3e50; color: white; border: 1px solid #7f8c8d; padding: 6px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; }
 
         .control-group { display: flex; align-items: center; gap: 4px; background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 6px; }
-        label { color: #fff; font-size: 11px; }
-        input[type="range"] { width: 50px; accent-color: #3498db; }
+        label { color: #fff; font-size: 11px; white-space: nowrap; }
+        input[type="range"] { width: 55px; accent-color: #3498db; }
 
         /* حاوية الكاميرا والرسم */
         #canvas-container { position: relative; width: 100vw; height: 100vh; overflow: hidden; }
         video { position: absolute; width: 100%; height: 100%; object-fit: cover; z-index: 1; }
         canvas { position: absolute; width: 100%; height: 100%; z-index: 2; background: transparent; }
+        
+        /* وضع الورقة الهندسية المخططة */
+        .paper-mode canvas { background-color: #ffffff !important; background-image: linear-gradient(rgba(180, 220, 230, 0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(180, 220, 230, 0.4) 1px, transparent 1px); background-size: 20px 20px; }
+        .paper-mode video { display: none !important; }
 
         /* لوحة التحكم بالاتجاهات D-Pad */
         #dpad { position: fixed; bottom: 20px; right: 20px; z-index: 500; background: rgba(0,0,0,0.6); padding: 10px; border-radius: 20px; backdrop-filter: blur(5px); }
@@ -34,32 +39,45 @@
         /* لوحة جدول الكميات المطور بقراءة حقيقية */
         #stats { position: fixed; top: 110px; left: 15px; z-index: 400; background: rgba(0,0,0,0.85); border: 2px solid #f1c40f; padding: 10px; border-radius: 8px; font-size: 13px; max-width: 280px; }
         #stats h4 { margin: 0 0 5px 0; color: #f1c40f; }
+        .paper-mode #stats { background: rgba(255,255,255,0.95); color: #2c3e50; border: 2px solid #2980b9; }
+        .paper-mode #stats h4 { color: #2980b9; }
     </style>
 </head>
 <body>
 
     <div id="toolbar">
-        <button class="tool-btn success" onclick="toggleCam()">📷 تشغيل الكاميرا</button>
+        <button class="tool-btn success" id="camBtn" onclick="toggleCam()">📷 تشغيل الكاميرا</button>
+        <button class="tool-btn" id="paperBtn" onclick="togglePaperMode()">📄 وضع الورقة</button>
         <button class="tool-btn active" onclick="setTool('pipe')" id="btn-pipe">🖊️ خط</button>
-        <button class="tool-btn" onclick="addSymbol('valve')">⏳ محبس</button>
-        <button class="tool-btn" onclick="addSymbol('pump')">🔄 مضخة</button>
+        
+        <select class="tool-select" id="symbolSelect" onchange="handleSymbolSelect()">
+            <option value="" selected disabled>📐 إسقاط الرموز/الأشكال</option>
+            <option value="valve">⏳ محبس هندسي ISO</option>
+            <option value="pump">🔄 مضخة خطية</option>
+            <option value="cube">📦 مكعب آيزومتري 3D</option>
+            <option value="rhombus">🔷 معين أفقي Flange</option>
+        </select>
         
         <div class="control-group">
-            <label>↔ الطول الميداني <input type="range" id="lengthSlider" min="30" max="150" value="80" oninput="updateEstimatedLabel()"></label>
+            <label>↔ الطول <input type="range" id="lengthSlider" min="30" max="150" value="80" oninput="updateEstimatedLabel()"></label>
             <span id="len-preview" style="font-size:11px; color:#f1c40f; font-weight:bold;">~ 450 مم</span>
         </div>
+
+        <div class="control-group">
+            <label>🎨 السمك <input type="range" id="thicknessSlider" min="3" max="15" value="7" oninput="render()"></label>
+        </div>
         
-        <button class="tool-btn danger" onclick="clearAll()" style="margin-right: auto;">🗑️ مسح الكل</button>
-        <button class="tool-btn" onclick="exportData()" style="background:#27ae60">💾 حفظ وتصدير</button>
+        <button class="tool-btn danger" onclick="clearAll()" style="margin-right: auto;">🗑️ مسح</button>
+        <button class="tool-btn" onclick="exportData()" style="background:#27ae60">💾 تصدير</button>
     </div>
 
     <div id="stats">
         <h4>جدول الكميات التقديري (BOQ)</h4>
         <div>إجمالي أطوال الشبكة: <span id="total" style="color:#2ecc71; font-weight:bold; font-size:15px;">0</span> مم</div>
-        <div style="font-size:10px; color:#bdc3c7; margin-top:4px;">*الحساب مبني على عمق البعد البؤري التقديري للكاميرا.</div>
+        <div id="tech-note" style="font-size:10px; color:#bdc3c7; margin-top:4px;">*الحساب مبني على عمق البعد البؤري للكاميرا.</div>
     </div>
 
-    <div id="canvas-container">
+    <div id="canvas-container" id="container">
         <video id="v" autoplay playsinline></video>
         <canvas id="c"></canvas>
     </div>
@@ -81,13 +99,12 @@
     </div>
 
     <script>
-        const c = document.getElementById('c'), ctx = c.getContext('2d'), v = document.getElementById('v');
+        const c = document.getElementById('c'), ctx = c.getContext('2d'), v = document.getElementById('v'), container = document.getElementById('canvas-container');
         let currentTool = 'pipe', elements = [];
         let tap = {x: window.innerWidth/2, y: window.innerHeight/2}; 
         let totalLen = 0;
+        let isPaperMode = false;
 
-        // معامل التحويل الحقيقي الذكي (تخمين البعد البؤري للكاميرا)
-        // كل بكسل على الشاشة يساوي تقريباً 5.6 ملم في الواقع على بعد مسافة متوسطة من الحائط
         const PIXEL_TO_MM_RATIO = 5.625;
 
         function resize() { c.width = window.innerWidth; c.height = window.innerHeight; render(); }
@@ -95,15 +112,40 @@
 
         async function toggleCam() {
             try {
+                isPaperMode = false;
+                container.classList.remove('paper-mode');
+                document.getElementById('tech-note').innerText = "*الحساب مبني على عمق البعد البؤري للكاميرا.";
                 const stream = await navigator.mediaDevices.getUserMedia({video: {facingMode: "environment"}});
                 v.srcObject = stream;
+                render();
             } catch(e) { alert("برجاء إعطاء صلاحية الكاميرا للعمل."); }
+        }
+
+        function togglePaperMode() {
+            isPaperMode = true;
+            container.classList.add('paper-mode');
+            document.getElementById('tech-note').innerText = "*الحساب مبني على مقياس رسم الورقة الهندسية الثابت.";
+            if (v.srcObject) {
+                let tracks = v.srcObject.getTracks();
+                tracks.forEach(track => track.stop());
+            }
+            render();
         }
 
         function setTool(tool) {
             currentTool = tool;
-            document.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(`btn-${tool}`).classList.add('active');
+            if(tool === 'pipe') {
+                document.getElementById('symbolSelect').value = "";
+                document.getElementById('btn-pipe').classList.add('active');
+            }
+        }
+
+        function handleSymbolSelect() {
+            const select = document.getElementById('symbolSelect');
+            if(select.value) {
+                document.getElementById('btn-pipe').classList.remove('active');
+                addSymbol(select.value);
+            }
         }
 
         function updateEstimatedLabel() {
@@ -116,7 +158,7 @@
         function draw(dir) {
             const pixelLen = parseFloat(document.getElementById('lengthSlider').value);
             let target = {...tap};
-            const angle = 30 * Math.PI / 180; // زاوية الرسم الآيزومتري الهندسي
+            const angle = 30 * Math.PI / 180; // زاوية الـ Isometric القياسية
             
             if(dir=='o') target.y -= pixelLen;
             else if(dir=='u') target.y += pixelLen;
@@ -125,14 +167,15 @@
             else if(dir=='h') { target.x -= pixelLen * Math.cos(angle); target.y -= pixelLen * Math.sin(angle); }
             else if(dir=='v') { target.x += pixelLen * Math.cos(angle); target.y += pixelLen * Math.sin(angle); }
             
-            // حساب الطول الحقيقي بالمليمتر بناءً على النسبة الرياضية الثابتة للكاميرا
             const calculatedMm = Math.round(pixelLen * PIXEL_TO_MM_RATIO);
+            const lineThickness = parseInt(document.getElementById('thicknessSlider').value);
             
             elements.push({
                 type: 'pipe',
                 from: {...tap}, to: {...target},
                 label: calculatedMm + " مم",
-                color: "#F1C40F"
+                color: isPaperMode ? "#2980b9" : "#F1C40F",
+                thickness: lineThickness
             });
             
             totalLen += calculatedMm;
@@ -143,56 +186,112 @@
         }
 
         function addSymbol(type) {
-            elements.push({ type: 'symbol', symbol: type, x: tap.x, y: tap.y });
+            const lineThickness = parseInt(document.getElementById('thicknessSlider').value);
+            elements.push({ 
+                type: 'symbol', 
+                symbol: type, 
+                x: tap.x, 
+                y: tap.y, 
+                color: isPaperMode ? "#2c3e50" : "#e67e22",
+                thickness: lineThickness 
+            });
             render();
+            setTool('pipe'); // العودة للرسم مباشرة بعد إسقاط العنصر
         }
 
         function render() {
             ctx.clearRect(0,0, c.width, c.height);
             
             elements.forEach(el => {
+                const strokeColor = isPaperMode && el.color !== "#F1C40F" && el.color !== "#2980b9" ? "#2c3e50" : el.color;
+                
                 if (el.type === 'pipe') {
-                    // تأثير الظل العريض لعزل الخطوط والنصوص تماماً عن تفاصيل الغرفة أو الأبواب خلفها
                     ctx.save();
-                    ctx.shadowColor = "black"; ctx.shadowBlur = 12;
-                    ctx.strokeStyle = el.color; ctx.lineWidth = 7;
+                    if (!isPaperMode) {
+                        ctx.shadowColor = "black"; ctx.shadowBlur = 12;
+                    }
+                    ctx.strokeStyle = isPaperMode ? "#2980b9" : "#F1C40F"; 
+                    ctx.lineWidth = document.getElementById('thicknessSlider').value;
                     ctx.lineCap = 'round';
                     ctx.beginPath(); ctx.moveTo(el.from.x, el.from.y); ctx.lineTo(el.to.x, el.to.y); ctx.stroke();
                     ctx.restore();
                     
-                    // كتابة المقاسات مع إطار أسود عريض لمنع الاختفاء خلف الأجسام الواضحة
+                    // إطار للنصوص لزيادة وضوحها
                     ctx.save();
-                    ctx.font = "bold 18px Arial"; ctx.textAlign = "center";
-                    ctx.fillStyle = "white"; ctx.strokeStyle = "black"; ctx.lineWidth = 4;
+                    ctx.font = "bold 16px Arial"; ctx.textAlign = "center";
+                    ctx.fillStyle = isPaperMode ? "#2c3e50" : "white"; 
+                    ctx.strokeStyle = isPaperMode ? "white" : "black"; 
+                    ctx.lineWidth = 4;
                     const midX = (el.from.x + el.to.x) / 2;
                     const midY = (el.from.y + el.to.y) / 2 - 12;
                     ctx.strokeText(el.label, midX, midY);
                     ctx.fillText(el.label, midX, midY);
                     ctx.restore();
-                } else if (el.type === 'symbol') {
+                } 
+                else if (el.type === 'symbol') {
                     ctx.save();
-                    ctx.shadowColor = "black"; ctx.shadowBlur = 8;
-                    ctx.fillStyle = "#f39c12"; ctx.font = "36px Arial"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-                    let icon = el.symbol === 'valve' ? '⏳' : '🔄';
-                    ctx.fillText(icon, el.x, el.y);
+                    ctx.strokeStyle = isPaperMode ? "#2c3e50" : "#e67e22";
+                    ctx.fillStyle = isPaperMode ? "#2c3e50" : "#e67e22";
+                    ctx.lineWidth = document.getElementById('thicknessSlider').value / 1.5;
+                    ctx.translate(el.x, el.y);
+                    
+                    const size = 20;
+                    
+                    if (el.symbol === 'valve') { // محبس هندسي حقيقي ISO
+                        ctx.beginPath();
+                        ctx.moveTo(-size, -size/2);
+                        ctx.lineTo(size, size/2);
+                        ctx.lineTo(size, -size/2);
+                        ctx.lineTo(-size, size/2);
+                        ctx.closePath();
+                        ctx.fill(); ctx.stroke();
+                    } 
+                    else if (el.symbol === 'pump') { // مضخة خطية حقيقية
+                        ctx.beginPath();
+                        ctx.arc(0, 0, size, 0, 2 * Math.PI);
+                        ctx.stroke();
+                        ctx.beginPath();
+                        ctx.moveTo(-size, 0); ctx.lineTo(size, -size/2); ctx.lineTo(size, size/2);
+                        ctx.closePath(); ctx.fill();
+                    } 
+                    else if (el.symbol === 'cube') { // مكعب آيزومتري كامل
+                        const cos30 = Math.cos(Math.PI / 6), sin30 = Math.sin(Math.PI / 6);
+                        ctx.beginPath();
+                        ctx.moveTo(0, -size); ctx.lineTo(size * cos30, -size + size * sin30); ctx.lineTo(0, 0); ctx.lineTo(-size * cos30, -size + size * sin30);
+                        ctx.closePath(); ctx.stroke();
+                        ctx.beginPath();
+                        ctx.moveTo(-size * cos30, -size + size * sin30); ctx.lineTo(-size * cos30, size * sin30); ctx.lineTo(0, size); ctx.lineTo(0, 0);
+                        ctx.stroke();
+                        ctx.beginPath();
+                        ctx.moveTo(size * cos30, -size + size * sin30); ctx.lineTo(size * cos30, size * sin30); ctx.lineTo(0, size);
+                        ctx.stroke();
+                    } 
+                    else if (el.symbol === 'rhombus') { // معين هندسي أفقي
+                        const cos30 = Math.cos(Math.PI / 6);
+                        ctx.beginPath();
+                        ctx.moveTo(0, -size/2); ctx.lineTo(size * cos30, 0); ctx.lineTo(0, size/2); ctx.lineTo(-size * cos30, 0);
+                        ctx.closePath(); ctx.stroke();
+                    }
                     ctx.restore();
                 }
             });
             
-            // نقطة الارتكاز الحمراء الذكية واضحة ومحددة
-            ctx.fillStyle = "red"; ctx.beginPath(); ctx.arc(tap.x, tap.y, 10, 0, 7); ctx.fill();
+            // نقطة الارتكاز الميدانية
+            ctx.fillStyle = "red"; ctx.beginPath(); ctx.arc(tap.x, tap.y, 9, 0, 7); ctx.fill();
             ctx.strokeStyle = "white"; ctx.lineWidth = 2; ctx.stroke();
         }
 
         function exportData() {
             const tempC = document.createElement('canvas'); tempC.width = c.width; tempC.height = c.height;
             const tCtx = tempC.getContext('2d');
-            tCtx.drawImage(v, 0, 0); tCtx.drawImage(c, 0, 0);
-            const link = document.createElement('a'); link.download = 'AR_Measurement_Plan.png'; link.href = tempC.toDataURL(); link.click();
+            if(!isPaperMode) { tCtx.drawImage(v, 0, 0); }
+            else { tCtx.fillStyle = "#ffffff"; tCtx.fillRect(0,0,c.width,c.height); }
+            tCtx.drawImage(c, 0, 0);
+            const link = document.createElement('a'); link.download = 'Isometric_Plan.png'; link.href = tempC.toDataURL(); link.click();
         }
 
         function clearAll() {
-            if (confirm("هل تريد تصفير اللوحة ومسح كل الحسابات؟")) {
+            if (confirm("هل تريد تصفير الفراغ ومسح جدول الحسابات بالكامل؟")) {
                 elements = []; totalLen = 0; 
                 document.getElementById('total').innerText = 0; 
                 tap = {x: window.innerWidth/2, y: window.innerHeight/2}; 
