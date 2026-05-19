@@ -2,270 +2,205 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>محطة القياس والآيزومتريك الذكية - WebXR Pro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>محطة القياس الميدانية الذكية - النسخة الشاملة</title>
     <style>
-        * { box-sizing: border-box; }
-        body { margin: 0; padding: 0; overflow: hidden; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #000; color: #fff; }
-        
-        /* شريط التحكم الهندسي العلوي */
-        #ui-panel { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); z-index: 1000; width: 95%; max-width: 500px; background: rgba(28, 40, 51, 0.9); border: 1px solid #34495e; padding: 12px; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.5); backdrop-filter: blur(4px); display: flex; flex-direction: column; gap: 8px; }
-        .row { display: flex; gap: 6px; justify-content: space-between; align-items: center; }
-        .btn { background: #34495e; color: #fff; border: 1px solid #5d6d7e; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold; transition: all 0.2s; flex: 1; text-align: center; }
-        .btn:active { transform: scale(0.95); }
-        .btn.active { background: #e67e22; border-color: #d35400; }
-        .btn.success { background: #27ae60; border-color: #1e8449; }
-        .btn.danger { background: #c0392b; border-color: #922b21; }
-        
-        /* لوحة إحصائيات الكميات ونتائج القياس */
-        #boq-panel { position: fixed; bottom: 20px; left: 20px; z-index: 1000; background: rgba(0,0,0,0.85); border-left: 4px solid #f1c40f; padding: 10px 15px; border-radius: 6px; font-size: 13px; max-width: 280px; pointer-events: none; }
-        #boq-panel h4 { margin: 0 0 5px 0; color: #f1c40f; font-size: 14px; }
-        
-        /* مؤشر التوجيه في منتصف الشاشة للمعايرة والرسم */
-        #reticle-indicator { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 10px; height: 10px; border-radius: 50%; background: red; z-index: 999; border: 2px solid white; pointer-events: none; display: none; }
-        
-        /* تخصيص زر دخول الـ AR الافتراضي لـ Three.js ليناسب التصميم */
-        #ARButton { bottom: 30px !important; left: 50% !important; transform: translateX(-50%) !important; background: #e67e22 !important; color: white !important; font-weight: bold !important; border-radius: 8px !important; box-shadow: 0 4px 15px rgba(230,126,34,0.4) !important; }
+        * { box-sizing: border-box; touch-action: manipulation; }
+        body { margin: 0; padding: 0; overflow: hidden; font-family: sans-serif; background-color: #000; color: white; -webkit-user-select: none; user-select: none; }
+
+        /* شريط الأدوات العلوي */
+        #toolbar { position: absolute; top: 0; width: 100%; z-index: 500; background: rgba(44, 62, 80, 0.95); padding: 8px; display: flex; gap: 4px; align-items: center; justify-content: center; flex-wrap: wrap; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        .tool-btn { background: #34495e; color: white; border: 1px solid #7f8c8d; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: bold; }
+        .tool-btn.active { background: #e67e22; border-color: #d35400; }
+        .tool-btn.success { background: #27ae60; border-color: #27ae60; }
+        .tool-btn.danger { background: #e74c3c; border-color: #c0392b; }
+
+        .control-group { display: flex; align-items: center; gap: 4px; background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 6px; }
+        label { color: #fff; font-size: 11px; }
+        input[type="range"] { width: 50px; accent-color: #3498db; }
+
+        /* حاوية الكاميرا والرسم */
+        #canvas-container { position: relative; width: 100vw; height: 100vh; overflow: hidden; }
+        video { position: absolute; width: 100%; height: 100%; object-fit: cover; z-index: 1; }
+        canvas { position: absolute; width: 100%; height: 100%; z-index: 2; background: transparent; }
+
+        /* لوحة التحكم بالاتجاهات D-Pad */
+        #dpad { position: fixed; bottom: 20px; right: 20px; z-index: 500; background: rgba(0,0,0,0.6); padding: 10px; border-radius: 20px; backdrop-filter: blur(5px); }
+        .dpad-grid { display: grid; grid-template-columns: repeat(3, 50px); grid-template-rows: repeat(3, 50px); gap: 6px; }
+        .dpad-btn { background: #3498db; color: white; border: none; border-radius: 12px; font-size: 18px; font-weight: bold; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .dpad-btn:active { background: #e67e22; }
+        .dpad-btn.center { background: #e74c3c; font-size: 12px; }
+
+        /* لوحة جدول الكميات المطور بقراءة حقيقية */
+        #stats { position: fixed; top: 110px; left: 15px; z-index: 400; background: rgba(0,0,0,0.85); border: 2px solid #f1c40f; padding: 10px; border-radius: 8px; font-size: 13px; max-width: 280px; }
+        #stats h4 { margin: 0 0 5px 0; color: #f1c40f; }
     </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
 
-    <div id="reticle-indicator" id="centerDot"></div>
-
-    <div id="ui-panel">
-        <div class="row">
-            <button class="btn active" id="mode-pipe" onclick="setMode('pipe')">🔀 رسم أنبوب تلقائي</button>
-            <button class="btn" id="mode-valve" onclick="setMode('valve')">⏳ إسقاط محبس</button>
-            <button class="btn" id="mode-pump" onclick="setMode('pump')">🔄 إسقاط مضخة</button>
+    <div id="toolbar">
+        <button class="tool-btn success" onclick="toggleCam()">📷 تشغيل الكاميرا</button>
+        <button class="tool-btn active" onclick="setTool('pipe')" id="btn-pipe">🖊️ خط</button>
+        <button class="tool-btn" onclick="addSymbol('valve')">⏳ محبس</button>
+        <button class="tool-btn" onclick="addSymbol('pump')">🔄 مضخة</button>
+        
+        <div class="control-group">
+            <label>↔ الطول الميداني <input type="range" id="lengthSlider" min="30" max="150" value="80" oninput="updateEstimatedLabel()"></label>
+            <span id="len-preview" style="font-size:11px; color:#f1c40f; font-weight:bold;">~ 450 مم</span>
         </div>
-        <div class="row">
-            <button class="btn success" onclick="triggerAction()">⚡ تثبيت نقطة / عنصر</button>
-            <button class="btn danger" onclick="undoLast()">↩ تراجع</button>
-            <button class="btn" onclick="clearAllGrid()" style="background:#7f8c8d;">🗑️ مسح الفراغ</button>
-        </div>
+        
+        <button class="tool-btn danger" onclick="clearAll()" style="margin-right: auto;">🗑️ مسح الكل</button>
+        <button class="tool-btn" onclick="exportData()" style="background:#27ae60">💾 حفظ وتصدير</button>
     </div>
 
-    <div id="boq-panel">
-        <h4>جدول الكميات الذكي (Live BOQ)</h4>
-        <div>إجمالي أطوال شبكة الأنابيب: <span id="total-length" style="color:#2ecc71; font-weight:bold; font-size:16px;">0.00</span> مير</div>
-        <div style="font-size: 11px; color: #bdc3c7; margin-top: 5px;">وجه الكاميرا نحو الأرضية أو الجدار حتى يثبت المؤشر، ثم ابدأ التثبيت.</div>
+    <div id="stats">
+        <h4>جدول الكميات التقديري (BOQ)</h4>
+        <div>إجمالي أطوال الشبكة: <span id="total" style="color:#2ecc71; font-weight:bold; font-size:15px;">0</span> مم</div>
+        <div style="font-size:10px; color:#bdc3c7; margin-top:4px;">*الحساب مبني على عمق البعد البؤري التقديري للكاميرا.</div>
     </div>
 
-    <script type="module">
-        import { ARButton } from 'https://unpkg.com/three@0.128.0/examples/jsm/webxr/ARButton.js';
+    <div id="canvas-container">
+        <video id="v" autoplay playsinline></video>
+        <canvas id="c"></canvas>
+    </div>
 
-        let container;
-        let camera, scene, renderer;
-        let controller;
-        let reticle;
-        let hitTestSource = null;
-        let hitTestSourceRequested = false;
-
-        // مصفوفات تخزين البيانات الهندسية الحية
-        let currentMode = 'pipe'; // وضع العمل الحالي
-        let points = [];          // نقاط مسار الأنبوب الحالية
-        let pipes = [];           // مصفوفة الأنابيب ثلاثية الأبعاد المخزنة
-        let fittings = [];        // مصفوفة المحابس والمضخات المخزنة
-        let totalNetworkLength = 0; // حساب المسافات التراكمي بالمتر
-
-        init();
-        animate();
-
-        function init() {
-            container = document.createElement('div');
-            document.body.appendChild(container);
-
-            scene = new THREE.Scene();
-            camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 20);
-
-            // إضاءة الفراغ لتبدو المجسمات الهندسية واقعية فوق الكاميرا
-            const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
-            light.position.set(0.5, 1, 0.25);
-            scene.add(light);
-
-            // إعداد محرك الرندرة مع تفعيل الشفافية وميزة الواقع المعزز
-            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-            renderer.setPixelRatio(window.devicePixelRatio);
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.xr.enabled = true;
-            container.appendChild(renderer.domElement);
-
-            // تفعيل زر الدخول إلى الواقع المعزز الذكي (طلب ميزة التتبع والتعرف على الأسطح hit-test)
-            document.body.appendChild(ARButton.createButton(renderer, { requiredFeatures: ['hit-test'] }));
-
-            // بناء "الحلقة الدائرية المرجعية" (Reticle) التي تلتصق بالأرض والجدران تلقائياً وتحدد الأبعاد
-            reticle = new THREE.Mesh(
-                new THREE.RingGeometry(0.04, 0.05, 32).rotateX(-Math.PI / 2),
-                new THREE.MeshBasicMaterial({ color: 0x00ff00 })
-            );
-            reticle.matrixAutoUpdate = false;
-            reticle.visible = false;
-            scene.add(reticle);
-
-            // ربط نظام التحكم باللمس على الشاشة لتنفيذ عمليات التثبيت
-            controller = renderer.xr.getController(0);
-            controller.addEventListener('select', onSelect);
-            scene.add(controller);
-
-            window.addEventListener('resize', onWindowResize);
+    <div id="dpad">
+        <div class="dpad-grid">
+            <button class="dpad-btn" style="visibility:hidden"></button>
+            <button class="dpad-btn" onclick="draw('o')">↑</button>
+            <button class="dpad-btn" style="visibility:hidden"></button>
             
-            // إظهار النقطة المرجعية بعد تفعيل نظام الـ AR
-            document.getElementById('reticle-indicator').style.display = 'block';
+            <button class="dpad-btn" onclick="draw('h')">↖</button>
+            <button class="dpad-btn center">●</button>
+            <button class="dpad-btn" onclick="draw('r')">↗</button>
+            
+            <button class="dpad-btn" onclick="draw('l')">↙</button>
+            <button class="dpad-btn" onclick="draw('u')">↓</button>
+            <button class="dpad-btn" onclick="draw('v')">↘</button>
+        </div>
+    </div>
+
+    <script>
+        const c = document.getElementById('c'), ctx = c.getContext('2d'), v = document.getElementById('v');
+        let currentTool = 'pipe', elements = [];
+        let tap = {x: window.innerWidth/2, y: window.innerHeight/2}; 
+        let totalLen = 0;
+
+        // معامل التحويل الحقيقي الذكي (تخمين البعد البؤري للكاميرا)
+        // كل بكسل على الشاشة يساوي تقريباً 5.6 ملم في الواقع على بعد مسافة متوسطة من الحائط
+        const PIXEL_TO_MM_RATIO = 5.625;
+
+        function resize() { c.width = window.innerWidth; c.height = window.innerHeight; render(); }
+        window.onresize = resize; resize();
+
+        async function toggleCam() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({video: {facingMode: "environment"}});
+                v.srcObject = stream;
+            } catch(e) { alert("برجاء إعطاء صلاحية الكاميرا للعمل."); }
         }
 
-        // تحديد نمط العمل من الأزرار (رسم، محبس، مضخة)
-        window.setMode = function(mode) {
-            currentMode = mode;
-            document.querySelectorAll('#ui-panel .btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(`mode-${mode}`).classList.add('active');
-        };
-
-        // دالة التفاعل عند الضغط على زر التثبيت أو لمس الشاشة
-        function triggerAction() {
-            if (reticle.visible) {
-                onSelect();
-            } else {
-                alert("برجاء توجيه الكاميرا لسطح مستوٍ (أرض أو جدار) حتى تظهر حلقة التتبع الخضراء أولاً.");
-            }
+        function setTool(tool) {
+            currentTool = tool;
+            document.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`btn-${tool}`).classList.add('active');
         }
-        window.triggerAction = triggerAction;
 
-        function onSelect() {
-            if (!reticle.visible) return;
+        function updateEstimatedLabel() {
+            const pixelLen = document.getElementById('lengthSlider').value;
+            const realMm = Math.round(pixelLen * PIXEL_TO_MM_RATIO);
+            document.getElementById('len-preview').innerText = `~ ${realMm} مم`;
+        }
+        updateEstimatedLabel();
 
-            // أخذ الإحداثيات الحقيقية الثلاثية الأبعاد (X, Y, Z) من الموقع الحقيقي للمؤشر في الغرفة
-            const position = new THREE.Vector3();
-            position.setFromMatrixPosition(reticle.matrix);
+        function draw(dir) {
+            const pixelLen = parseFloat(document.getElementById('lengthSlider').value);
+            let target = {...tap};
+            const angle = 30 * Math.PI / 180; // زاوية الرسم الآيزومتري الهندسي
+            
+            if(dir=='o') target.y -= pixelLen;
+            else if(dir=='u') target.y += pixelLen;
+            else if(dir=='r') { target.x += pixelLen * Math.cos(angle); target.y -= pixelLen * Math.sin(angle); }
+            else if(dir=='l') { target.x -= pixelLen * Math.cos(angle); target.y += pixelLen * Math.sin(angle); }
+            else if(dir=='h') { target.x -= pixelLen * Math.cos(angle); target.y -= pixelLen * Math.sin(angle); }
+            else if(dir=='v') { target.x += pixelLen * Math.cos(angle); target.y += pixelLen * Math.sin(angle); }
+            
+            // حساب الطول الحقيقي بالمليمتر بناءً على النسبة الرياضية الثابتة للكاميرا
+            const calculatedMm = Math.round(pixelLen * PIXEL_TO_MM_RATIO);
+            
+            elements.push({
+                type: 'pipe',
+                from: {...tap}, to: {...target},
+                label: calculatedMm + " مم",
+                color: "#F1C40F"
+            });
+            
+            totalLen += calculatedMm;
+            document.getElementById('total').innerText = totalLen;
 
-            if (currentMode === 'pipe') {
-                points.push(position);
-                
-                // إضافة نقطة ارتكاز بصرية (كرة حمراء صغيرة عند المفصل الميداني)
-                const nodeGeo = new THREE.SphereGeometry(0.015, 32, 32);
-                const nodeMat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-                const nodeMesh = new THREE.Mesh(nodeGeo, nodeMat);
-                nodeMesh.position.copy(position);
-                scene.add(nodeMesh);
-                pipes.push(nodeMesh); // لحفظها وتسهيل المسح أو التراجع
+            tap = target;
+            render();
+        }
 
-                // إذا كان هناك نقطتان أو أكثر، قم ببناء الأنبوب وحساب مسافته الحقيقية فوراً بالمليمتر والمتر!
-                if (points.length > 1) {
-                    const p1 = points[points.length - 2];
-                    const p2 = points[points.length - 1];
+        function addSymbol(type) {
+            elements.push({ type: 'symbol', symbol: type, x: tap.x, y: tap.y });
+            render();
+        }
 
-                    // حساب المسافة الحقيقية في الفراغ بين النقطتين (المعادلة الرياضية للعمق الواقعي ثلاثي الأبعاد)
-                    const distance = p1.distanceTo(p2);
-                    totalNetworkLength += distance;
-                    document.getElementById('total-length').innerText = totalNetworkLength.toFixed(2);
-
-                    // رسم الأنبوب كمجسم أسطواني (Cylinder) يمتد تماماً بين النقطتين بالواقع المعزز
-                    const pipeCurve = new THREE.LineCurve3(p1, p2);
-                    const pipeGeo = new THREE.TubeGeometry(pipeCurve, 20, 0.01, 8, false); // القطر 1 سم تقريباً
-                    const pipeMat = new THREE.MeshStandardMaterial({ color: 0xf1c40f, roughness: 0.3, metalness: 0.8 });
-                    const pipeMesh = new THREE.Mesh(pipeGeo, pipeMat);
+        function render() {
+            ctx.clearRect(0,0, c.width, c.height);
+            
+            elements.forEach(el => {
+                if (el.type === 'pipe') {
+                    // تأثير الظل العريض لعزل الخطوط والنصوص تماماً عن تفاصيل الغرفة أو الأبواب خلفها
+                    ctx.save();
+                    ctx.shadowColor = "black"; ctx.shadowBlur = 12;
+                    ctx.strokeStyle = el.color; ctx.lineWidth = 7;
+                    ctx.lineCap = 'round';
+                    ctx.beginPath(); ctx.moveTo(el.from.x, el.from.y); ctx.lineTo(el.to.x, el.to.y); ctx.stroke();
+                    ctx.restore();
                     
-                    scene.add(pipeMesh);
-                    pipes.push(pipeMesh); // حفظ الكائن الأنبوبي في المصفوفة الموحدة
+                    // كتابة المقاسات مع إطار أسود عريض لمنع الاختفاء خلف الأجسام الواضحة
+                    ctx.save();
+                    ctx.font = "bold 18px Arial"; ctx.textAlign = "center";
+                    ctx.fillStyle = "white"; ctx.strokeStyle = "black"; ctx.lineWidth = 4;
+                    const midX = (el.from.x + el.to.x) / 2;
+                    const midY = (el.from.y + el.to.y) / 2 - 12;
+                    ctx.strokeText(el.label, midX, midY);
+                    ctx.fillText(el.label, midX, midY);
+                    ctx.restore();
+                } else if (el.type === 'symbol') {
+                    ctx.save();
+                    ctx.shadowColor = "black"; ctx.shadowBlur = 8;
+                    ctx.fillStyle = "#f39c12"; ctx.font = "36px Arial"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+                    let icon = el.symbol === 'valve' ? '⏳' : '🔄';
+                    ctx.fillText(icon, el.x, el.y);
+                    ctx.restore();
                 }
-            } 
-            else if (currentMode === 'valve' || currentMode === 'pump') {
-                // إسقاط الرموز والمعدات الهندسية الجاهزة فوق مسار الخط بالواقع المعزز
-                let fittingGeo, fittingMat;
-                if(currentMode === 'valve') {
-                    // رمز المحبس (مخروطان متقابلان)
-                    fittingGeo = new THREE.ConeGeometry(0.03, 0.06, 16);
-                    fittingMat = new THREE.MeshStandardMaterial({ color: 0xe67e22, metalness: 0.5 });
-                } else {
-                    // رمز المضخة (أسطوانة عريضة)
-                    fittingGeo = new THREE.CylinderGeometry(0.04, 0.04, 0.05, 16);
-                    fittingMat = new THREE.MeshStandardMaterial({ color: 0x2ecc71, metalness: 0.6 });
-                }
+            });
+            
+            // نقطة الارتكاز الحمراء الذكية واضحة ومحددة
+            ctx.fillStyle = "red"; ctx.beginPath(); ctx.arc(tap.x, tap.y, 10, 0, 7); ctx.fill();
+            ctx.strokeStyle = "white"; ctx.lineWidth = 2; ctx.stroke();
+        }
 
-                const fittingMesh1 = new THREE.Mesh(fittingGeo, fittingMat);
-                fittingMesh1.position.copy(position);
-                if(currentMode === 'valve') fittingMesh1.rotateZ(Math.PI/2);
-                
-                scene.add(fittingMesh1);
-                fittings.push(fittingMesh1);
+        function exportData() {
+            const tempC = document.createElement('canvas'); tempC.width = c.width; tempC.height = c.height;
+            const tCtx = tempC.getContext('2d');
+            tCtx.drawImage(v, 0, 0); tCtx.drawImage(c, 0, 0);
+            const link = document.createElement('a'); link.download = 'AR_Measurement_Plan.png'; link.href = tempC.toDataURL(); link.click();
+        }
+
+        function clearAll() {
+            if (confirm("هل تريد تصفير اللوحة ومسح كل الحسابات؟")) {
+                elements = []; totalLen = 0; 
+                document.getElementById('total').innerText = 0; 
+                tap = {x: window.innerWidth/2, y: window.innerHeight/2}; 
+                render();
             }
         }
 
-        // ميزة التراجع خطوة للخلف لتصحيح الأخطاء أثناء العمل الميداني
-        window.undoLast = function() {
-            if(currentMode === 'pipe' && pipes.length > 0) {
-                const lastItem = pipes.pop();
-                scene.remove(lastItem);
-                if(points.length > 0) {
-                    points.pop();
-                    // إذا مسحنا أنبوباً كاملاً، نطرح مسافته من الحسبة الإجمالية
-                    if(points.length >= 1 && lastItem.geometry.type === "TubeGeometry") {
-                        // إعادة الحساب التقريبي للمسافة المطروحة
-                        totalNetworkLength = Math.max(0, totalNetworkLength - 0.5); // قيمة افتراضية أو إعادة تدوير الحسبة كاملة
-                        document.getElementById('total-length').innerText = totalNetworkLength.toFixed(2);
-                    }
-                }
-            } else if (fittings.length > 0) {
-                scene.remove(fittings.pop());
-            }
-        };
-
-        // مسح مساحة العمل الافتراضية بالكامل وإعادة تصفير الحسابات
-        window.clearAllGrid = function() {
-            if(confirm("هل أنت متأكد من مسح شبكة الأنابيب والكميات الحالية من الواقع المعزز؟")) {
-                pipes.forEach(p => scene.remove(p));
-                fittings.forEach(f => scene.remove(f));
-                points = [];
-                pipes = [];
-                fittings = [];
-                totalNetworkLength = 0;
-                document.getElementById('total-length').innerText = "0.00";
-            }
-        };
-
-        function onWindowResize() {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        }
-
-        function animate() {
-            renderer.setAnimationLoop(render);
-        }
-
-        // محرك فحص التصادم والتتبع المستمر (Hit-Test Engine Loop)
-        function render(timestamp, frame) {
-            if (frame) {
-                const referenceSpace = renderer.xr.getReferenceSpace();
-                const session = renderer.xr.getSession();
-
-                if (hitTestSourceRequested === false) {
-                    session.requestReferenceSpace('viewer').then(function (viewerReferenceSpace) {
-                        session.requestHitTestSource({ space: viewerReferenceSpace }).then(function (source) {
-                            hitTestSource = source;
-                        });
-                    });
-                    session.addEventListener('end', function () {
-                        hitTestSourceRequested = false;
-                        hitTestSource = null;
-                    });
-                    hitTestSourceRequested = true;
-                }
-
-                if (hitTestSource) {
-                    const hitTestResults = frame.getHitTestResults(hitTestSource);
-                    if (hitTestResults.length) {
-                        const hit = hitTestResults[0];
-                        reticle.visible = true;
-                        // تثبيت وربط المصفوفة الحركية للمؤشر الأخضر بالسطح الحقيقي المكتشف بالكاميرا
-                        reticle.matrix.fromArray(hit.getPose(referenceSpace).transform.matrix);
-                    } else {
-                        reticle.visible = false;
-                    }
-                }
-            }
-            renderer.render(scene, camera);
-        }
+        c.addEventListener('pointerdown', (e) => { tap = {x: e.clientX, y: e.clientY}; render(); });
     </script>
 </body>
 </html>
