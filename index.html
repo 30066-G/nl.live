@@ -3,92 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>محطة الآيزومتريك الميدانية الشاملة V3</title>
+    <title>مخطط الآيزومتريك الميداني الرسمي V5</title>
     <style>
-        * { box-sizing: border-box; touch-action: none; } /* تعطيل تحركات المتصفح الافتراضية لدعم الزوم المخصص */
-        body { margin: 0; padding: 0; overflow: hidden; font-family: sans-serif; background-color: #111; color: white; -webkit-user-select: none; user-select: none; }
+        * { box-sizing: border-box; touch-action: none; } 
+        body { margin: 0; padding: 0; overflow: hidden; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #1a1a1a; color: white; -webkit-user-select: none; user-select: none; }
 
-        /* شريط الأدوات العلوي الذكي */
-        #toolbar { position: absolute; top: 0; width: 100%; z-index: 500; background: rgba(31, 42, 54, 0.96); padding: 8px; display: flex; gap: 5px; align-items: center; justify-content: center; flex-wrap: wrap; box-shadow: 0 4px 15px rgba(0,0,0,0.5); border-bottom: 2px solid #34495e; }
-        .tool-btn { background: #34495e; color: white; border: 1px solid #7f8c8d; padding: 7px 10px; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: bold; display: flex; align-items: center; gap: 3px; }
+        /* شريط الأدوات العلوي المطور */
+        #toolbar { position: absolute; top: 0; width: 100%; z-index: 500; background: #2c3e50; padding: 6px; display: flex; gap: 4px; align-items: center; justify-content: flex-start; flex-wrap: wrap; box-shadow: 0 4px 10px rgba(0,0,0,0.4); border-bottom: 2px solid #34495e; }
+        .tool-btn { background: #34495e; color: white; border: 1px solid #455a64; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: bold; }
         .tool-btn.active { background: #e67e22; border-color: #d35400; }
-        .tool-btn.success { background: #27ae60; border-color: #219a52; }
-        .tool-btn.danger { background: #e74c3c; border-color: #c0392b; }
+        .tool-btn.success { background: #27ae60; }
+        .tool-btn.danger { background: #e74c3c; }
 
-        .control-group { display: flex; align-items: center; gap: 4px; background: rgba(0,0,0,0.4); padding: 3px 8px; border-radius: 6px; border: 1px solid #455a64; }
-        label { color: #bdc3c7; font-size: 10px; white-space: nowrap; font-weight: bold; }
-        input[type="range"] { width: 50px; accent-color: #3498db; cursor: pointer; }
+        .control-group { display: flex; align-items: center; gap: 4px; background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 4px; }
+        label { color: #ecf0f1; font-size: 10px; white-space: nowrap; }
+        input[type="range"] { width: 45px; accent-color: #e67e22; }
+        input[type="text"] { background: #34495e; color: white; border: 1px solid #7f8c8d; border-radius: 4px; padding: 2px 5px; font-size: 11px; width: 80px; text-align: center; }
 
-        /* حاوية الكاميرا واللوحة والورقة اللانهائية */
-        #canvas-container { position: relative; width: 100vw; height: 100vh; overflow: hidden; background: #000; }
-        video { position: absolute; width: 100%; height: 100%; object-fit: cover; z-index: 1; }
+        /* حاوية الرسم الرئيسية والورقة */
+        #canvas-container { position: relative; width: 100vw; height: 100vh; overflow: hidden; background: #111; }
+        video { position: absolute; width: 100%; height: 100%; object-fit: cover; z-index: 1; opacity: 0.4; pointer-events: none; }
         canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; background: transparent; }
         
-        /* شريط جانبي عائم لعناصر وميزات الرموز الحقيقية */
-        #sidebar-symbols { position: fixed; top: 115px; right: 10px; z-index: 490; display: flex; flex-direction: column; gap: 5px; background: rgba(31, 42, 54, 0.85); padding: 6px; border-radius: 8px; border: 1px solid #7f8c8d; backdrop-filter: blur(4px); }
-        .sym-btn { background: #2c3e50; color: #fff; border: 1px solid #34495e; border-radius: 6px; padding: 6px; font-size: 10px; font-weight: bold; text-align: center; cursor: pointer; }
+        /* شريط الرموز الجانبي الصريح لسرعة الإسقاط */
+        #sidebar-symbols { position: fixed; top: 120px; right: 10px; z-index: 490; display: flex; flex-direction: column; gap: 4px; background: rgba(44, 62, 80, 0.9); padding: 6px; border-radius: 6px; border: 1px solid #34495e; }
+        .sym-btn { background: #34495e; color: #fff; border: 1px solid #555; border-radius: 4px; padding: 5px; font-size: 10px; font-weight: bold; cursor: pointer; text-align: right; }
         .sym-btn:active { background: #e67e22; }
 
-        /* لوحة التحكم بالاتجاهات D-Pad المحدثة هندسياً */
-        #dpad { position: fixed; bottom: 15px; right: 15px; z-index: 500; background: rgba(0,0,0,0.65); padding: 8px; border-radius: 20px; backdrop-filter: blur(5px); border: 1px solid #34495e; }
-        .dpad-grid { display: grid; grid-template-columns: repeat(3, 46px); grid-template-rows: repeat(3, 46px); gap: 5px; }
-        .dpad-btn { background: #2980b9; color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        /* لوحة التوجيه المائل D-Pad */
+        #dpad { position: fixed; bottom: 20px; right: 20px; z-index: 500; background: rgba(44, 62, 80, 0.85); padding: 6px; border-radius: 12px; border: 1px solid #34495e; }
+        .dpad-grid { display: grid; grid-template-columns: repeat(3, 44px); grid-template-rows: repeat(3, 44px); gap: 4px; }
+        .dpad-btn { background: #2980b9; color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: bold; display: flex; align-items: center; justify-content: center; cursor: pointer; }
         .dpad-btn:active { background: #e67e22; }
-        .dpad-btn.center { background: #e74c3c; font-size: 11px; }
+        .dpad-btn.center { background: #c0392b; font-size: 10px; }
 
-        /* لوحة كشف وجدول الكميات (BOQ) */
-        #stats { position: fixed; top: 115px; left: 10px; z-index: 400; background: rgba(0,0,0,0.85); border: 2px solid #f1c40f; padding: 8px; border-radius: 8px; font-size: 12px; max-width: 240px; pointer-events: none; }
-        #stats h4 { margin: 0 0 4px 0; color: #f1c40f; font-size: 13px; }
-        .paper-mode #stats { background: rgba(255,255,255,0.95); color: #2c3e50; border: 2px solid #2980b9; }
-        .paper-mode #stats h4 { color: #2980b9; }
+        /* جدول كشف الكميات والبيانات الفنية العلوي */
+        #stats { position: fixed; top: 120px; left: 10px; z-index: 400; background: rgba(0, 0, 0, 0.85); border: 2px solid #e67e22; padding: 8px; border-radius: 6px; font-size: 11px; width: 200px; }
+        #stats h4 { margin: 0 0 5px 0; color: #e67e22; font-size: 12px; border-bottom: 1px solid #e67e22; padding-bottom: 3px; }
         
-        /* مؤشر حركة الزوم والتحريك الحالي */
-        #zoom-badge { position: fixed; bottom: 15px; left: 15px; z-index: 400; background: rgba(0,0,0,0.7); padding: 4px 8px; border-radius: 5px; font-size: 10px; color: #bdc3c7; }
+        #zoom-badge { position: fixed; bottom: 20px; left: 20px; z-index: 400; background: rgba(0,0,0,0.7); padding: 4px 8px; border-radius: 4px; font-size: 10px; color: #bdc3c7; }
     </style>
 </head>
 <body>
 
     <div id="toolbar">
-        <button class="tool-btn success" onclick="toggleCam()">📷 تشغيل الكاميرا</button>
-        <button class="tool-btn" id="paperBtn" onclick="togglePaperMode()">📄 وضع الورقة اللانهائية</button>
-        <button class="tool-btn active" onclick="setTool('pipe')" id="btn-pipe">🖊️ رسم خط</button>
+        <button class="tool-btn success" onclick="toggleCam()">📷 كاميرا</button>
+        <button class="tool-btn active" id="paperBtn" onclick="togglePaperMode()">📄 ورقة آيزو بيضاء</button>
         
         <div class="control-group">
-            <label>↔ طول <input type="range" id="lengthSlider" min="20" max="150" value="60" oninput="updateEstimatedLabel()"></label>
-            <span id="len-preview" style="font-size:10px; color:#f1c40f; font-weight:bold;">~338مم</span>
+            <label>المشروع:</label>
+            <input type="text" id="projectInput" value="Rentschler" oninput="render()">
+        </div>
+        <div class="control-group">
+            <label>العزل:</label>
+            <input type="text" id="insulationInput" value="K-Flex" oninput="render()">
         </div>
 
         <div class="control-group">
-            <label>🎨 سمك <input type="range" id="thicknessSlider" min="2" max="15" value="6" oninput="render()"></label>
-        </div>
-
-        <div class="control-group">
-            <label>🔎 نص/رمز <input type="range" id="sizeSlider" min="10" max="30" value="16" oninput="render()"></label>
+            <label>↔ طول الخط</label>
+            <input type="range" id="lengthSlider" min="25" max="150" value="60" oninput="updateLenLabel()">
+            <span id="len-preview" style="font-size:10px; color:#e67e22; font-weight:bold; min-width:35px;">350مم</span>
         </div>
         
-        <button class="tool-btn danger" onclick="clearAll()" style="margin-right: auto;">🗑️ مسح اللوحة</button>
-        <button class="tool-btn" onclick="exportData()" style="background:#27ae60; border-color:#219a52;">💾 تصدير PNG</button>
+        <div class="control-group">
+            <label>🔎 حجم الخط</label>
+            <input type="range" id="sizeSlider" min="12" max="28" value="16" oninput="render()">
+        </div>
+
+        <button class="tool-btn danger" onclick="clearAll()" style="margin-right: auto;">🗑️ مسح</button>
+        <button class="tool-btn success" onclick="exportOfficialReport()">💾 تصدير كروكي المخطط</button>
     </div>
 
     <div id="sidebar-symbols">
-        <span style="font-size: 9px; text-align: center; color: #f1c40f; font-weight: bold; margin-bottom: 2px;">الرموز القياسية</span>
-        <button class="sym-btn" onclick="addSymbol('valve')">⏳ محبس ISO</button>
+        <span style="font-size: 9px; text-align: center; color: #e67e22; font-weight: bold; margin-bottom: 2px;">إسقاط الرموز (ISO)</span>
+        <button class="sym-btn" onclick="addSymbol('valve')">⏳ محبس قطاع</button>
         <button class="sym-btn" onclick="addSymbol('pump')">🔄 مضخة خطية</button>
-        <button class="sym-btn" onclick="addSymbol('cube')">📦 خزان/مكعب</button>
-        <button class="sym-btn" onclick="addSymbol('rhombus')">🔷 فلنجة/معين</button>
-        <button class="sym-btn" onclick="addSymbol('gauge')">⭕ عداد قياس</button>
-        <button class="sym-btn" onclick="addSymbol('elbow')">📐 كوع زاوية</button>
+        <button class="sym-btn" onclick="addSymbol('cube')">📦 خزان / مكعب 3D</button>
+        <button class="sym-btn" onclick="addSymbol('flange')">🔷 فلنجة / معين</button>
+        <button class="sym-btn" onclick="addSymbol('gauge')">⭕ عداد حرارة/ضغط</button>
+        <button class="sym-btn" onclick="addSymbol('elbow')">📐 كوع توجيه 90°</button>
     </div>
 
     <div id="stats">
-        <h4>جدول الكميات الميداني (BOQ)</h4>
-        <div>إجمالي أطوال الشبكة: <span id="total" style="color:#2ecc71; font-weight:bold; font-size:14px;">0</span> مم</div>
-        <div id="tech-note" style="font-size:9px; color:#bdc3c7; margin-top:3px;">*الحساب معتمد على عمق البعد البؤري.</div>
+        <h4>جدول القياس والكميات الرسمي</h4>
+        <div>إجمالي الأطوال المقاسة: <span id="total" style="color:#2ecc71; font-weight:bold; font-size:13px;">0</span> مم</div>
+        <div style="margin-top: 3px; color: #bdc3c7; font-size: 10px;">نوع الأنبوب الثابت: <span style="color:#f1c40f;">Ø 220 مم</span></div>
     </div>
 
     <div id="zoom-badge">المقياس الحالي: <span id="zoom-val">100%</span></div>
 
-    <div id="canvas-container" id="container">
+    <div id="canvas-container">
         <video id="v" autoplay playsinline></video>
         <canvas id="c"></canvas>
     </div>
@@ -100,7 +104,7 @@
             <button class="dpad-btn" style="visibility:hidden"></button>
             
             <button class="dpad-btn" onclick="draw('h')">↖</button>
-            <button class="dpad-btn center" onclick="resetView()">●<br><span style="font-size:8px">سنترة</span></button>
+            <button class="dpad-btn center" onclick="resetView()">●<br>سنترة</button>
             <button class="dpad-btn" onclick="draw('r')">↗</button>
             
             <button class="dpad-btn" onclick="draw('l')">↙</button>
@@ -113,89 +117,111 @@
         const c = document.getElementById('c'), ctx = c.getContext('2d'), v = document.getElementById('v'), container = document.getElementById('canvas-container');
         let elements = [];
         let totalLen = 0;
-        let isPaperMode = false;
-        const PIXEL_TO_MM_RATIO = 5.625;
+        let isPaperMode = true; 
+        const PIXEL_TO_MM_RATIO = 5.833; // نسبة التحويل الحسابية لمطابقة أبعاد الـ 350 مم والـ 500 مم
 
-        // مصفوفات ومتغيرات الزوم والتكبير والتحريك اللانهائي للشاشة (Pan & Zoom Matrix)
+        // مصفوفة التحكم بالتحريك والزوم اللانهائي للجوال والأصابع
         let transform = { scale: 1, x: 0, y: 0 };
-        let pointerState = { isDragging: false, startX: 0, startY: 0, initialX: 0, initialY: 0, touchDistance: 0 };
-        
-        // نقطة الارتكاز التلقائية في منتصف الفراغ واللوحة اللانهائية
-        let tap = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+        let activePointers = {}; 
+        let initialTouchDistance = 0;
+        let initialScale = 1;
+        let isPanning = false;
+        let panStartX = 0, panStartY = 0;
+        let transformStartX = 0, transformStartY = 0;
+
+        // نقطة الارتكاز المركزية لبدء خطوط المواسير
+        let tap = { x: window.innerWidth / 2, y: window.innerHeight / 2 - 50 };
 
         function resize() { c.width = window.innerWidth; c.height = window.innerHeight; render(); }
         window.onresize = resize; resize();
 
-        async function toggleCam() {
-            try {
-                isPaperMode = false;
-                container.classList.remove('paper-mode');
-                document.getElementById('tech-note').innerText = "*الحساب معتمد على عمق البعد البؤري.";
-                const stream = await navigator.mediaDevices.getUserMedia({video: {facingMode: "environment"}});
-                v.srcObject = stream;
-                render();
-            } catch(e) { alert("برجاء إعطاء صلاحية الكاميرا للعمل."); }
+        function toggleCam() {
+            isPaperMode = false;
+            navigator.mediaDevices.getUserMedia({video: {facingMode: "environment"}})
+                .then(stream => { v.srcObject = stream; render(); })
+                .catch(() => { alert("برجاء تفعيل صلاحية الكاميرا بالموقع."); });
         }
 
         function togglePaperMode() {
             isPaperMode = true;
-            container.classList.add('paper-mode');
-            document.getElementById('tech-note').innerText = "*الحساب معتمد على مقياس شبكة المصنع المائلة الثابتة.";
             if (v.srcObject) { v.srcObject.getTracks().forEach(t => t.stop()); }
             render();
         }
 
-        function setTool(tool) {
-            document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(`btn-${tool}`).classList.add('active');
+        function updateLenLabel() {
+            const val = document.getElementById('lengthSlider').value;
+            document.getElementById('len-preview').innerText = `${Math.round(val * PIXEL_TO_MM_RATIO)} مم`;
         }
-
-        function updateEstimatedLabel() {
-            const pixelLen = document.getElementById('lengthSlider').value;
-            document.getElementById('len-preview').innerText = `~ ${Math.round(pixelLen * PIXEL_TO_MM_RATIO)} مم`;
-        }
+        updateLenLabel();
 
         function resetView() {
             transform = { scale: 1, x: 0, y: 0 };
-            tap = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+            tap = { x: window.innerWidth / 2, y: window.innerHeight / 2 - 50 };
             document.getElementById('zoom-val').innerText = "100%";
             render();
         }
 
-        // رسم خطوط المخطط الهندسية المائلة حسابياً وبشكل لانهائي كامل لتغطية الشاشة
-        function drawIsometricGrid() {
+        // رسم شبكة الآيزومتريك المائلة + ترويسة وجدول البيانات الفني أسفل الشاشة مثل الورقة الحقيقية تماماً
+        function drawOfficialPaperBackground() {
             ctx.save();
-            ctx.fillStyle = "#ffffff";
-            ctx.fillRect(0, 0, c.width, c.height);
+            ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, c.width, c.height);
 
-            // تطبيق مصفوفة التحريك والتكبير اللانهائي على الورقة بالخلفية
+            // 1. تطبيق زوم وتحريك الشبكة والخطوط معاً كمجموعة واحدة
             ctx.translate(transform.x, transform.y);
             ctx.scale(transform.scale, transform.scale);
 
-            const spacing = 30; 
-            const angle = 30 * Math.PI / 180;
-            ctx.lineWidth = 0.5;
-
-            // توسيع نطاق الرسم الخلفي ليغطي التحريكات الجانبية والعمودية الكبيرة
-            const range = 3000; 
+            // رسم خطوط الشبكة المائلة بزاوية 30 درجة
+            const spacing = 25; const angle = 30 * Math.PI / 180;
+            ctx.lineWidth = 0.4; ctx.strokeStyle = "rgba(164, 210, 227, 0.6)";
+            const range = 4000;
             for (let i = -range; i < range; i += spacing) {
-                // خطوط مائلة للرموز والاتجاهات ↗
-                ctx.strokeStyle = "rgba(180, 215, 230, 0.55)";
                 ctx.beginPath(); ctx.moveTo(i, -range); ctx.lineTo(i + range * Math.tan(angle), range); ctx.stroke();
-                
-                // خطوط مائلة للاتجاهات الشاقولية والجانبية ↖
                 ctx.beginPath(); ctx.moveTo(i, -range); ctx.lineTo(i - range * Math.tan(angle), range); ctx.stroke();
             }
+            ctx.restore();
 
-            // رسم النقاط المفصلية المطابقة لصورة المصنع الزرقاء تماماً
-            ctx.fillStyle = "rgba(41, 128, 185, 0.4)";
-            for (let x = -range; x < range; x += spacing * 1.732) {
-                for (let y = -range; y < range; y += spacing) {
-                    ctx.beginPath();
-                    ctx.arc(x + (Math.floor(Math.abs(y)/spacing) % 2 * (spacing * 1.732 / 2)), y, 1.2, 0, 2 * Math.PI);
-                    ctx.fill();
-                }
+            // 2. رسم جدول البيانات الفني (ثابت بالأسفل لا يتحرك مع الزوم لسهولة القراءة والملء)
+            drawStaticFooterForm();
+        }
+
+        function drawStaticFooterForm() {
+            ctx.save();
+            const fTop = c.height - 110;
+            
+            // خلفية الجدول الفنية
+            ctx.fillStyle = "#f8f9fa"; ctx.fillRect(0, fTop, c.width, 110);
+            ctx.strokeStyle = "#2c3e50"; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(0, fTop); ctx.lineTo(c.width, fTop); ctx.stroke();
+
+            // رسم شبكة خلايا جدول أقطار الأنابيب المصنعي القياسي (الموجود بالورقة الأصلية)
+            ctx.strokeStyle = "#bdc3c7"; ctx.lineWidth = 1;
+            ctx.font = "bold 9px Arial"; ctx.fillStyle = "#2c3e50"; ctx.textAlign = "center";
+            
+            const cols = [21, 27, 33, 42, 48, 58, 76, 89, 114, 140, 168, 219, 273, 324, 457];
+            const colWidth = c.width / (cols.length + 2);
+            
+            // كتابة صف الأقطار العلوي والسفلي القياسي للعزل الهيدروليكي
+            for(let i=0; i<cols.length; i++) {
+                let xCoord = (i + 1) * colWidth;
+                ctx.beginPath(); ctx.moveTo(xCoord, fTop); ctx.lineTo(xCoord, fTop + 40); ctx.stroke();
+                ctx.fillText(cols[i], xCoord + (colWidth/2), fTop + 15);
+                ctx.fillText(Math.round(cols[i] * 1.37), xCoord + (colWidth/2), fTop + 32);
             }
+            ctx.beginPath(); ctx.moveTo(0, fTop + 20); ctx.lineTo(c.width - (colWidth*2), fTop + 20); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(0, fTop + 40); ctx.lineTo(c.width, fTop + 40); ctx.stroke();
+
+            // كتابة بيانات لوحة المشروع الرسمية يمين الأسفل (Header Data)
+            const pName = document.getElementById('projectInput').value;
+            const pIns = document.getElementById('insulationInput').value;
+            let textX = c.width - 130;
+            
+            ctx.textAlign = "right"; ctx.font = "bold 11px Arial"; ctx.fillStyle = "#d35400";
+            ctx.fillText("شركة العزل الفني الرسمية", c.width - 15, fTop + 55);
+            ctx.fillStyle = "#2c3e50"; ctx.font = "10px Arial";
+            ctx.fillText(`اسم المشروع / المقاول: ${pName}`, c.width - 15, fTop + 75);
+            ctx.fillText(`مواصفات العزل المطلوبة: ${pIns}`, c.width - 15, fTop + 95);
+            
+            // كتابة ترويسة الجدول القياسي للأنابيب الميكانيكية
+            ctx.textAlign = "left"; ctx.fillText("جدول قطر الأنبوب الخارجي والداخلي المتوافق المعتمد بالموقع", 15, fTop + 55);
             ctx.restore();
         }
 
@@ -212,13 +238,7 @@
             else if(dir=='v') { target.x += pixelLen * Math.cos(angle); target.y += pixelLen * Math.sin(angle); }
             
             const calculatedMm = Math.round(pixelLen * PIXEL_TO_MM_RATIO);
-            
-            elements.push({
-                type: 'pipe',
-                from: {...tap}, to: {...target},
-                label: calculatedMm + " مم"
-            });
-            
+            elements.push({ type: 'pipe', from: {...tap}, to: {...target}, label: calculatedMm });
             totalLen += calculatedMm;
             document.getElementById('total').innerText = totalLen;
             tap = target;
@@ -232,153 +252,171 @@
 
         function render() {
             ctx.clearRect(0, 0, c.width, c.height);
-            
-            if (isPaperMode) { drawIsometricGrid(); }
+            if (isPaperMode) { drawOfficialPaperBackground(); } else { drawStaticFooterForm(); }
             
             ctx.save();
-            // تطبيق نفس مصفوفة التحريك والتكبير اللانهائي على العناصر المرسومة فوق الورقة أو الكاميرا
+            // تطبيق زوم وإزاحة العناصر بالتزامن الفوري مع حركة الأصابع
             ctx.translate(transform.x, transform.y);
             ctx.scale(transform.scale, transform.scale);
             
-            const lineThickness = parseInt(document.getElementById('thicknessSlider').value);
             const dynamicSize = parseInt(document.getElementById('sizeSlider').value);
 
             elements.forEach(el => {
                 if (el.type === 'pipe') {
+                    // رسم خط الأنبوب الهندسي
                     ctx.save();
-                    if (!isPaperMode) { ctx.shadowColor = "black"; ctx.shadowBlur = 10; }
-                    ctx.strokeStyle = isPaperMode ? "#d35400" : "#F1C40F"; 
-                    ctx.lineWidth = lineThickness;
-                    ctx.lineCap = 'round';
+                    ctx.strokeStyle = isPaperMode ? "#2c3e50" : "#F1C40F"; 
+                    ctx.lineWidth = 5; ctx.lineCap = 'round';
                     ctx.beginPath(); ctx.moveTo(el.from.x, el.from.y); ctx.lineTo(el.to.x, el.to.y); ctx.stroke();
                     ctx.restore();
                     
-                    // طباعة القياسات مع تكبير وتصغير حجم الخط حياً
+                    // طباعة المقاس بالمليمتر فوق الأنبوب مباشرة موازياً له
                     ctx.save();
                     ctx.font = `bold ${dynamicSize}px Arial`; ctx.textAlign = "center";
-                    ctx.fillStyle = isPaperMode ? "#1a252f" : "white"; 
-                    ctx.strokeStyle = isPaperMode ? "white" : "black"; 
-                    ctx.lineWidth = 3;
+                    ctx.fillStyle = "#d35400"; ctx.strokeStyle = "white"; ctx.lineWidth = 3;
                     const midX = (el.from.x + el.to.x) / 2;
-                    const midY = (el.from.y + el.to.y) / 2 - (dynamicSize/1.5);
+                    const midY = (el.from.y + el.to.y) / 2 - 6;
                     ctx.strokeText(el.label, midX, midY); ctx.fillText(el.label, midX, midY);
                     ctx.restore();
                 } 
                 else if (el.type === 'symbol') {
                     ctx.save();
-                    ctx.strokeStyle = isPaperMode ? "#2c3e50" : "#e67e22";
-                    ctx.fillStyle = isPaperMode ? "#34495e" : "#e67e22";
-                    ctx.lineWidth = lineThickness / 1.3;
+                    ctx.strokeStyle = "#27ae60"; ctx.fillStyle = "#27ae60"; ctx.lineWidth = 3;
                     ctx.translate(el.x, el.y);
+                    const s = dynamicSize * 1.1;
                     
-                    const s = dynamicSize * 1.2; // حجم الرمز يرتبط مباشرة بمنزلق حجم النصوص الشامل
-                    
-                    if (el.symbol === 'valve') { // محبس ISO حقيقي
+                    if (el.symbol === 'valve') {
                         ctx.beginPath(); ctx.moveTo(-s, -s/2); ctx.lineTo(s, s/2); ctx.lineTo(s, -s/2); ctx.lineTo(-s, s/2);
                         ctx.closePath(); ctx.fill(); ctx.stroke();
                     } 
-                    else if (el.symbol === 'pump') { // مضخة خطية ميكانيكية
+                    else if (el.symbol === 'pump') {
                         ctx.beginPath(); ctx.arc(0, 0, s, 0, 2 * Math.PI); ctx.stroke();
                         ctx.beginPath(); ctx.moveTo(-s, 0); ctx.lineTo(s, -s/2); ctx.lineTo(s, s/2); ctx.closePath(); ctx.fill();
                     } 
-                    else if (el.symbol === 'cube') { // مكعب آيزومتري 3D خزان أو وعاء خلط
+                    else if (el.symbol === 'cube') {
                         const cos30 = Math.cos(Math.PI / 6), sin30 = Math.sin(Math.PI / 6);
                         ctx.beginPath(); ctx.moveTo(0, -s); ctx.lineTo(s * cos30, -s + s * sin30); ctx.lineTo(0, 0); ctx.lineTo(-s * cos30, -s + s * sin30); ctx.closePath(); ctx.stroke();
                         ctx.beginPath(); ctx.moveTo(-s * cos30, -s + s * sin30); ctx.lineTo(-s * cos30, s * sin30); ctx.lineTo(0, s); ctx.lineTo(0, 0); ctx.stroke();
-                        ctx.beginPath(); ctx.moveTo(s * cos30, -s + s * sin30); ctx.lineTo(s * cos30, s * sin30); ctx.lineTo(0, s); ctx.stroke();
-                    } 
-                    else if (el.symbol === 'rhombus') { // معين مسطح فلنجة ربط
+                    }
+                    else if (el.symbol === 'flange') {
                         const cos30 = Math.cos(Math.PI / 6);
                         ctx.beginPath(); ctx.moveTo(0, -s/2); ctx.lineTo(s * cos30, 0); ctx.lineTo(0, s/2); ctx.lineTo(-s * cos30, 0); ctx.closePath(); ctx.stroke();
                     }
-                    else if (el.symbol === 'gauge') { // عداد قياس هندسي دائري مع مؤشر داخلي
-                        ctx.beginPath(); ctx.arc(0, 0, s/1.2, 0, 2 * Math.PI); ctx.stroke();
+                    else if (el.symbol === 'gauge') {
+                        ctx.beginPath(); ctx.arc(0, 0, s/1.1, 0, 2 * Math.PI); ctx.stroke();
                         ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(s/2, -s/2); ctx.stroke();
                     }
-                    else if (el.symbol === 'elbow') { // كوع توجيه آيزومتري بزاوية 90 درجة
+                    else if (el.symbol === 'elbow') {
                         ctx.beginPath(); ctx.moveTo(-s, 0); ctx.lineTo(0, 0); ctx.lineTo(0, s); ctx.stroke();
                     }
                     ctx.restore();
                 }
             });
             
-            // نقطة الارتكاز الميدانية الحمراء
-            ctx.fillStyle = "red"; ctx.beginPath(); ctx.arc(tap.x, tap.y, 8, 0, 7); ctx.fill();
-            ctx.strokeStyle = "white"; ctx.lineWidth = 2; ctx.stroke();
+            // مؤشر رأس القياس والموقع الحالي (النقطة الحمراء الميدانية)
+            ctx.fillStyle = "#e74c3c"; ctx.beginPath(); ctx.arc(tap.x, tap.y, 7, 0, 7); ctx.fill();
+            ctx.strokeStyle = "white"; ctx.lineWidth = 1.5; ctx.stroke();
             ctx.restore();
         }
 
-        // --- محرك إدارة اللمس المتعدد والتحريك بإصبعين (Pan & Zoom Multi-Touch Controller) ---
+        // --- محرك اللمس الثنائي الذكي المطور كلياً للجوال (Pinch-To-Zoom & Pan) ---
         container.addEventListener('pointerdown', (e) => {
-            const activeTouches = e.currentTarget.getCoalescedEvents ? e.currentTarget.getCoalescedEvents() : [e];
-            pointerState.isDragging = true;
-            
-            // تحويل إحداثيات اللمس الفردي لتتوافق مع مصفوفة الزوم الحالية وسنترة الماوس
-            const canvasX = (e.clientX - transform.x) / transform.scale;
-            const canvasY = (e.clientY - transform.y) / transform.scale;
-            
-            // إذا ضغط المهندس بإصبع واحد بعيداً عن أزرار التحكم، ينقل نقطة الارتكاز الحمراء إليها فوراً
-            if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'SELECT') {
-                tap = { x: canvasX, y: canvasY };
-                pointerState.startX = e.clientX; pointerState.startY = e.clientY;
-                pointerState.initialX = transform.x; pointerState.initialY = transform.y;
+            activePointers[e.pointerId] = e;
+            const pointerIds = Object.keys(activePointers);
+
+            if (pointerIds.length === 2) {
+                isPanning = false;
+                const p1 = activePointers[pointerIds[0]];
+                const p2 = activePointers[pointerIds[1]];
+                initialTouchDistance = Math.hypot(p2.clientX - p1.clientX, p2.clientY - p1.clientY);
+                initialScale = transform.scale;
+            } 
+            else if (pointerIds.length === 1) {
+                if (e.target.tagName === 'CANVAS' && e.clientY < c.height - 110) { // منع الحركة عند الضغط على جدول البيانات الأسفل
+                    isPanning = true;
+                    panStartX = e.clientX; panStartY = e.clientY;
+                    transformStartX = transform.x; transformStartY = transform.y;
+                }
+            }
+        });
+
+        container.addEventListener('pointermove', (e) => {
+            if (!activePointers[e.pointerId]) return;
+            activePointers[e.pointerId] = e;
+            const pointerIds = Object.keys(activePointers);
+
+            // تفعيل الزوم بالإصبعين معاً للورقة والمخطط
+            if (pointerIds.length === 2) {
+                const p1 = activePointers[pointerIds[0]];
+                const p2 = activePointers[pointerIds[1]];
+                const currentDistance = Math.hypot(p2.clientX - p1.clientX, p2.clientY - p1.clientY);
+                
+                if (initialTouchDistance > 0) {
+                    const factor = currentDistance / initialTouchDistance;
+                    transform.scale = Math.min(Math.max(initialScale * factor, 0.4), 3.5);
+                    document.getElementById('zoom-val').innerText = `${Math.round(transform.scale * 100)}%`;
+                    render();
+                }
+            } 
+            // السحب والتحريك الحر بإصبع واحد لتصفح أطراف الورقة بالكامل
+            else if (pointerIds.length === 1 && isPanning) {
+                const dx = e.clientX - panStartX; const dy = e.clientY - panStartY;
+                transform.x = transformStartX + dx; transform.y = transformStartY + dy;
                 render();
             }
         });
 
-        // دعم تحريك (Pan) وتكبير (Zoom) لوحة الرسم والورقة حسابياً عند السحب
-        container.addEventListener('pointermove', (e) => {
-            if (!pointerState.isDragging) return;
-            
-            // السحب بإصبعين للتحريك الشامل للورقة واللوحة اللانهائية
-            if(e.pointerType === 'touch' || e.buttons === 1) {
-                const dx = e.clientX - pointerState.startX;
-                const dy = e.clientY - pointerState.startY;
-                
-                // إذا تم الضغط على زر Shift أو السحب الميداني الحر يتم تحريك اللوحة كاملة
-                if(e.shiftKey || currentTool === 'pan' || e.target.tagName === 'CANVAS') {
-                    transform.x = pointerState.initialX + dx;
-                    transform.y = pointerState.initialY + dy;
+        container.addEventListener('pointerup', (e) => {
+            const pointerIds = Object.keys(activePointers);
+            if (pointerIds.length === 1 && isPanning) {
+                const totalMove = Math.hypot(e.clientX - panStartX, e.clientY - panStartY);
+                // نقرة واحدة سريعة لتغيير موقع ارتكاز القلم الأحمر
+                if (totalMove < 6 && e.clientY < c.height - 110) {
+                    tap.x = (e.clientX - transform.x) / transform.scale;
+                    tap.y = (e.clientY - transform.y) / transform.scale;
                     render();
                 }
             }
+            delete activePointers[e.pointerId];
+            if (Object.keys(activePointers).length < 2) initialTouchDistance = 0;
+            if (Object.keys(activePointers).length === 0) isPanning = false;
         });
 
-        container.addEventListener('pointerup', () => { pointerState.isDragging = false; });
-        
-        // ميزة دعم التكبير والتصغير عبر عجلة الماوس (Mouse Wheel Zoom) للتحكم الشامل
+        container.addEventListener('pointercancel', (e) => { delete activePointers[e.pointerId]; });
+
+        // دعم تكبير الفأرة لأجهزة اللابتوب
         container.addEventListener('wheel', (e) => {
             e.preventDefault();
-            const zoomFactor = 1.1;
-            if (e.deltaY < 0) { transform.scale = Math.min(transform.scale * zoomFactor, 5); } 
-            else { transform.scale = Math.max(transform.scale / zoomFactor, 0.4); }
+            if (e.deltaY < 0) { transform.scale = Math.min(transform.scale * 1.1, 3.5); } 
+            else { transform.scale = Math.max(transform.scale / 1.1, 0.4); }
             document.getElementById('zoom-val').innerText = `${Math.round(transform.scale * 100)}%`;
             render();
         }, { passive: false });
 
-        function exportData() {
+        function exportOfficialReport() {
             const tempC = document.createElement('canvas'); tempC.width = c.width; tempC.height = c.height;
             const tCtx = tempC.getContext('2d');
             
-            if(!isPaperMode) { 
-                tCtx.drawImage(v, 0, 0); 
-            } else { 
+            // طباعة الخلفية المائلة والخطوط والجدول في ملف PNG واحد رسمي للتسليم
+            if(isPaperMode) {
                 tCtx.fillStyle = "#ffffff"; tCtx.fillRect(0,0,c.width,c.height);
                 tCtx.save(); tCtx.translate(transform.x, transform.y); tCtx.scale(transform.scale, transform.scale);
-                const spacing = 30; const angle = 30 * Math.PI / 180; tCtx.lineWidth = 0.5; const range = 3000;
-                for (let i = -range; i < range; i += spacing) {
-                    tCtx.strokeStyle = "rgba(180, 215, 230, 0.55)";
-                    tCtx.beginPath(); tCtx.moveTo(i, -range); tCtx.lineTo(i + range * Math.tan(angle), range); tCtx.stroke();
-                    tCtx.beginPath(); tCtx.moveTo(i, -range); tCtx.lineTo(i - range * Math.tan(angle), range); tCtx.stroke();
+                const spacing = 25; const angle = 30 * Math.PI / 180; tCtx.lineWidth = 0.4; tCtx.strokeStyle = "rgba(164, 210, 227, 0.6)";
+                for (let i = -4000; i < 4000; i += spacing) {
+                    tCtx.beginPath(); tCtx.moveTo(i, -4000); tCtx.lineTo(i + 4000 * Math.tan(angle), 4000); tCtx.stroke();
+                    tCtx.beginPath(); tCtx.moveTo(i, -4000); tCtx.lineTo(i - 4000 * Math.tan(angle), 4000); tCtx.stroke();
                 }
                 tCtx.restore();
+            } else {
+                tCtx.drawImage(v, 0, 0);
             }
+            
             tCtx.drawImage(c, 0, 0);
-            const link = document.createElement('a'); link.download = 'Full_Isometric_Report.png'; link.href = tempC.toDataURL(); link.click();
+            const link = document.createElement('a'); link.download = `Iso_Report_${document.getElementById('projectInput').value}.png`; link.href = tempC.toDataURL(); link.click();
         }
 
         function clearAll() {
-            if (confirm("هل تريد مسح اللوحة بالكامل وتصفير الحسابات؟")) {
+            if (confirm("هل تريد مسح لوحة الرسم الحالية وتصفير الحسابات؟")) {
                 elements = []; totalLen = 0; document.getElementById('total').innerText = 0; resetView();
             }
         }
