@@ -2,102 +2,919 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<title>ISO FIELD ENGINE PRO - FULL SYSTEM</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<title>ISO FIELD PRO</title>
+
 <style>
-    :root { --bg: #121212; --panel: #1e1e1e; --accent: #ff9800; }
-    body { margin: 0; background: var(--bg); color: #fff; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
-    #toolbar { position: fixed; top: 0; width: 100%; height: 60px; background: var(--panel); display: flex; align-items: center; padding: 0 20px; gap: 10px; border-bottom: 2px solid var(--accent); z-index: 1000; }
-    #canvas-zone { position: fixed; top: 60px; left: 0; width: 100%; height: calc(100vh - 60px); cursor: crosshair; }
-    .sidebar { position: fixed; right: 0; top: 60px; width: 300px; height: calc(100vh - 60px); background: var(--panel); padding: 20px; border-left: 2px solid #333; overflow-y: auto; }
-    .btn { background: #333; border: none; color: white; padding: 8px 12px; border-radius: 5px; cursor: pointer; }
-    .sym-btn { background: #444; border: 1px solid #555; color: white; padding: 10px; margin: 5px; width: 130px; cursor: pointer; }
-    .sym-btn:hover { background: var(--accent); }
-    input { width: 100%; padding: 8px; margin: 5px 0; background: #2a2a2a; border: 1px solid #444; color: white; }
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Segoe UI,Arial,sans-serif;
+-webkit-user-select:none;
+user-select:none
+}
+
+body{
+overflow:hidden;
+background:#111
+}
+
+canvas{
+position:absolute;
+top:0;
+left:0;
+touch-action:none
+}
+
+#topbar{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+display:flex;
+flex-wrap:wrap;
+gap:6px;
+padding:8px;
+background:#1c1c1c;
+border-bottom:2px solid #333;
+z-index:1000
+}
+
+.group{
+display:flex;
+align-items:center;
+gap:5px;
+background:#2a2a2a;
+padding:6px 8px;
+border-radius:12px;
+color:#fff;
+font-size:12px
+}
+
+button{
+background:#303030;
+border:none;
+color:#fff;
+padding:8px 12px;
+border-radius:10px;
+font-weight:600;
+font-size:12px
+}
+
+button:active{
+background:#ff9800
+}
+
+input{
+background:#111;
+border:1px solid #555;
+color:#fff;
+padding:5px;
+border-radius:8px
+}
+
+input[type=text]{
+width:110px;
+text-align:center
+}
+
+#sidebar{
+position:fixed;
+right:10px;
+top:95px;
+display:flex;
+flex-direction:column;
+gap:6px;
+z-index:999
+}
+
+.tool{
+width:110px
+}
+
+#panel{
+position:fixed;
+left:10px;
+top:95px;
+width:250px;
+background:rgba(20,20,20,.94);
+border:2px solid #ff9800;
+border-radius:16px;
+padding:14px;
+color:#fff;
+z-index:999
+}
+
+#panel h3{
+color:#ff9800;
+margin-bottom:10px
+}
+
+#zoomBox{
+position:fixed;
+left:15px;
+bottom:15px;
+background:rgba(0,0,0,.7);
+padding:8px 12px;
+border-radius:12px;
+color:#fff;
+z-index:999
+}
+
+#hint{
+position:fixed;
+right:15px;
+bottom:15px;
+background:rgba(0,0,0,.7);
+padding:10px;
+border-radius:12px;
+color:#fff;
+font-size:11px;
+z-index:999
+}
+
 </style>
 </head>
+
 <body>
 
-<div id="toolbar">
-    <button class="btn" onclick="undo()">Undo</button>
-    <button class="btn" onclick="generateReport()" style="background: var(--accent);">PDF Export</button>
-    <span id="status" style="margin-left: 20px;">System bereit</span>
+<div id="topbar">
+
+<button onclick="resetView()">Zentrieren</button>
+<button onclick="undo()">Undo</button>
+<button onclick="redo()">Redo</button>
+<button onclick="clearAll()">Löschen</button>
+<button onclick="exportPNG()">Export</button>
+
+<div class="group">
+<span>Projekt</span>
+<input type="text" id="project" value="Rentschler">
 </div>
 
-<div class="sidebar">
-    <h3>Symbole</h3>
-    <button class="sym-btn" onclick="selectSymbol('Ventil')">Ventil</button>
-    <button class="sym-btn" onclick="selectSymbol('Flansch')">Flansch</button>
-    <button class="sym-btn" onclick="selectSymbol('Bogen')">Bogen</button>
-    <button class="sym-btn" onclick="selectSymbol('Pumpe')">Pumpe</button>
-    <hr style="margin: 20px 0;">
-    <h3>Projekt</h3>
-    <input type="text" id="pName" placeholder="Projektname">
-    <input type="number" id="pDN" value="200" placeholder="DN">
-    <div id="resultList"></div>
-    <strong>Fläche:</strong> <span id="totalM2">0.00</span> m²
+<div class="group">
+<span>Isolierung</span>
+<input type="text" id="iso" value="K-Flex">
 </div>
 
-<div id="canvas-zone">
-    <canvas id="engine"></canvas>
+<div class="group">
+<span>Rohr</span>
+<input type="text" id="pipe" value="Ø220">
 </div>
+
+<div class="group">
+<span>Länge</span>
+<input type="range" id="len" min="20" max="250" value="60">
+<span id="lenText">350 mm</span>
+</div>
+
+<div class="group">
+<span>Text</span>
+<input type="range" id="font" min="10" max="32" value="16">
+</div>
+
+</div>
+
+<div id="sidebar">
+
+<button class="tool" onclick="pickTool('pipe')">Rohr</button>
+<button class="tool" onclick="pickTool('free')">Freihand</button>
+
+<button class="tool" onclick="pickSymbol('valve')">Ventil</button>
+<button class="tool" onclick="pickSymbol('pump')">Pumpe</button>
+<button class="tool" onclick="pickSymbol('flange')">Flansch</button>
+<button class="tool" onclick="pickSymbol('gauge')">Messgerät</button>
+<button class="tool" onclick="pickSymbol('elbow')">Bogen</button>
+<button class="tool" onclick="pickSymbol('filter')">Filter</button>
+<button class="tool" onclick="pickSymbol('tank')">Tank</button>
+<button class="tool" onclick="pickSymbol('arrow')">Flow</button>
+
+</div>
+
+<div id="panel">
+
+<h3>Technische Daten</h3>
+
+<div style="margin-top:8px">
+Gesamtlänge:
+<span id="sum">0</span> mm
+</div>
+
+<div style="margin-top:8px">
+Rohr:
+<span id="pipeInfo">Ø220</span>
+</div>
+
+<div style="margin-top:8px">
+Projekt:
+<span id="projectInfo">Rentschler</span>
+</div>
+
+<div style="margin-top:8px">
+Werkzeug:
+<span id="toolInfo">Rohr</span>
+</div>
+
+</div>
+
+<div id="zoomBox">
+Zoom:
+<span id="zoomText">100%</span>
+</div>
+
+<div id="hint">
+1 Finger = Zeichnen<br>
+2 Finger = Bewegen / Zoom
+</div>
+
+<canvas id="paper"></canvas>
+<canvas id="draw"></canvas>
 
 <script>
-    const canvas = document.getElementById('engine');
-    const ctx = canvas.getContext('2d');
-    let elements = [], symbols = [], currentSymbol = null;
-    
-    function init() {
-        canvas.width = window.innerWidth - 300;
-        canvas.height = window.innerHeight - 60;
-        render();
-    }
 
-    function render() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        // رسم الخطوط
-        ctx.strokeStyle = "#ff9800"; ctx.lineWidth = 6;
-        elements.forEach(el => {
-            ctx.beginPath(); ctx.moveTo(el.x1, el.y1); ctx.lineTo(el.x2, el.y2); ctx.stroke();
-        });
-        // رسم الرموز
-        ctx.fillStyle = "#fff";
-        symbols.forEach(s => {
-            ctx.font = "20px Arial";
-            ctx.fillText(s.type === 'Ventil' ? '⨂' : s.type === 'Flansch' ? '⧖' : '⊚', s.x, s.y);
-        });
-    }
+const paper=document.getElementById("paper")
+const draw=document.getElementById("draw")
 
-    function selectSymbol(type) { currentSymbol = type; }
+const pg=paper.getContext("2d")
+const ctx=draw.getContext("2d")
 
-    canvas.addEventListener('mousedown', (e) => {
-        const x = e.clientX, y = e.clientY - 60;
-        if(currentSymbol) {
-            symbols.push({type: currentSymbol, x: x, y: y});
-            currentSymbol = null;
-        } else {
-            if(elements.length > 0) {
-                let last = elements[elements.length - 1];
-                elements.push({x1: last.x2, y1: last.y2, x2: x, y2: y});
-            } else {
-                elements.push({x1: x, y1: y, x2: x + 100, y2: y});
-            }
-        }
-        render();
-    });
+let w=innerWidth
+let h=innerHeight
 
-    function generateReport() {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        doc.text("ISO Dämmtechnik Protokoll", 20, 20);
-        doc.text("Projekt: " + document.getElementById('pName').value, 20, 30);
-        doc.text("Anzahl Symbole: " + symbols.length, 20, 40);
-        doc.save("Report.pdf");
-    }
+const dpr=devicePixelRatio||1
 
-    function undo() { if(symbols.length > 0) symbols.pop(); else elements.pop(); render(); }
-    window.onresize = init;
-    init();
+function setup(c,x){
+
+c.width=w*dpr
+c.height=h*dpr
+
+c.style.width=w+"px"
+c.style.height=h+"px"
+
+x.setTransform(dpr,0,0,dpr,0,0)
+
+}
+
+setup(paper,pg)
+setup(draw,ctx)
+
+let cam={
+x:0,
+y:0,
+z:1,
+targetX:0,
+targetY:0,
+targetZ:1
+}
+
+let current={
+x:w/2,
+y:h/2
+}
+
+let objects=[]
+let undoStack=[]
+
+let total=0
+
+let tool="pipe"
+let pickedSymbol=null
+
+let freePath=[]
+
+function resize(){
+
+w=innerWidth
+h=innerHeight
+
+setup(paper,pg)
+setup(draw,ctx)
+
+render()
+
+}
+
+addEventListener("resize",resize)
+
+function smooth(){
+
+cam.x+=(cam.targetX-cam.x)*0.15
+cam.y+=(cam.targetY-cam.y)*0.15
+cam.z+=(cam.targetZ-cam.z)*0.15
+
+render()
+
+requestAnimationFrame(smooth)
+
+}
+
+function drawPaper(){
+
+pg.clearRect(0,0,w,h)
+
+pg.fillStyle="#fff"
+pg.fillRect(0,0,w,h)
+
+pg.save()
+
+pg.translate(cam.x,cam.y)
+pg.scale(cam.z,cam.z)
+
+const step=32
+const a=Math.PI/6
+
+pg.strokeStyle="rgba(120,160,190,.22)"
+pg.lineWidth=.8
+
+for(let i=-6000;i<6000;i+=step){
+
+pg.beginPath()
+pg.moveTo(i,-6000)
+pg.lineTo(i+6000*Math.tan(a),6000)
+pg.stroke()
+
+pg.beginPath()
+pg.moveTo(i,-6000)
+pg.lineTo(i-6000*Math.tan(a),6000)
+pg.stroke()
+
+}
+
+pg.restore()
+
+footer()
+
+}
+
+function footer(){
+
+const y=h-115
+
+pg.fillStyle="#fafafa"
+pg.fillRect(0,y,w,115)
+
+pg.strokeStyle="#222"
+pg.lineWidth=2
+
+pg.beginPath()
+pg.moveTo(0,y)
+pg.lineTo(w,y)
+pg.stroke()
+
+const cols=[21,27,33,42,48,60,76,89,114,140,168,219,273,324,457]
+const cw=w/(cols.length+2)
+
+pg.font="10px Segoe UI"
+pg.fillStyle="#111"
+
+for(let i=0;i<cols.length;i++){
+
+const x=(i+1)*cw
+
+pg.beginPath()
+pg.moveTo(x,y)
+pg.lineTo(x,y+40)
+pg.stroke()
+
+pg.fillText(cols[i],x+8,y+14)
+pg.fillText(Math.round(cols[i]*1.37),x+5,y+32)
+
+}
+
+pg.beginPath()
+pg.moveTo(0,y+20)
+pg.lineTo(w,y+20)
+pg.stroke()
+
+pg.beginPath()
+pg.moveTo(0,y+40)
+pg.lineTo(w,y+40)
+pg.stroke()
+
+pg.font="bold 14px Segoe UI"
+pg.fillStyle="#ff9800"
+
+pg.fillText("Frech Dämmtechnik",w-220,y+65)
+
+pg.fillStyle="#111"
+pg.font="11px Segoe UI"
+
+pg.fillText("Projekt: "+project.value,w-220,y+85)
+pg.fillText("Isolierung: "+iso.value,w-220,y+102)
+
+}
+
+function render(){
+
+drawPaper()
+
+ctx.clearRect(0,0,w,h)
+
+ctx.save()
+
+ctx.translate(cam.x,cam.y)
+ctx.scale(cam.z,cam.z)
+
+objects.forEach(o=>{
+
+if(o.type==="pipe"){
+
+ctx.strokeStyle="#1e1e1e"
+ctx.lineWidth=3
+ctx.lineCap="round"
+
+ctx.beginPath()
+ctx.moveTo(o.a.x,o.a.y)
+ctx.lineTo(o.b.x,o.b.y)
+ctx.stroke()
+
+const mx=(o.a.x+o.b.x)/2
+const my=(o.a.y+o.b.y)/2
+
+ctx.save()
+
+ctx.translate(mx,my)
+ctx.rotate(o.angle)
+
+ctx.font="bold "+font.value+"px Segoe UI"
+
+ctx.textAlign="center"
+
+ctx.strokeStyle="#fff"
+ctx.lineWidth=5
+
+ctx.strokeText(o.mm,0,-10)
+
+ctx.fillStyle="#111"
+ctx.fillText(o.mm,0,-10)
+
+ctx.restore()
+
+}
+
+if(o.type==="free"){
+
+ctx.strokeStyle="#1976d2"
+ctx.lineWidth=2
+
+ctx.beginPath()
+
+o.points.forEach((p,i)=>{
+
+if(i===0)ctx.moveTo(p.x,p.y)
+else ctx.lineTo(p.x,p.y)
+
+})
+
+ctx.stroke()
+
+}
+
+if(o.type==="symbol"){
+
+drawSymbol(o.name,o.x,o.y)
+
+}
+
+})
+
+ctx.fillStyle="red"
+
+ctx.beginPath()
+ctx.arc(current.x,current.y,6,0,Math.PI*2)
+ctx.fill()
+
+ctx.restore()
+
+}
+
+function drawSymbol(type,x,y){
+
+ctx.save()
+
+ctx.translate(x,y)
+
+ctx.strokeStyle="#13864a"
+ctx.fillStyle="#13864a"
+ctx.lineWidth=2
+
+const s=14
+
+if(type==="valve"){
+
+ctx.beginPath()
+ctx.moveTo(-s,-s/2)
+ctx.lineTo(s,s/2)
+ctx.lineTo(s,-s/2)
+ctx.lineTo(-s,s/2)
+ctx.closePath()
+ctx.stroke()
+
+}
+
+if(type==="pump"){
+
+ctx.beginPath()
+ctx.arc(0,0,s,0,Math.PI*2)
+ctx.stroke()
+
+ctx.beginPath()
+ctx.moveTo(-s,0)
+ctx.lineTo(s,-s/2)
+ctx.lineTo(s,s/2)
+ctx.closePath()
+ctx.fill()
+
+}
+
+if(type==="flange"){
+
+ctx.beginPath()
+ctx.moveTo(0,-s)
+ctx.lineTo(s,0)
+ctx.lineTo(0,s)
+ctx.lineTo(-s,0)
+ctx.closePath()
+ctx.stroke()
+
+}
+
+if(type==="gauge"){
+
+ctx.beginPath()
+ctx.arc(0,0,s,0,Math.PI*2)
+ctx.stroke()
+
+ctx.beginPath()
+ctx.moveTo(0,0)
+ctx.lineTo(s/2,-s/2)
+ctx.stroke()
+
+}
+
+if(type==="elbow"){
+
+ctx.beginPath()
+ctx.moveTo(-s,0)
+ctx.lineTo(0,0)
+ctx.lineTo(0,s)
+ctx.stroke()
+
+}
+
+if(type==="filter"){
+
+ctx.strokeRect(-s,-s,s*2,s*2)
+
+}
+
+if(type==="tank"){
+
+ctx.beginPath()
+ctx.roundRect(-s,-s,s*2,s*2,6)
+ctx.stroke()
+
+}
+
+if(type==="arrow"){
+
+ctx.beginPath()
+ctx.moveTo(-s,0)
+ctx.lineTo(s,0)
+ctx.stroke()
+
+ctx.beginPath()
+ctx.moveTo(s,0)
+ctx.lineTo(s-6,-5)
+ctx.lineTo(s-6,5)
+ctx.closePath()
+ctx.fill()
+
+}
+
+ctx.restore()
+
+}
+
+function pickTool(t){
+
+tool=t
+toolInfo.innerText=t
+
+}
+
+function pickSymbol(s){
+
+objects.push({
+type:"symbol",
+name:s,
+x:current.x,
+y:current.y
+})
+
+render()
+
+}
+
+function isoAngle(dx,dy){
+
+const ang=Math.atan2(dy,dx)
+
+const dirs=[
+0,
+Math.PI/3,
+2*Math.PI/3,
+Math.PI,
+-2*Math.PI/3,
+-Math.PI/3
+]
+
+let best=dirs[0]
+let diff=999
+
+dirs.forEach(d=>{
+
+let n=Math.abs(ang-d)
+
+if(n<diff){
+
+diff=n
+best=d
+
+}
+
+})
+
+return best
+
+}
+
+let sx=0
+let sy=0
+let mode="draw"
+
+draw.addEventListener("touchstart",e=>{
+
+if(e.touches.length===1){
+
+sx=e.touches[0].clientX
+sy=e.touches[0].clientY
+
+if(tool==="free"){
+
+freePath=[]
+
+}
+
+}
+
+if(e.touches.length===2){
+
+mode="pan"
+
+}
+
+})
+
+draw.addEventListener("touchmove",e=>{
+
+if(tool==="free"&&e.touches.length===1){
+
+const x=(e.touches[0].clientX-cam.x)/cam.z
+const y=(e.touches[0].clientY-cam.y)/cam.z
+
+freePath.push({x,y})
+
+objects.push({
+type:"free",
+points:[...freePath]
+})
+
+objects.splice(objects.length-2,1)
+
+render()
+
+}
+
+})
+
+draw.addEventListener("touchend",e=>{
+
+if(mode==="pan"){
+mode="draw"
+return
+}
+
+if(tool==="pipe"){
+
+const ex=e.changedTouches[0].clientX
+const ey=e.changedTouches[0].clientY
+
+const dx=ex-sx
+const dy=ey-sy
+
+const ang=isoAngle(dx,dy)
+
+const len=parseFloat(len.value)
+
+let nx=current.x+Math.cos(ang)*len
+let ny=current.y+Math.sin(ang)*len
+
+const mm=Math.round(len*5.833)
+
+objects.push({
+type:"pipe",
+a:{x:current.x,y:current.y},
+b:{x:nx,y:ny},
+angle:ang,
+mm:mm
+})
+
+current.x=nx
+current.y=ny
+
+total+=mm
+sum.innerText=total
+
+}
+
+render()
+
+})
+
+let pointers={}
+let startDist=0
+let startZoom=1
+let ox=0
+let oy=0
+let px=0
+let py=0
+
+draw.addEventListener("pointerdown",e=>{
+
+pointers[e.pointerId]=e
+
+const ids=Object.keys(pointers)
+
+if(ids.length===2){
+
+const p1=pointers[ids[0]]
+const p2=pointers[ids[1]]
+
+startDist=Math.hypot(
+p2.clientX-p1.clientX,
+p2.clientY-p1.clientY
+)
+
+startZoom=cam.targetZ
+
+}
+
+if(ids.length===1){
+
+px=e.clientX
+py=e.clientY
+
+ox=cam.targetX
+oy=cam.targetY
+
+}
+
+})
+
+draw.addEventListener("pointermove",e=>{
+
+if(!pointers[e.pointerId])return
+
+pointers[e.pointerId]=e
+
+const ids=Object.keys(pointers)
+
+if(ids.length===2){
+
+const p1=pointers[ids[0]]
+const p2=pointers[ids[1]]
+
+const nd=Math.hypot(
+p2.clientX-p1.clientX,
+p2.clientY-p1.clientY
+)
+
+cam.targetZ=Math.min(
+Math.max(startZoom*(nd/startDist),0.3),
+6
+)
+
+zoomText.innerText=
+Math.round(cam.targetZ*100)+"%"
+
+}
+
+if(ids.length===1&&mode==="pan"){
+
+cam.targetX=ox+(e.clientX-px)
+cam.targetY=oy+(e.clientY-py)
+
+}
+
+})
+
+draw.addEventListener("pointerup",e=>{
+
+delete pointers[e.pointerId]
+
+})
+
+function undo(){
+
+if(objects.length===0)return
+
+undoStack.push(objects.pop())
+
+render()
+
+}
+
+function redo(){
+
+if(undoStack.length===0)return
+
+objects.push(undoStack.pop())
+
+render()
+
+}
+
+function clearAll(){
+
+objects=[]
+undoStack=[]
+total=0
+
+sum.innerText=0
+
+render()
+
+}
+
+function resetView(){
+
+cam.targetX=0
+cam.targetY=0
+cam.targetZ=1
+
+zoomText.innerText="100%"
+
+render()
+
+}
+
+function exportPNG(){
+
+const out=document.createElement("canvas")
+
+out.width=paper.width
+out.height=paper.height
+
+const o=out.getContext("2d")
+
+o.drawImage(paper,0,0)
+o.drawImage(draw,0,0)
+
+const a=document.createElement("a")
+
+a.download="ISO_FIELD_PRO.png"
+
+a.href=out.toDataURL()
+
+a.click()
+
+}
+
+len.oninput=function(){
+
+lenText.innerText=
+Math.round(this.value*5.833)+" mm"
+
+}
+
+project.oninput=function(){
+
+projectInfo.innerText=this.value
+render()
+
+}
+
+pipe.oninput=function(){
+
+pipeInfo.innerText=this.value
+
+}
+
+smooth()
+
 </script>
+
 </body>
 </html>
