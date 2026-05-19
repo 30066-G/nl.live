@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
-<title>ISO Basic</title>
+<title>ISO CAD Mobile</title>
 
 <style>
 
@@ -11,14 +11,14 @@
 margin:0;
 padding:0;
 box-sizing:border-box;
-font-family:Arial,sans-serif;
 -webkit-user-select:none;
-user-select:none
+user-select:none;
+font-family:Segoe UI,sans-serif
 }
 
 body{
 overflow:hidden;
-background:#111
+background:#181818
 }
 
 canvas{
@@ -28,30 +28,32 @@ left:0;
 touch-action:none
 }
 
-#top{
+#topbar{
 position:fixed;
 top:0;
 left:0;
 width:100%;
+padding:10px;
 display:flex;
-gap:6px;
-padding:8px;
-background:#222;
-z-index:10;
-flex-wrap:wrap
+gap:8px;
+flex-wrap:wrap;
+background:#202020;
+z-index:20;
+border-bottom:1px solid #333
 }
 
 button,input{
-height:38px;
+height:42px;
 border:none;
-border-radius:8px;
-padding:0 12px;
+border-radius:12px;
+padding:0 14px;
 font-size:13px
 }
 
 button{
-background:#333;
-color:#fff
+background:#2f2f2f;
+color:#fff;
+font-weight:600
 }
 
 button:active{
@@ -59,24 +61,33 @@ background:#ff9800
 }
 
 input[type=range]{
-padding:0;
-width:120px
+width:130px
 }
 
-#info{
+#hud{
 position:fixed;
-left:10px;
-top:70px;
-background:rgba(0,0,0,.8);
-color:#fff;
+left:12px;
+bottom:12px;
+background:rgba(0,0,0,.7);
 padding:12px;
-border-radius:12px;
-z-index:10;
-font-size:13px
+border-radius:14px;
+color:#fff;
+font-size:13px;
+z-index:20
 }
 
-#info div{
-margin-top:5px
+#symbols{
+position:fixed;
+right:12px;
+top:90px;
+display:flex;
+flex-direction:column;
+gap:8px;
+z-index:20
+}
+
+.sym{
+width:95px
 }
 
 </style>
@@ -84,209 +95,123 @@ margin-top:5px
 
 <body>
 
-<div id="top">
+<div id="topbar">
+
+<button onclick="setTool('pipe')">Rohr</button>
 
 <button onclick="undo()">Undo</button>
+
 <button onclick="clearAll()">Löschen</button>
-<button onclick="resetView()">Reset</button>
 
-<input type="range" id="len" min="20" max="200" value="60">
+<button onclick="resetCamera()">Reset</button>
 
-<button onclick="setSymbol('valve')">Ventil</button>
-<button onclick="setSymbol('pump')">Pumpe</button>
-<button onclick="setSymbol('elbow')">Bogen</button>
+<button onclick="exportPNG()">Export</button>
+
+<input type="range" id="len" min="20" max="250" value="80">
 
 </div>
 
-<div id="info">
-<div>Gesamt: <span id="sum">0</span> mm</div>
-<div>Zoom: <span id="zoom">100%</span></div>
+<div id="symbols">
+
+<button class="sym" onclick="pickSymbol('valve')">Ventil</button>
+
+<button class="sym" onclick="pickSymbol('pump')">Pumpe</button>
+
+<button class="sym" onclick="pickSymbol('flange')">Flansch</button>
+
+<button class="sym" onclick="pickSymbol('gauge')">Messgerät</button>
+
+<button class="sym" onclick="pickSymbol('elbow')">Bogen</button>
+
 </div>
 
-<canvas id="bg"></canvas>
-<canvas id="cv"></canvas>
+<div id="hud">
+
+<div>Zoom: <span id="zoomText">100%</span></div>
+
+<div style="margin-top:6px">
+Länge:
+<span id="totalText">0</span> mm
+</div>
+
+</div>
+
+<canvas id="grid"></canvas>
+<canvas id="main"></canvas>
 
 <script>
 
-const bg=document.getElementById("bg")
-const cv=document.getElementById("cv")
+const grid=document.getElementById("grid")
+const main=document.getElementById("main")
 
-const g=bg.getContext("2d")
-const ctx=cv.getContext("2d")
+const gtx=grid.getContext("2d")
+const ctx=main.getContext("2d")
 
 let w=innerWidth
 let h=innerHeight
 
-function size(){
+function resize(){
 
-bg.width=cv.width=w
-bg.height=cv.height=h
+w=innerWidth
+h=innerHeight
 
-drawPaper()
+grid.width=w
+grid.height=h
+
+main.width=w
+main.height=h
+
 render()
 
 }
 
-addEventListener("resize",size)
+addEventListener("resize",resize)
 
-let cam={
+let camera={
 x:0,
 y:0,
-z:1
+zoom:1,
+targetZoom:1
 }
 
 let objects=[]
 
 let current={
-x:w/2,
-y:h/2
+x:0,
+y:0
 }
 
 let total=0
 
-let selected=null
+let tool="pipe"
 
-function drawPaper(){
+let activeSymbol=null
 
-g.clearRect(0,0,w,h)
+let drawing=false
 
-g.fillStyle="#fff"
-g.fillRect(0,0,w,h)
+let startPoint=null
 
-g.save()
+let preview=null
 
-g.translate(cam.x,cam.y)
-g.scale(cam.z,cam.z)
+function worldToScreen(x,y){
 
-g.strokeStyle="rgba(120,160,180,.25)"
-g.lineWidth=1
-
-const a=Math.PI/6
-
-for(let i=-4000;i<4000;i+=30){
-
-g.beginPath()
-g.moveTo(i,-4000)
-g.lineTo(i+4000*Math.tan(a),4000)
-g.stroke()
-
-g.beginPath()
-g.moveTo(i,-4000)
-g.lineTo(i-4000*Math.tan(a),4000)
-g.stroke()
+return{
+x:(x*camera.zoom)+camera.x+w/2,
+y:(y*camera.zoom)+camera.y+h/2
+}
 
 }
 
-g.restore()
+function screenToWorld(x,y){
+
+return{
+x:(x-w/2-camera.x)/camera.zoom,
+y:(y-h/2-camera.y)/camera.zoom
+}
 
 }
 
-function render(){
-
-drawPaper()
-
-ctx.clearRect(0,0,w,h)
-
-ctx.save()
-
-ctx.translate(cam.x,cam.y)
-ctx.scale(cam.z,cam.z)
-
-objects.forEach(o=>{
-
-if(o.type==="pipe"){
-
-ctx.strokeStyle="#222"
-ctx.lineWidth=4
-
-ctx.beginPath()
-ctx.moveTo(o.a.x,o.a.y)
-ctx.lineTo(o.b.x,o.b.y)
-ctx.stroke()
-
-ctx.font="bold 14px Arial"
-ctx.textAlign="center"
-
-const mx=(o.a.x+o.b.x)/2
-const my=(o.a.y+o.b.y)/2
-
-ctx.fillStyle="#111"
-ctx.fillText(o.mm,mx,my-10)
-
-}
-
-if(o.type==="symbol"){
-
-drawSymbol(o.name,o.x,o.y)
-
-}
-
-})
-
-ctx.fillStyle="red"
-
-ctx.beginPath()
-ctx.arc(current.x,current.y,5,0,Math.PI*2)
-ctx.fill()
-
-ctx.restore()
-
-}
-
-function drawSymbol(t,x,y){
-
-ctx.save()
-
-ctx.translate(x,y)
-
-ctx.strokeStyle="#1b8d4d"
-ctx.fillStyle="#1b8d4d"
-ctx.lineWidth=2
-
-const s=12
-
-if(t==="valve"){
-
-ctx.beginPath()
-ctx.moveTo(-s,-s/2)
-ctx.lineTo(s,s/2)
-ctx.lineTo(s,-s/2)
-ctx.lineTo(-s,s/2)
-ctx.closePath()
-ctx.stroke()
-
-}
-
-if(t==="pump"){
-
-ctx.beginPath()
-ctx.arc(0,0,s,0,Math.PI*2)
-ctx.stroke()
-
-ctx.beginPath()
-ctx.moveTo(-s,0)
-ctx.lineTo(s,-s/2)
-ctx.lineTo(s,s/2)
-ctx.closePath()
-ctx.fill()
-
-}
-
-if(t==="elbow"){
-
-ctx.beginPath()
-ctx.moveTo(-s,0)
-ctx.lineTo(0,0)
-ctx.lineTo(0,s)
-ctx.stroke()
-
-}
-
-ctx.restore()
-
-}
-
-function angle(dx,dy){
+function isoAngle(dx,dy){
 
 const a=Math.atan2(dy,dx)
 
@@ -304,7 +229,7 @@ let diff=999
 
 dirs.forEach(d=>{
 
-let n=Math.abs(a-d)
+const n=Math.abs(a-d)
 
 if(n<diff){
 
@@ -319,154 +244,259 @@ return best
 
 }
 
-let sx=0
-let sy=0
+function drawGrid(){
 
-cv.addEventListener("touchstart",e=>{
+gtx.clearRect(0,0,w,h)
 
-if(e.touches.length===1){
+gtx.fillStyle="#fff"
+gtx.fillRect(0,0,w,h)
 
-sx=e.touches[0].clientX
-sy=e.touches[0].clientY
+gtx.save()
+
+gtx.translate(camera.x+w/2,camera.y+h/2)
+gtx.scale(camera.zoom,camera.zoom)
+
+const step=32
+const range=5000
+const a=Math.PI/6
+
+gtx.strokeStyle="rgba(120,160,180,.20)"
+gtx.lineWidth=1/camera.zoom
+
+for(let i=-range;i<range;i+=step){
+
+gtx.beginPath()
+gtx.moveTo(i,-range)
+gtx.lineTo(i+range*Math.tan(a),range)
+gtx.stroke()
+
+gtx.beginPath()
+gtx.moveTo(i,-range)
+gtx.lineTo(i-range*Math.tan(a),range)
+gtx.stroke()
+
+}
+
+gtx.restore()
+
+}
+
+function drawSymbol(type,x,y){
+
+ctx.save()
+
+ctx.translate(x,y)
+
+ctx.strokeStyle="#1b8d4d"
+ctx.fillStyle="#1b8d4d"
+ctx.lineWidth=2
+
+const s=12
+
+if(type==="valve"){
+
+ctx.beginPath()
+ctx.moveTo(-s,-s/2)
+ctx.lineTo(s,s/2)
+ctx.lineTo(s,-s/2)
+ctx.lineTo(-s,s/2)
+ctx.closePath()
+ctx.stroke()
+
+}
+
+if(type==="pump"){
+
+ctx.beginPath()
+ctx.arc(0,0,s,0,Math.PI*2)
+ctx.stroke()
+
+ctx.beginPath()
+ctx.moveTo(-s,0)
+ctx.lineTo(s,-s/2)
+ctx.lineTo(s,s/2)
+ctx.closePath()
+ctx.fill()
+
+}
+
+if(type==="flange"){
+
+ctx.beginPath()
+ctx.moveTo(0,-s)
+ctx.lineTo(s,0)
+ctx.lineTo(0,s)
+ctx.lineTo(-s,0)
+ctx.closePath()
+ctx.stroke()
+
+}
+
+if(type==="gauge"){
+
+ctx.beginPath()
+ctx.arc(0,0,s,0,Math.PI*2)
+ctx.stroke()
+
+ctx.beginPath()
+ctx.moveTo(0,0)
+ctx.lineTo(s/2,-s/2)
+ctx.stroke()
+
+}
+
+if(type==="elbow"){
+
+ctx.beginPath()
+ctx.moveTo(-s,0)
+ctx.lineTo(0,0)
+ctx.lineTo(0,s)
+ctx.stroke()
+
+}
+
+ctx.restore()
+
+}
+
+function render(){
+
+camera.zoom+=
+(camera.targetZoom-camera.zoom)*0.18
+
+drawGrid()
+
+ctx.clearRect(0,0,w,h)
+
+ctx.save()
+
+ctx.translate(camera.x+w/2,camera.y+h/2)
+ctx.scale(camera.zoom,camera.zoom)
+
+objects.forEach(o=>{
+
+ctx.strokeStyle="#202020"
+ctx.lineWidth=3/camera.zoom
+ctx.lineCap="round"
+
+ctx.beginPath()
+ctx.moveTo(o.a.x,o.a.y)
+ctx.lineTo(o.b.x,o.b.y)
+ctx.stroke()
+
+const mx=(o.a.x+o.b.x)/2
+const my=(o.a.y+o.b.y)/2
+
+ctx.save()
+
+ctx.translate(mx,my)
+
+ctx.rotate(o.angle)
+
+ctx.font=`${14/camera.zoom}px Segoe UI`
+
+ctx.textAlign="center"
+
+ctx.fillStyle="#111"
+
+ctx.fillText(o.mm,0,-10/camera.zoom)
+
+ctx.restore()
+
+if(o.symbol){
+
+drawSymbol(
+o.symbol,
+o.b.x,
+o.b.y
+)
 
 }
 
 })
 
-cv.addEventListener("touchend",e=>{
+if(preview){
 
-if(e.changedTouches.length!==1)return
+ctx.strokeStyle="#ff9800"
+ctx.lineWidth=2/camera.zoom
 
-const ex=e.changedTouches[0].clientX
-const ey=e.changedTouches[0].clientY
-
-const dx=ex-sx
-const dy=ey-sy
-
-if(Math.hypot(dx,dy)<10)return
-
-const a=angle(dx,dy)
-
-const len=parseFloat(document.getElementById("len").value)
-
-const nx=current.x+Math.cos(a)*len
-const ny=current.y+Math.sin(a)*len
-
-const mm=Math.round(len*5.833)
-
-objects.push({
-type:"pipe",
-a:{x:current.x,y:current.y},
-b:{x:nx,y:ny},
-mm:mm
-})
-
-current.x=nx
-current.y=ny
-
-total+=mm
-
-sum.innerText=total
-
-if(selected){
-
-objects.push({
-type:"symbol",
-name:selected,
-x:nx,
-y:ny
-})
-
-selected=null
+ctx.beginPath()
+ctx.moveTo(preview.a.x,preview.a.y)
+ctx.lineTo(preview.b.x,preview.b.y)
+ctx.stroke()
 
 }
 
-render()
+ctx.fillStyle="red"
 
-})
+ctx.beginPath()
+ctx.arc(current.x,current.y,5/camera.zoom,0,Math.PI*2)
+ctx.fill()
 
-function setSymbol(s){
+ctx.restore()
 
-selected=s
+zoomText.innerText=
+Math.round(camera.zoom*100)+"%"
 
-}
-
-function undo(){
-
-objects.pop()
-
-render()
-
-}
-
-function clearAll(){
-
-objects=[]
-total=0
-
-sum.innerText=0
-
-render()
-
-}
-
-function resetView(){
-
-cam={
-x:0,
-y:0,
-z:1
-}
-
-zoom.innerText="100%"
-
-render()
+requestAnimationFrame(render)
 
 }
 
 let pointers={}
-let startDist=0
+
+let pan=false
+
+let px=0
+let py=0
+
+let cx=0
+let cy=0
+
+let startDistance=0
 let startZoom=1
 
-let startX=0
-let startY=0
-
-let camX=0
-let camY=0
-
-cv.addEventListener("pointerdown",e=>{
+main.addEventListener("pointerdown",e=>{
 
 pointers[e.pointerId]=e
 
 const ids=Object.keys(pointers)
 
+if(ids.length===1){
+
+drawing=true
+
+startPoint=screenToWorld(
+e.clientX,
+e.clientY
+)
+
+px=e.clientX
+py=e.clientY
+
+cx=camera.x
+cy=camera.y
+
+}
+
 if(ids.length===2){
+
+pan=true
 
 const p1=pointers[ids[0]]
 const p2=pointers[ids[1]]
 
-startDist=Math.hypot(
+startDistance=Math.hypot(
 p2.clientX-p1.clientX,
 p2.clientY-p1.clientY
 )
 
-startZoom=cam.z
-
-}
-
-if(ids.length===1){
-
-startX=e.clientX
-startY=e.clientY
-
-camX=cam.x
-camY=cam.y
+startZoom=camera.targetZoom
 
 }
 
 })
 
-cv.addEventListener("pointermove",e=>{
+main.addEventListener("pointermove",e=>{
 
 if(!pointers[e.pointerId])return
 
@@ -484,35 +514,179 @@ p2.clientX-p1.clientX,
 p2.clientY-p1.clientY
 )
 
-cam.z=Math.min(
-Math.max(startZoom*(nd/startDist),0.5),
-4
+camera.targetZoom=
+Math.min(
+Math.max(
+startZoom*(nd/startDistance),
+0.4
+),
+5
 )
-
-zoom.innerText=Math.round(cam.z*100)+"%"
-
-render()
 
 }
 
-if(ids.length===1){
+if(ids.length===1&&drawing){
 
-cam.x=camX+(e.clientX-startX)
-cam.y=camY+(e.clientY-startY)
+const pos=screenToWorld(
+e.clientX,
+e.clientY
+)
 
-render()
+const dx=pos.x-current.x
+const dy=pos.y-current.y
+
+const a=isoAngle(dx,dy)
+
+const len=parseFloat(lenInput.value)
+
+preview={
+a:{x:current.x,y:current.y},
+b:{
+x:current.x+Math.cos(a)*len,
+y:current.y+Math.sin(a)*len
+}
+}
 
 }
 
 })
 
-cv.addEventListener("pointerup",e=>{
+main.addEventListener("pointerup",e=>{
 
 delete pointers[e.pointerId]
 
+const ids=Object.keys(pointers)
+
+if(preview){
+
+const mm=Math.round(
+parseFloat(lenInput.value)*5.833
+)
+
+const dx=preview.b.x-preview.a.x
+const dy=preview.b.y-preview.a.y
+
+objects.push({
+
+a:preview.a,
+b:preview.b,
+mm:mm,
+angle:Math.atan2(dy,dx),
+symbol:activeSymbol
+
 })
 
-size()
+current.x=preview.b.x
+current.y=preview.b.y
+
+total+=mm
+
+totalText.innerText=total
+
+activeSymbol=null
+
+preview=null
+
+}
+
+drawing=false
+
+if(ids.length===0){
+
+pan=false
+
+}
+
+})
+
+main.addEventListener("wheel",e=>{
+
+e.preventDefault()
+
+if(e.deltaY<0){
+
+camera.targetZoom*=1.12
+
+}else{
+
+camera.targetZoom/=1.12
+
+}
+
+camera.targetZoom=
+Math.min(
+Math.max(camera.targetZoom,.4),
+5
+)
+
+})
+
+function pickSymbol(s){
+
+activeSymbol=s
+
+}
+
+function setTool(t){
+
+tool=t
+
+}
+
+function undo(){
+
+objects.pop()
+
+render()
+
+}
+
+function clearAll(){
+
+objects=[]
+
+total=0
+
+totalText.innerText=0
+
+}
+
+function resetCamera(){
+
+camera.x=0
+camera.y=0
+
+camera.targetZoom=1
+
+}
+
+function exportPNG(){
+
+const out=document.createElement("canvas")
+
+out.width=w
+out.height=h
+
+const o=out.getContext("2d")
+
+o.drawImage(grid,0,0)
+o.drawImage(main,0,0)
+
+const a=document.createElement("a")
+
+a.download="ISO_CAD.png"
+
+a.href=out.toDataURL()
+
+a.click()
+
+}
+
+const lenInput=document.getElementById("len")
+
+resize()
+
+render()
 
 </script>
 
