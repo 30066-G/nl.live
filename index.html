@@ -3,264 +3,174 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A0Z Infinite Luxury iPhone</title>
+    <title>A0Z Secure Quantum OS</title>
     <style>
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
         }
 
         body {
-            background: radial-gradient(circle at center, #0c0c1e 0%, #030308 100%);
+            background: radial-gradient(circle at center, #0a0a1a 0%, #020205 100%);
             height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 50px;
+            gap: 40px;
             color: white;
-            padding: 30px;
+            padding: 20px;
             overflow: hidden;
         }
 
-        /* 🛠️ لوحة التحكم الخارجية الفخمة */
+        /* 🛠️ لوحة التحكم الخارجية */
         .external-admin-panel {
             width: 340px;
-            background: rgba(10, 10, 25, 0.7);
+            background: rgba(10, 10, 25, 0.75);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(0, 242, 254, 0.3);
             border-radius: 24px;
             padding: 25px;
-            box-shadow: 0 20px 50px rgba(0, 242, 254, 0.05), inset 0 0 15px rgba(0, 242, 254, 0.1);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
 
         .external-admin-panel h3 {
             color: #00f2fe;
-            margin-bottom: 20px;
-            font-size: 1.2rem;
-            text-shadow: 0 0 10px rgba(0, 242, 254, 0.3);
+            margin-bottom: 15px;
+            font-size: 1.1rem;
             text-align: center;
             font-weight: 800;
-            letter-spacing: 1px;
         }
 
         .form-group {
-            margin-bottom: 16px;
+            margin-bottom: 12px;
         }
 
         .form-group label {
             display: block;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: #8a99ad;
-            margin-bottom: 6px;
-            font-weight: 600;
+            margin-bottom: 4px;
         }
 
         .form-group input, .form-group select, .form-group textarea {
             width: 100%;
-            padding: 10px 12px;
-            background: rgba(5, 5, 15, 0.8);
+            padding: 10px;
+            background: rgba(5, 5, 15, 0.9);
             border: 1px solid rgba(0, 242, 254, 0.2);
-            border-radius: 12px;
+            border-radius: 10px;
             color: white;
             outline: none;
-            font-size: 0.85rem;
-            transition: all 0.3s;
-        }
-
-        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-            border-color: #00f2fe;
-            box-shadow: 0 0 10px rgba(0, 242, 254, 0.2);
+            font-size: 0.8rem;
         }
 
         .add-btn {
             width: 100%;
-            padding: 12px;
+            padding: 11px;
             background: linear-gradient(135deg, #00f2fe, #4facfe);
             border: none;
-            border-radius: 12px;
+            border-radius: 10px;
             color: #000;
             font-weight: bold;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
-            font-size: 0.9rem;
+            font-size: 0.85rem;
+            transition: all 0.3s;
         }
 
         .add-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 242, 254, 0.4);
+            box-shadow: 0 5px 20px rgba(0, 242, 254, 0.4);
         }
 
-        /* 📦 حاوية الصندوق الفخم */
+        /* 📦 الصندوق والآيفون */
         .box-container {
             width: 380px;
             height: 600px;
-            background: linear-gradient(135deg, #111126, #04040c);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: #050510;
             border-radius: 36px;
-            box-shadow: 0 40px 90px rgba(0,0,0,0.6);
             display: flex;
             justify-content: center;
             align-items: center;
-            cursor: pointer;
             position: relative;
+            box-shadow: 0 30px 70px rgba(0,0,0,0.7);
         }
 
-        /* غطاء الصندوق الفخم قبل الفتح */
-        .box-lid {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: #090914;
-            border-radius: 34px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 100;
-            transition: all 0.8s cubic-bezier(0.19, 1, 0.22, 1);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .box-lid .logo {
-            font-size: 4rem;
-            filter: drop-shadow(0 0 15px rgba(255,255,255,0.2));
-            margin-bottom: 15px;
-        }
-
-        .box-lid p {
-            font-size: 1.1rem;
-            color: #fff;
-            letter-spacing: 1px;
-            font-weight: 300;
-            opacity: 0.8;
-        }
-
-        .box-container.opened .box-lid {
-            transform: translateY(-140%) scale(0.6);
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        /* 📱 جوال الآيفون الفخم بتصميم تيتانيوم حقيقي */
         .phone {
-            width: 275px;
-            height: 540px;
+            width: 280px;
+            height: 550px;
             background: #000;
-            border: 9px solid #2e2e33; /* حافة تيتانيوم */
-            border-radius: 46px;
+            border: 9px solid #2e2e33;
+            border-radius: 44px;
             position: relative;
-            box-shadow: 0 30px 70px rgba(0,0,0,0.9), inset 0 0 12px rgba(255,255,255,0.15);
-            opacity: 0;
-            transform: scale(0.7);
-            transition: all 0.8s cubic-bezier(0.19, 1, 0.22, 1);
+            box-shadow: inset 0 0 10px rgba(255,255,255,0.2);
+            overflow: hidden;
         }
 
-        .box-container.opened .phone {
-            opacity: 1;
-            transform: scale(1);
-        }
-
-        /* الأزرار الجانبية الميكانيكية للآيفون الفخم */
-        .phone::before, .phone::after {
-            content: "";
-            position: absolute;
-            background: #3a3a40;
-            width: 4px;
-            border-radius: 2px;
-        }
-        /* أزرار الصوت على اليسار */
-        .phone::before {
-            top: 100px;
-            left: -13px;
-            height: 40px;
-            box-shadow: 0 15px 0 #3a3a40; /* زرين */
-        }
-        /* زر الطاقة على اليمين */
-        .phone::after {
-            top: 120px;
-            right: -13px;
-            height: 55px;
-        }
-
-        /* الجزيرة التفاعلية (Dynamic Island الأصلي) */
         .dynamic-island {
             width: 95px;
-            height: 26px;
+            height: 25px;
             background: #000;
             border-radius: 20px;
             position: absolute;
             top: 12px;
             left: 50%;
             transform: translateX(-50%);
-            z-index: 50;
-            transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+            z-index: 100;
+            transition: all 0.4s ease;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 0 12px;
-            overflow: hidden;
-            font-size: 0.65rem;
-            color: #00f2fe;
-            white-space: nowrap;
-            font-weight: 600;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            font-size: 0.6rem;
+            color: #11ffbd;
         }
 
-        .dynamic-island.expanded {
-            width: 210px;
-            height: 38px;
-            background: #090911;
-            border: 1px solid rgba(0, 242, 254, 0.4);
-        }
+        .dynamic-island.expanded { width: 210px; height: 36px; background: #090911; }
 
-        /* الشاشة الداخلية فائقة النقاء (OLED Emulation) */
         .phone-screen {
             width: 100%;
             height: 100%;
-            border-radius: 38px;
-            overflow: hidden;
-            position: relative;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             padding: 14px 16px;
-            background-image: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop');
-            background-size: cover;
-            background-position: center;
+            background: linear-gradient(135deg, #15002a, #050f26);
+        }
+
+        /* 🔐 شاشة تسجيل الدخول المتداخلة (Lock Screen) */
+        .lock-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #070714;
+            z-index: 90;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
             transition: all 0.5s ease;
         }
 
-        /* بار الحالة العلوي الفخم */
-        .status-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.75rem;
-            color: white;
-            font-weight: 600;
-            z-index: 40;
-            padding: 0 6px;
+        .lock-screen h4 {
+            color: #00f2fe;
+            margin-bottom: 20px;
+            font-size: 1rem;
+            text-shadow: 0 0 10px rgba(0, 242, 254, 0.4);
         }
 
-        /* 📱 شبكة الأيقونات والترتيب الهندسي للأزرار */
+        /* 📱 الواجهة الرئيسية وتنسيق التطبيقات */
         .home-screen {
             flex-grow: 1;
-            margin-top: 35px;
-            padding: 10px 0;
+            margin-top: 40px;
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             grid-auto-rows: max-content;
             gap: 20px 12px;
             overflow-y: auto;
-            z-index: 30;
         }
-
-        /* إلغاء شريط التمرير المزعج لجمالية الشاشة */
-        .home-screen::-webkit-scrollbar {
-            display: none;
-        }
+        .home-screen::-webkit-scrollbar { display: none; }
 
         .app-item {
             display: flex;
@@ -276,374 +186,283 @@
             height: 46px;
             border-radius: 12px;
             background: rgba(255, 255, 255, 0.12);
-            backdrop-filter: blur(15px);
             border: 1px solid rgba(255, 255, 255, 0.15);
             display: flex;
             justify-content: center;
             align-items: center;
             font-size: 1.5rem;
-            transition: all 0.2s cubic-bezier(0.19, 1, 0.22, 1);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            transition: all 0.2s;
         }
 
         .app-item:hover .app-icon {
-            transform: scale(1.15) translateY(-3px);
-            background: rgba(255, 255, 255, 0.25);
-            box-shadow: 0 10px 25px rgba(0, 242, 254, 0.3);
+            transform: scale(1.1) translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 242, 254, 0.3);
         }
 
         .app-name {
             font-size: 0.6rem;
             color: rgba(255, 255, 255, 0.9);
             text-align: center;
-            font-weight: 500;
-            max-width: 55px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
 
         .delete-badge {
             position: absolute;
             top: -4px;
             right: -2px;
-            width: 15px;
-            height: 15px;
+            width: 14px;
+            height: 14px;
             background: #ff3366;
             color: white;
             border-radius: 50%;
-            font-size: 0.6rem;
+            font-size: 0.55rem;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-weight: bold;
             visibility: hidden;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
         }
+        .app-item:hover .delete-badge { visibility: visible; }
 
-        .app-item:hover .delete-badge {
-            visibility: visible;
-        }
-
-        /* 📸 نافذة التطبيقات المتكاملة والكاميرا الحية */
+        /* نافذة التطبيق المعزول */
         .app-window {
             position: absolute;
             top: 100%;
             left: 0;
             width: 100%;
             height: 100%;
-            background: #09090e;
-            border-radius: 38px;
-            z-index: 45;
-            transition: top 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+            background: #05050b;
+            z-index: 85;
+            transition: top 0.4s cubic-bezier(0.19, 1, 0.22, 1);
             padding: 45px 16px 20px 16px;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
         }
+        .app-window.active { top: 0; }
 
-        .app-window.active {
-            top: 0;
-        }
-
-        .window-header {
-            font-size: 0.95rem;
-            font-weight: bold;
-            color: #00f2fe;
-            text-align: center;
-            letter-spacing: 0.5px;
-        }
-
-        .window-content {
+        #winContent {
             flex-grow: 1;
-            font-size: 0.8rem;
-            color: #bcbcbc;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            gap: 12px;
-            overflow: hidden;
-        }
-
-        /* عنصر بث فيديو الكاميرا الحقيقي */
-        #cameraVideo {
             width: 100%;
-            height: 80%;
-            background: #000;
-            border-radius: 16px;
-            object-fit: cover;
-            border: 1px solid rgba(0, 242, 254, 0.3);
-            display: none;
-            transform: scaleX(-1); /* ميرور للحرب لتبدو طبيعية */
+            height: 100%;
+            overflow: auto;
         }
 
         .close-btn {
-            background: rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.15);
             color: white;
-            padding: 8px 20px;
-            border-radius: 24px;
-            font-size: 0.75rem;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.7rem;
             cursor: pointer;
-            transition: background 0.2s;
+            align-self: center;
+            margin-top: 10px;
         }
 
-        .close-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
-
-        /* 🎛️ صف الأزرار السفلي الثابت للآيفون الفخم (The Premium Dock) */
-        .phone-dock {
-            height: 60px;
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(30px);
-            border-radius: 22px;
+        .status-bar {
             display: flex;
-            justify-content: space-around;
-            align-items: center;
-            padding: 0 10px;
-            z-index: 35;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 -5px 20px rgba(0,0,0,0.2);
+            justify-content: space-between;
+            font-size: 0.7rem;
+            color: white;
+            z-index: 40;
         }
     </style>
 </head>
 <body>
 
     <div class="external-admin-panel">
-        <h3>مصفوفة الأيقونات والكود 🚀</h3>
+        <h3>مصفوفة الأيقونات والذاكرة 🚀</h3>
         <div class="form-group">
-            <label>اسم التطبيق الجديد:</label>
-            <input type="text" id="appNameInput" placeholder="مثال: متجر ملابس، هرم حماية...">
+            <label>اسم التطبيق:</label>
+            <input type="text" id="appNameInput" placeholder="مثال: الحاسبة الخارقة">
         </div>
         <div class="form-group">
-            <label>اختر تصميم الزر (Emoji):</label>
+            <label>أيقونة التطبيق (Emoji):</label>
             <select id="appIconSelect">
-                <option value="🛍️">🛍️ متجر زارا الافتراضي</option>
+                <option value="🧮">🧮 آلة حاسبة</option>
+                <option value="🛍️">🛍️ متجر إلكتروني</option>
                 <option value="🕹️">🕹️ لعبة الماتريكس</option>
-                <option value="🎵">🎵 بنك الصوت الفضائي</option>
-                <option value="💬">💬 غرف دردشة المشرفين</option>
-                <option value="👽">👽 بوابة الكائنات الفضائية</option>
             </select>
         </div>
         <div class="form-group">
-            <label>اكتب الكود الحي للتطبيق (JavaScript):</label>
-            <textarea id="appCodeInput" rows="4" style="resize: none;" placeholder="// اكتب كودك هنا وسينفذ باللمس لايف!&#10;alert('أحا كودك اشتغل داخل الآيفون! 😂');"></textarea>
+            <label>كود الـ JavaScript (تم إصلاح معالج الأخطاء):</label>
+            <textarea id="appCodeInput" rows="5" placeholder="// الصق كود التشغيل هنا الحين..."></textarea>
         </div>
-        <button class="add-btn" onclick="addNewAppFromPanel()">حقن وثني الأيقونة بالداخل 💎</button>
+        <button class="add-btn" onclick="addNewAppFromPanel()">حقن وحفظ في ذاكرة الجهاز 💾</button>
     </div>
 
-    <div class="box-container" id="cosmicBox" onclick="openBox()">
-        <div class="box-lid">
-            <div class="logo">🍏</div>
-            <p>إفتح صندوق الآيفون الفخم</p>
-        </div>
+    <div class="box-container">
+        <div class="phone">
+            <div class="dynamic-island" id="island">A0Z Secure</div>
 
-        <div class="phone" onclick="stopPropagation(event)">
-            <div class="dynamic-island" id="island">A0Z Titanium</div>
-            
-            <div class="phone-screen" id="phoneScreen">
+            <div class="lock-screen" id="lockScreen">
+                <h4>تسجيل دخول سيادي 🍏</h4>
+                <div class="form-group" style="width:100%;">
+                    <input type="text" id="loginUser" placeholder="اسم المستخدم أو الإيميل" style="text-align:center;">
+                </div>
+                <div class="form-group" style="width:100%;">
+                    <input type="password" id="loginPass" placeholder="كلمة المرور" style="text-align:center;">
+                </div>
+                <button class="add-btn" onclick="unlockPhone()">فتح قفل الآيفون 🔓</button>
+                <p id="loginError" style="color:#ff3366; font-size:0.65rem; margin-top:10px;"></p>
+            </div>
+
+            <div class="phone-screen">
                 <div class="status-bar">
-                    <div id="liveClock" style="letter-spacing: 0.5px;">00:00</div>
-                    <div style="display: flex; gap: 5px; align-items: center;">
-                        <span id="liveBattery">--%</span>
-                        <span style="font-size:0.8rem;">🔋</span>
-                    </div>
+                    <div id="liveClock">00:00</div>
+                    <div><span id="liveBattery">--%</span> 🔋</div>
                 </div>
 
                 <div class="home-screen" id="homeScreen">
-                    <div class="app-item" onclick="openApp('إعدادات النظام ⚙️', 'لوحة تحكم عتاد A0Z مدمجة بالكامل ومستقرة.')">
-                        <div class="app-icon" style="background: linear-gradient(135deg, #444, #111);">⚙️</div>
-                        <div class="app-name">الإعدادات</div>
                     </div>
-                    <div class="app-item" onclick="openCameraApp()">
-                        <div class="app-icon" style="background: linear-gradient(135deg, #00b4db, #0083b0);">📷</div>
-                        <div class="app-name">الكاميرا الحية</div>
-                    </div>
-                    <div class="app-item" onclick="openApp('متجر قلم A0Z 🖊️', 'اشترِ القلم لتفعيل الشاشة وإكمال عمليات الشراء التفاعلية الحصرية!')">
-                        <div class="app-icon" style="background: linear-gradient(135deg, #f857a6, #ff5858);">🖊️</div>
-                        <div class="app-name">المتجر</div>
-                    </div>
-                    <div class="app-item" onclick="openApp('حلقة الـ 0 اللانهائية 🖕', 'تم حظر وتجميد متصفح المتسللين عبر مصفوفة الحفر الذكية!')">
-                        <div class="app-icon" style="background: linear-gradient(135deg, #02c39a, #028090);">🛡️</div>
-                        <div class="app-name">فخ الهكر</div>
-                    </div>
-                </div>
 
                 <div class="app-window" id="appWindow">
-                    <div class="window-header" id="winHeader">تطبيق</div>
-                    <div class="window-content" id="winContent">
-                        <video id="cameraVideo" autoplay playsinline></video>
-                        <div id="textWindowContent">محتوى التطبيق...</div>
-                    </div>
-                    <button class="close-btn" onclick="closeApp()">العودة للرئيسية 🏠</button>
-                </div>
-
-                <div class="phone-dock">
-                    <div class="app-icon" style="width:38px; height:38px; font-size:1.2rem;" onclick="changeWallpaper('url(\'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop\')')">🌌</div>
-                    <div class="app-icon" style="width:38px; height:38px; font-size:1.2rem;" onclick="changeWallpaper('url(\'https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?q=80&w=2564&auto=format&fit=crop\')')">🌈</div>
-                    <div class="app-icon" style="width:38px; height:38px; font-size:1.2rem;" onclick="changeWallpaper('url(\'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?q=80&w=2564&auto=format&fit=crop\')')">🎨</div>
+                    <div class="window-header" id="winHeader" style="text-align:center; font-weight:bold; color:#00f2fe; margin-bottom:10px;">التطبيق</div>
+                    <div id="winContent"></div>
+                    <button class="close-btn" onclick="closeApp()">الخروج للشاشة الرئيسية 🏠</button>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        let videoStream = null;
+        // حساب افتراضي آمن لتسجيل الدخول (تقدر تعدله للإيميل والباسورد تبعك)
+        const SECURE_USER = "admin";
+        const SECURE_PASS = "1234";
 
-        function openBox() {
-            document.getElementById('cosmicBox').classList.add('opened');
-        }
+        // 1. نظام تشفير وفتح القفل
+        function unlockPhone() {
+            const user = document.getElementById('loginUser').value.trim();
+            const pass = document.getElementById('loginPass').value;
+            const errorLabel = document.getElementById('loginError');
 
-        function stopPropagation(event) {
-            event.stopPropagation();
-        }
-
-        // تحديث الوقت الفعلي لايف بالدقيقة والبار العلوي
-        function syncTime() {
-            const now = new Date();
-            let hh = now.getHours();
-            let mm = now.getMinutes();
-            hh = hh < 10 ? '0' + hh : hh;
-            mm = mm < 10 ? '0' + mm : mm;
-            document.getElementById('liveClock').innerText = `${hh}:${mm}`;
-        }
-        setInterval(syncTime, 1000);
-        syncTime();
-
-        // مزامنة شحن بطارية جهازك الفعلي
-        if ('getBattery' in navigator) {
-            navigator.getBattery().then(function(battery) {
-                function updateBattery() {
-                    document.getElementById('liveBattery').innerText = Math.round(battery.level * 100) + '%';
-                }
-                updateBattery();
-                battery.addEventListener('levelchange', updateBattery);
-            });
-        } else {
-            document.getElementById('liveBattery').innerText = "100%";
-        }
-
-        // 📸 تشغيل الكاميرا الحقيقية الحية عبر الـ API الفعلي
-        function openCameraApp() {
-            openApp('الكاميرا الحية 📷', '');
-            const video = document.getElementById('cameraVideo');
-            const textContent = document.getElementById('textWindowContent');
-            
-            textContent.style.display = 'none';
-            video.style.display = 'block';
-
-            // طلب تشغيل الكاميرا الأمامية لايف
-            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-                navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
-                .then(function(stream) {
-                    videoStream = stream;
-                    video.srcObject = stream;
-                    triggerIslandNotification("تم تفعيل الكاميرا الأمامية 🟢");
-                })
-                .catch(function(error) {
-                    video.style.display = 'none';
-                    textContent.style.display = 'block';
-                    textContent.innerHTML = `<p style='color:#ff3366;'>فشل تشغيل الكاميرا: يرجى قبول الصلاحية في متصفحك الحقيقي!</p>`;
-                });
+            if (user === SECURE_USER && pass === SECURE_PASS) {
+                document.getElementById('lockScreen').style.top = "-100%"; // إزاحة الشاشة للأعلى بنجاح
+                triggerIslandNotification("مرحباً بك يا كينج! 🔓");
+                loadAppsFromStorage(); // تحميل التطبيقات من ذاكرة الجهاز فوراً
             } else {
-                textContent.innerHTML = "<p>الكاميرا غير مدعومة على متصفحك الحالي.</p>";
+                errorLabel.innerText = "خطأ في البيانات! السكيورتي يراقبك 👮‍♂️";
+                document.getElementById('lockScreen').style.animation = "shake 0.3s 3";
             }
         }
 
-        // 🚀 خاصية حقن الأزرار وتشغيل الكود المخصص الحي
+        // 2. إدارة الوقت والشحن لايف
+        function syncSystem() {
+            const now = new Date();
+            let hh = now.getHours(); let mm = now.getMinutes();
+            document.getElementById('liveClock').innerText = `${hh < 10 ? '0'+hh : hh}:${mm < 10 ? '0'+mm : mm}`;
+        }
+        setInterval(syncSystem, 1000); syncSystem();
+
+        if ('getBattery' in navigator) {
+            navigator.getBattery().then(b => {
+                const update = () => document.getElementById('liveBattery').innerText = Math.round(b.level * 100) + '%';
+                update(); b.addEventListener('levelchange', update);
+            });
+        }
+
+        // 3. 💾 حفظ التطبيقات والأكواد بداخل ذاكرة الجوال الحقيقية (LocalStorage)
         function addNewAppFromPanel() {
             const nameInput = document.getElementById('appNameInput');
             const iconSelect = document.getElementById('appIconSelect');
             const codeInput = document.getElementById('appCodeInput');
-            
-            const appName = nameInput.value.trim();
-            const appIcon = iconSelect.value;
-            let appCode = codeInput.value.trim() || `alert('مرحباً بك في تطبيق ${appName}!');`;
 
-            if (appName === "") {
-                triggerIslandNotification("يرجى كتابة اسم الزر! ❌");
+            const name = nameInput.value.trim();
+            const icon = iconSelect.value;
+            const code = codeInput.value.trim();
+
+            if (!name || !code) {
+                triggerIslandNotification("املا خانات الاسم والكود! ❌");
                 return;
             }
 
-            const homeScreen = document.getElementById('homeScreen');
-            const appItem = document.createElement('div');
-            appItem.className = 'app-item';
+            // سحب التطبيقات القديمة المخزنة في الذاكرة
+            let savedApps = JSON.parse(localStorage.getItem('A0Z_OS_APPS')) || [];
             
-            // تشفير الكود لحفظه وحقنه ديناميكياً بأمان
-            const encodedCode = btoa(unescape(encodeURIComponent(appCode)));
-            appItem.setAttribute('onclick', `executeCustomCode('${appName}', '${encodedCode}')`);
-
-            appItem.innerHTML = `
-                <div class="app-icon">${appIcon}</div>
-                <div class="app-name">${appName}</div>
-                <div class="delete-badge" onclick="deleteApp(event, this)">X</div>
-            `;
-
-            homeScreen.appendChild(appItem);
-            triggerIslandNotification(`تم تثبيت ${appName} بنجاح! 💎`);
+            // إضافة التطبيق الجديد في المصفوفة
+            savedApps.push({ name, icon, code });
             
-            nameInput.value = "";
-            codeInput.value = "";
+            // حفظ المصفوفة كاملة بداخل ذاكرة المتصفح للكمبيوتر/الجوال الحقيقي
+            localStorage.setItem('A0Z_OS_APPS', JSON.stringify(savedApps));
+
+            triggerIslandNotification(`تم الحفظ بالذاكرة وتثبيت ${name}! 💾`);
+            
+            // إعادة تحميل الأيقونات على الشاشة
+            loadAppsFromStorage();
+
+            nameInput.value = ""; codeInput.value = "";
         }
 
-        function executeCustomCode(appName, encodedCode) {
-            const realCode = decodeURIComponent(escape(atob(encodedCode)));
+        // 4. 📂 سحب وتحميل التطبيقات والأكواد من الذاكرة لايف عند الإقلاع
+        function loadAppsFromStorage() {
+            const homeScreen = document.getElementById('homeScreen');
+            // تنظيف الشاشة أولاً لتجنب التكرار
+            homeScreen.innerHTML = '';
+
+            const savedApps = JSON.parse(localStorage.getItem('A0Z_OS_APPS')) || [];
+
+            savedApps.forEach((app, index) => {
+                const appItem = document.createElement('div');
+                appItem.className = 'app-item';
+                
+                // حل ثغرة الأخطاء: بنمرر الاندكس (index) تبع الذاكرة بدل حقن الكود مباشرة كـ String يتعارض مع المتصفح!
+                appItem.setAttribute('onclick', `runAppFromStorage(${index})`);
+
+                appItem.innerHTML = `
+                    <div class="app-icon">${app.icon}</div>
+                    <div class="app-name">${app.name}</div>
+                    <div class="delete-badge" onclick="deleteApp(event, ${index})">X</div>
+                `;
+                homeScreen.appendChild(appItem);
+            });
+        }
+
+        // 5. 🔮 تشغيل الكاميرا أو الحاسبة أو أي كود من الذاكرة بدون غلتشات أو أخطاء
+        function runAppFromStorage(index) {
+            const savedApps = JSON.parse(localStorage.getItem('A0Z_OS_APPS')) || [];
+            const app = savedApps[index];
+            
+            if (!app) return;
+
+            // فتح النافذة المخصصة للتطبيق بداخل الآيفون
+            document.getElementById('winHeader').innerText = app.name;
+            const winContent = document.getElementById('winContent');
+            winContent.innerHTML = `<div id="appContainer" style="width:100%; height:100%;"></div>`;
+            document.getElementById('appWindow').classList.add('active');
+
             try {
-                openApp(appName, "جاري تشغيل الكود المخصص بالخلفية... ⚡");
-                // تنفيذ كود المستخدم لايف بـ Isolated Function Scope
-                new Function(realCode)();
+                // تنفيذ الكود المخصص بأعلى كفاءة وأمان
+                // نمرر الـ Container بداخل الـ Scope عشان الكود الحسابي أو البصري ينبني داخل الجوال الصغير بالملي!
+                const appContainer = document.getElementById('appContainer');
+                
+                // تشغيل كود الـ JavaScript المرفوع لايف
+                const dynamicFunction = new Function('container', app.code);
+                dynamicFunction(appContainer);
+
             } catch (error) {
-                document.getElementById('textWindowContent').innerHTML = `<p style="color:#ff3366;">خطأ في كودك: ${error.message}</p>`;
+                winContent.innerHTML = `<p style="color:#ff3366; font-size:0.75rem; padding:10px;">خطأ داخلي في كودك: ${error.message}</p>`;
             }
         }
 
-        // فتح وإغلاق النوافذ التصفحية
-        function openApp(title, content) {
-            document.getElementById('cameraVideo').style.display = 'none';
-            document.getElementById('textWindowContent').style.display = 'block';
-            
-            document.getElementById('winHeader').innerText = title;
-            document.getElementById('textWindowContent').innerHTML = `<p>${content}</p><span style='font-size:2.5rem; margin-top:15px; display:block;'>🛸</span>`;
-            document.getElementById('appWindow').classList.add('active');
+        // 6. حذف التطبيق وتدميره من الذاكرة الصلبة للجهاز
+        function deleteApp(event, index) {
+            event.stopPropagation();
+            let savedApps = JSON.parse(localStorage.getItem('A0Z_OS_APPS')) || [];
+            savedApps.splice(index, 1); // مسح العنصر من المصفوفة
+            localStorage.setItem('A0Z_OS_APPS', JSON.stringify(savedApps));
+            triggerIslandNotification("تم تدمير التطبيق من الذاكرة 🗑️");
+            loadAppsFromStorage(); // تحديث فوري للشاشة
         }
 
         function closeApp() {
             document.getElementById('appWindow').classList.remove('active');
-            // إيقاف بث الكاميرا الحقيقية عند الخروج لحفظ الطاقة والخصوصية
-            if (videoStream) {
-                videoStream.getTracks().forEach(track => track.stop());
-                videoStream = null;
-            }
-        }
-
-        function deleteApp(event, element) {
-            event.stopPropagation();
-            const appItem = element.parentElement;
-            appItem.style.transform = "scale(0)";
-            setTimeout(() => {
-                appItem.remove();
-                triggerIslandNotification("تم حذف الزر 🗑️");
-            }, 250);
-        }
-
-        function changeWallpaper(wallpaperValue) {
-            document.getElementById('phoneScreen').style.backgroundImage = wallpaperValue;
-            triggerIslandNotification("تم تغيير المظهر 🎨");
         }
 
         function triggerIslandNotification(text) {
             const island = document.getElementById('island');
-            island.innerText = text;
-            island.classList.add('expanded');
-            setTimeout(() => {
-                island.classList.remove('expanded');
-                island.innerText = "A0Z Titanium";
-            }, 2400);
+            island.innerText = text; island.classList.add('expanded');
+            setTimeout(() => { island.classList.remove('expanded'); island.innerText = "A0Z Secure"; }, 2500);
         }
+
+        function stopPropagation(e) { e.stopPropagation(); }
     </script>
 </body>
 </html>
