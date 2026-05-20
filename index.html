@@ -1,717 +1,186 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
-<title>ISO CAD Mobile</title>
-
-<style>
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
--webkit-user-select:none;
-user-select:none;
-font-family:Segoe UI,sans-serif
-}
-
-body{
-overflow:hidden;
-background:#181818
-}
-
-canvas{
-position:absolute;
-top:0;
-left:0;
-touch-action:none
-}
-
-#topbar{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-padding:10px;
-display:flex;
-gap:8px;
-flex-wrap:wrap;
-background:#202020;
-z-index:20;
-border-bottom:1px solid #333
-}
-
-button,input{
-height:42px;
-border:none;
-border-radius:12px;
-padding:0 14px;
-font-size:13px
-}
-
-button{
-background:#2f2f2f;
-color:#fff;
-font-weight:600
-}
-
-button:active{
-background:#ff9800
-}
-
-input[type=range]{
-width:130px
-}
-
-#hud{
-position:fixed;
-left:12px;
-bottom:12px;
-background:rgba(0,0,0,.7);
-padding:12px;
-border-radius:14px;
-color:#fff;
-font-size:13px;
-z-index:20
-}
-
-#symbols{
-position:fixed;
-right:12px;
-top:90px;
-display:flex;
-flex-direction:column;
-gap:8px;
-z-index:20
-}
-
-.sym{
-width:95px
-}
-
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A∞ZAI :: Real-Live Virtual Store</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1a1a1a;
+            color: #fff;
+            overflow: hidden;
+        }
+        #ui-container {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.85);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #00ffcc;
+            z-index: 10;
+            width: 250px;
+        }
+        h3 { margin-top: 0; color: #00ffcc; text-align: center; }
+        .btn {
+            display: block;
+            width: 100%;
+            background: #222;
+            color: #00ffcc;
+            border: 1px solid #00ffcc;
+            padding: 8px;
+            margin: 5px 0;
+            cursor: pointer;
+            border-radius: 4px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        .btn:hover { background: #00ffcc; color: #000; }
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
+            background: #252526;
+            position: relative;
+        }
+        /* تمثيل الشخصية (الروبوت الافتراضي) */
+        #avatar {
+            width: 40px;
+            height: 40px;
+            background: #ff0055;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            position: absolute;
+            top: 80%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+            box-shadow: 0 0 15px #ff0055;
+            z-index: 5;
+        }
+        /* تصميم هيكل المحل والأقسام */
+        .store-section {
+            position: absolute;
+            border: 2px dashed #555;
+            background: rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #aaa;
+            transition: 0.3s;
+        }
+        .active-section { border-color: #00ffcc; color: #00ffcc; background: rgba(0, 255, 204, 0.05); }
+        #sec-shoes { width: 25%; height: 20%; top: 10%; left: 5%; }
+        #sec-jackets { width: 25%; height: 20%; top: 10%; right: 5%; }
+        #sec-shirts { width: 25%; height: 20%; top: 40%; left: 5%; }
+        #sec-kassa { width: 30%; height: 15%; top: 75%; left: 35%; border: 2px solid #ffcc00; color: #ffcc00; }
+        
+        #status-bar {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.8);
+            padding: 10px;
+            border-radius: 5px;
+            border-left: 5px solid #00ffcc;
+            font-family: monospace;
+        }
+    </style>
 </head>
-
 <body>
 
-<div id="topbar">
-
-<button onclick="setTool('pipe')">Rohr</button>
-
-<button onclick="undo()">Undo</button>
-
-<button onclick="clearAll()">Löschen</button>
-
-<button onclick="resetCamera()">Reset</button>
-
-<button onclick="exportPNG()">Export</button>
-
-<input type="range" id="len" min="20" max="250" value="80">
-
-</div>
-
-<div id="symbols">
-
-<button class="sym" onclick="pickSymbol('valve')">Ventil</button>
-
-<button class="sym" onclick="pickSymbol('pump')">Pumpe</button>
-
-<button class="sym" onclick="pickSymbol('flange')">Flansch</button>
-
-<button class="sym" onclick="pickSymbol('gauge')">Messgerät</button>
-
-<button class="sym" onclick="pickSymbol('elbow')">Bogen</button>
-
-</div>
-
-<div id="hud">
-
-<div>Zoom: <span id="zoomText">100%</span></div>
-
-<div style="margin-top:6px">
-Länge:
-<span id="totalText">0</span> mm
-</div>
-
-</div>
-
-<canvas id="grid"></canvas>
-<canvas id="main"></canvas>
-
-<script>
-
-const grid=document.getElementById("grid")
-const main=document.getElementById("main")
-
-const gtx=grid.getContext("2d")
-const ctx=main.getContext("2d")
-
-let w=innerWidth
-let h=innerHeight
-
-function resize(){
-
-w=innerWidth
-h=innerHeight
-
-grid.width=w
-grid.height=h
-
-main.width=w
-main.height=h
-
-render()
-
-}
-
-addEventListener("resize",resize)
-
-let camera={
-x:0,
-y:0,
-zoom:1,
-targetZoom:1
-}
-
-let objects=[]
-
-let current={
-x:0,
-y:0
-}
-
-let total=0
-
-let tool="pipe"
-
-let activeSymbol=null
-
-let drawing=false
-
-let startPoint=null
-
-let preview=null
-
-function worldToScreen(x,y){
-
-return{
-x:(x*camera.zoom)+camera.x+w/2,
-y:(y*camera.zoom)+camera.y+h/2
-}
-
-}
-
-function screenToWorld(x,y){
-
-return{
-x:(x-w/2-camera.x)/camera.zoom,
-y:(y-h/2-camera.y)/camera.zoom
-}
-
-}
-
-function isoAngle(dx,dy){
-
-const a=Math.atan2(dy,dx)
-
-const dirs=[
-0,
-Math.PI/3,
-2*Math.PI/3,
-Math.PI,
--2*Math.PI/3,
--Math.PI/3
-]
-
-let best=dirs[0]
-let diff=999
-
-dirs.forEach(d=>{
-
-const n=Math.abs(a-d)
-
-if(n<diff){
-
-diff=n
-best=d
-
-}
-
-})
-
-return best
-
-}
-
-function drawGrid(){
-
-gtx.clearRect(0,0,w,h)
-
-gtx.fillStyle="#fff"
-gtx.fillRect(0,0,w,h)
-
-gtx.save()
-
-gtx.translate(camera.x+w/2,camera.y+h/2)
-gtx.scale(camera.zoom,camera.zoom)
-
-const step=32
-const range=5000
-const a=Math.PI/6
-
-gtx.strokeStyle="rgba(120,160,180,.20)"
-gtx.lineWidth=1/camera.zoom
-
-for(let i=-range;i<range;i+=step){
-
-gtx.beginPath()
-gtx.moveTo(i,-range)
-gtx.lineTo(i+range*Math.tan(a),range)
-gtx.stroke()
-
-gtx.beginPath()
-gtx.moveTo(i,-range)
-gtx.lineTo(i-range*Math.tan(a),range)
-gtx.stroke()
-
-}
-
-gtx.restore()
-
-}
-
-function drawSymbol(type,x,y){
-
-ctx.save()
-
-ctx.translate(x,y)
-
-ctx.strokeStyle="#1b8d4d"
-ctx.fillStyle="#1b8d4d"
-ctx.lineWidth=2
-
-const s=12
-
-if(type==="valve"){
-
-ctx.beginPath()
-ctx.moveTo(-s,-s/2)
-ctx.lineTo(s,s/2)
-ctx.lineTo(s,-s/2)
-ctx.lineTo(-s,s/2)
-ctx.closePath()
-ctx.stroke()
-
-}
-
-if(type==="pump"){
-
-ctx.beginPath()
-ctx.arc(0,0,s,0,Math.PI*2)
-ctx.stroke()
-
-ctx.beginPath()
-ctx.moveTo(-s,0)
-ctx.lineTo(s,-s/2)
-ctx.lineTo(s,s/2)
-ctx.closePath()
-ctx.fill()
-
-}
-
-if(type==="flange"){
-
-ctx.beginPath()
-ctx.moveTo(0,-s)
-ctx.lineTo(s,0)
-ctx.lineTo(0,s)
-ctx.lineTo(-s,0)
-ctx.closePath()
-ctx.stroke()
-
-}
-
-if(type==="gauge"){
-
-ctx.beginPath()
-ctx.arc(0,0,s,0,Math.PI*2)
-ctx.stroke()
-
-ctx.beginPath()
-ctx.moveTo(0,0)
-ctx.lineTo(s/2,-s/2)
-ctx.stroke()
-
-}
-
-if(type==="elbow"){
-
-ctx.beginPath()
-ctx.moveTo(-s,0)
-ctx.lineTo(0,0)
-ctx.lineTo(0,s)
-ctx.stroke()
-
-}
-
-ctx.restore()
-
-}
-
-function render(){
-
-camera.zoom+=
-(camera.targetZoom-camera.zoom)*0.18
-
-drawGrid()
-
-ctx.clearRect(0,0,w,h)
-
-ctx.save()
-
-ctx.translate(camera.x+w/2,camera.y+h/2)
-ctx.scale(camera.zoom,camera.zoom)
-
-objects.forEach(o=>{
-
-ctx.strokeStyle="#202020"
-ctx.lineWidth=3/camera.zoom
-ctx.lineCap="round"
-
-ctx.beginPath()
-ctx.moveTo(o.a.x,o.a.y)
-ctx.lineTo(o.b.x,o.b.y)
-ctx.stroke()
-
-const mx=(o.a.x+o.b.x)/2
-const my=(o.a.y+o.b.y)/2
-
-ctx.save()
-
-ctx.translate(mx,my)
-
-ctx.rotate(o.angle)
-
-ctx.font=`${14/camera.zoom}px Segoe UI`
-
-ctx.textAlign="center"
-
-ctx.fillStyle="#111"
-
-ctx.fillText(o.mm,0,-10/camera.zoom)
-
-ctx.restore()
-
-if(o.symbol){
-
-drawSymbol(
-o.symbol,
-o.b.x,
-o.b.y
-)
-
-}
-
-})
-
-if(preview){
-
-ctx.strokeStyle="#ff9800"
-ctx.lineWidth=2/camera.zoom
-
-ctx.beginPath()
-ctx.moveTo(preview.a.x,preview.a.y)
-ctx.lineTo(preview.b.x,preview.b.y)
-ctx.stroke()
-
-}
-
-ctx.fillStyle="red"
-
-ctx.beginPath()
-ctx.arc(current.x,current.y,5/camera.zoom,0,Math.PI*2)
-ctx.fill()
-
-ctx.restore()
-
-zoomText.innerText=
-Math.round(camera.zoom*100)+"%"
-
-requestAnimationFrame(render)
-
-}
-
-let pointers={}
-
-let pan=false
-
-let px=0
-let py=0
-
-let cx=0
-let cy=0
-
-let startDistance=0
-let startZoom=1
-
-main.addEventListener("pointerdown",e=>{
-
-pointers[e.pointerId]=e
-
-const ids=Object.keys(pointers)
-
-if(ids.length===1){
-
-const pos=screenToWorld(
-e.clientX,
-e.clientY
-)
-
-const hit=objects.find(o=>{
-
-const d=Math.hypot(
-o.b.x-pos.x,
-o.b.y-pos.y
-)
-
-return d<20/camera.zoom
-
-})
-
-if(hit){
-
-current.x=hit.b.x
-current.y=hit.b.y
-
-}else{
-
-current.x=pos.x
-current.y=pos.y
-
-}
-
-drawing=true
-
-px=e.clientX
-py=e.clientY
-
-cx=camera.x
-cy=camera.y
-
-}
-
-if(ids.length===2){
-
-pan=true
-
-const p1=pointers[ids[0]]
-const p2=pointers[ids[1]]
-
-startDistance=Math.hypot(
-p2.clientX-p1.clientX,
-p2.clientY-p1.clientY
-)
-
-startZoom=camera.targetZoom
-
-}
-
-})
-
-main.addEventListener("pointermove",e=>{
-
-if(!pointers[e.pointerId])return
-
-pointers[e.pointerId]=e
-
-const ids=Object.keys(pointers)
-
-if(ids.length===2){
-
-const p1=pointers[ids[0]]
-const p2=pointers[ids[1]]
-
-const nd=Math.hypot(
-p2.clientX-p1.clientX,
-p2.clientY-p1.clientY
-)
-
-camera.targetZoom=
-Math.min(
-Math.max(
-startZoom*(nd/startDistance),
-0.4
-),
-5
-)
-
-}
-
-if(ids.length===1&&drawing){
-
-const pos=screenToWorld(
-e.clientX,
-e.clientY
-)
-
-const dx=pos.x-current.x
-const dy=pos.y-current.y
-
-const a=isoAngle(dx,dy)
-
-const len=parseFloat(lenInput.value)
-
-preview={
-a:{x:current.x,y:current.y},
-b:{
-x:current.x+Math.cos(a)*len,
-y:current.y+Math.sin(a)*len
-}
-}
-
-}
-
-})
-
-main.addEventListener("pointerup",e=>{
-
-delete pointers[e.pointerId]
-
-const ids=Object.keys(pointers)
-
-if(preview){
-
-const mm=Math.round(
-parseFloat(lenInput.value)*5.833
-)
-
-const dx=preview.b.x-preview.a.x
-const dy=preview.b.y-preview.a.y
-
-objects.push({
-
-a:preview.a,
-b:preview.b,
-mm:mm,
-angle:Math.atan2(dy,dx),
-symbol:activeSymbol
-
-})
-
-current.x=preview.b.x
-current.y=preview.b.y
-
-total+=mm
-
-totalText.innerText=total
-
-activeSymbol=null
-
-preview=null
-
-}
-
-drawing=false
-
-if(ids.length===0){
-
-pan=false
-
-}
-
-})
-
-main.addEventListener("wheel",e=>{
-
-e.preventDefault()
-
-if(e.deltaY<0){
-
-camera.targetZoom*=1.12
-
-}else{
-
-camera.targetZoom/=1.12
-
-}
-
-camera.targetZoom=
-Math.min(
-Math.max(camera.targetZoom,.4),
-5
-)
-
-})
-
-function pickSymbol(s){
-
-activeSymbol=s
-
-}
-
-function setTool(t){
-
-tool=t
-
-}
-
-function undo(){
-
-objects.pop()
-
-render()
-
-}
-
-function clearAll(){
-
-objects=[]
-
-total=0
-
-totalText.innerText=0
-
-}
-
-function resetCamera(){
-
-camera.x=0
-camera.y=0
-
-camera.targetZoom=1
-
-}
-
-function exportPNG(){
-
-const out=document.createElement("canvas")
-
-out.width=w
-out.height=h
-
-const o=out.getContext("2d")
-
-o.drawImage(grid,0,0)
-o.drawImage(main,0,0)
-
-const a=document.createElement("a")
-
-a.download="ISO_CAD.png"
-
-a.href=out.toDataURL()
-
-a.click()
-
-}
-
-const lenInput=document.getElementById("len")
-
-resize()
-
-render()
-
-</script>
-
+    <div id="ui-container">
+        <h3>التحكم المركزي بالشبكة</h3>
+        
+        <label>اختر الفرع الجغرافي:</label>
+        <button class="btn" onclick="switchBranch('روتردام', 'BR-RTR-99')">فرع روتردام الرئيسي</button>
+        <button class="btn" onclick="switchBranch('دبي मॉल', 'BR-DXB-01')">فرع دبي مول</button>
+        <button class="btn" onclick="switchBranch('القاهرة', 'BR-CAI-07')">فرع القاهرة الجديدة</button>
+        
+        <hr style="border-color: #333;">
+        <label>انتقال فوري للأقسام (Teleport):</label>
+        <button class="btn" onclick="teleportTo('shoes')">قسم الأحذية والشنط</button>
+        <button class="btn" onclick="teleportTo('jackets')">قسم الجواكيت والشتوي</button>
+        <button class="btn" onclick="teleportTo('shirts')">قسم القمصان والصيفي</button>
+        <button class="btn" onclick="teleportTo('kassa')">الذهاب إلى الـ Kassa 💳</button>
+    </div>
+
+    <div id="canvas-container">
+        <div id="sec-shoes" class="store-section">قسم الأحذية 👟</div>
+        <div id="sec-jackets" class="store-section">قسم الجواكيت 🧥</div>
+        <div id="sec-shirts" class="store-section">قسم القمصان 👕</div>
+        <div id="sec-kassa" class="store-section">نقطة الدفع الآمنة Kassa 💰</div>
+        
+        <div id="avatar"></div>
+    </div>
+
+    <div id="status-bar">
+        [A∞ZAI] النشط حالياً: <span id="current-branch">فرع روتردام الرئيسي</span><br>
+        معرف الجلسة الأمنية: <span id="session-hash">f1bdc5cf...ba44</span><br>
+        حالة الـ Gate الخلفي: <span id="gate-status" style="color: #00ffcc;">متصل ومحمي (Secure)</span>
+    </div>
+
+    <script>
+        const avatar = document.getElementById('avatar');
+        const currentBranchTxt = document.getElementById('current-branch');
+        const sessionHashTxt = document.getElementById('session-hash');
+
+        // محاكاة الإحداثيات لكل قسم داخل السيرفر المدمج
+        const coordinates = {
+            'shoes': { top: '20%', left: '17%' },
+            'jackets': { top: '20%', left: '82%' },
+            'shirts': { top: '50%', left: '17%' },
+            'kassa': { top: '82%', left: '50%' }
+        };
+
+        // 1. بوابة الانتقال الفوري الآمن (Teleportation Gate)
+        function teleportTo(sectionId) {
+            // إزالة التنشيط عن الأقسام السابقة
+            document.querySelectorAll('.store-section').forEach(sec => sec.classList.remove('active-section'));
+            
+            // تحريك الروبوت بصرياً
+            const coord = coordinates[sectionId];
+            avatar.style.top = coord.top;
+            avatar.style.left = coord.left;
+            
+            // تفعيل وتنشيط القسم المستهدف
+            const targetSec = document.getElementById(`sec-${sectionId}`);
+            if(targetSec) targetSec.classList.add('active-section');
+
+            // محاكاة إرسال حزمة التحقق المشفّرة للسيرفر الخلفي لمنع التلاعب بالسعر
+            console.log(`[Gate Trigger] Teleported to ${sectionId}. Validating Section Signature via Cryptographic Token.`);
+            
+            if(sectionId === 'kassa') {
+                triggerSecureCheckout();
+            }
+        }
+
+        // 2. بوابة تبديل الفروع ومزامنة المخازن (Branch Routing Gate)
+        function switchBranch(branchName, branchCode) {
+            currentBranchTxt.innerText = `${branchName} (${branchCode})`;
+            
+            // توليد الهاش المخصص للفرع لمحاكاة توقيع الـ API المركزية
+            const simulatedHash = btoa(branchCode + Date.now()).substring(0, 15).toLowerCase();
+            sessionHashTxt.innerText = `a0z_${simulatedHash}...sec`;
+            
+            alert(`جاري الانتقال الآني لـ ${branchName}.. يتم الآن سحب بيانات المخزن والأسعار المعتمدة للفرع صامتاً.`);
+            teleportTo('kassa'); // إرجاع المستخدم لنقطة البداية الآمنة بعد النقل
+        }
+
+        // 3. بوابة الـ Kassa المعزولة (Isolated Checkout Sandbox)
+        function triggerSecureCheckout() {
+            document.getElementById('gate-status').innerText = "جاري تفعيل الحماية البنكية...";
+            document.getElementById('gate-status').style.color = "#ffcc00";
+            
+            setTimeout(() => {
+                document.getElementById('gate-status').innerText = "تم الدفع وتأكيد الشحن الفوري 📦";
+                document.getElementById('gate-status').style.color = "#00ffcc";
+                alert("تم التحقق من تطابق بصمات المنتجات (Product Hashes) بنجاح! تم الدفع الفوري وسيصلك الطرد لعنوان بيتك المسجل.");
+            }, 1200);
+        }
+    </script>
 </body>
 </html>
