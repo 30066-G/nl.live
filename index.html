@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="nl" dir="ltr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
-    <title>A0Z Quantum OS v26.5 - Custom Logo Engine</title>
+    <title>A0Z Quantum OS v26.7 - Dutch Edition</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -48,7 +48,7 @@
 
         * {
             box-sizing: border-box; margin: 0; padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
         }
 
         body {
@@ -74,7 +74,7 @@
             display: flex; justify-content: center; align-items: center; font-size: 0.65rem; color: var(--neon-green); pointer-events: none;
         }
 
-        /* 🔒 شاشة القفل بخلفية N.png كاملة النقاء */
+        /* 🔒 Lockscreen met N.png achtergrond */
         .lock-screen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: url('N.png') center center / cover no-repeat, #03030a;
@@ -89,7 +89,7 @@
             border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 20px; padding: 20px; width: 100%; display: flex; flex-direction: column; align-items: center;
         }
 
-        /* 📱 الشاشة الرئيسية - تظهر خلفية N.png بشكل دائم ومباشر تحت الأيقونات */
+        /* 📱 Homescreen met N.png */
         .phone-screen {
             width: 100%; height: 100%; display: flex; flex-direction: column;
             padding: 50px 14px 20px 14px;
@@ -104,7 +104,7 @@
             grid-auto-rows: max-content; gap: 20px 12px; overflow-y: auto;
         }
 
-        /* تصميم الأيقونات المطور لمنع حجب اللمس */
+        /* App Items & Logo Engine */
         .app-item { position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
         .app-icon {
             width: 55px; height: 55px; border-radius: 15px; background: rgba(0, 0, 0, 0.7);
@@ -113,7 +113,6 @@
             font-size: 1.6rem; box-shadow: 0 6px 12px rgba(0,0,0,0.6); pointer-events: none;
         }
         
-        /* 🎯 محرك اللوغو المخصص للتطبيقات الخارجية باستخدام صورتك N.png */
         .app-icon-custom {
             width: 55px; height: 55px; border-radius: 15px; 
             background: url('N.png') center center / cover no-repeat, rgba(0, 0, 0, 0.5);
@@ -123,7 +122,7 @@
 
         .app-name { font-size: 0.65rem; color: #ffffff; text-align: center; text-shadow: 0 2px 4px rgba(0,0,0,1); font-weight: bold; pointer-events: none; padding: 0 2px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
-        /* زر حذف التطبيقات غير الأساسية ❌ */
+        /* Verwijderknop ❌ */
         .delete-app-btn {
             position: absolute; top: -4px; right: -4px; width: 20px; height: 20px;
             background: var(--neon-magenta); border: 1px solid rgba(255,255,255,0.4);
@@ -132,7 +131,7 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.5); cursor: pointer;
         }
 
-        /* 🌗 واجهة النوافذ */
+        /* 🌗 Windowing Systeem */
         .window-instance {
             position: absolute; width: 100%; height: 100%; top: 0; left: 0; background: #000; 
             z-index: 80; display: flex; flex-direction: column; overflow: hidden; 
@@ -146,7 +145,7 @@
         
         .window-body { flex-grow: 1; width: 100%; height: 100%; overflow: auto; background: #010103; display: flex; flex-direction: column; }
         
-        /* 💻 لوحة التحكم الـ CMD */
+        /* 💻 CMD Panel */
         .cmd-body { padding: 12px; display: flex; flex-direction: column; gap: 10px; height: 100%; }
         .terminal-box { flex-grow: 1; background: #000; border-radius: 6px; padding: 10px; font-family: monospace; font-size: 0.7rem; color: var(--neon-green); overflow-y: auto; border: 1px solid rgba(255,255,255,0.05); }
         .cmd-inputs { background: #070714; border: 1px solid var(--glass-border); padding: 10px; border-radius: 8px; display: flex; flex-direction: column; gap: 8px; }
@@ -156,6 +155,7 @@
         .cmd-text { width: 100%; height: 80px; background: #000; border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; color: var(--neon-green); font-family: monospace; font-size: 0.7rem; padding: 6px; resize: none; outline: none; }
         
         .action-btn { width: 100%; padding: 12px; background: linear-gradient(135deg, var(--neon-cyan), #4facfe); border: none; border-radius: 6px; color: #000; font-weight: bold; font-size: 0.75rem; cursor: pointer; font-family: monospace; }
+        .info-btn { width: 100%; padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--neon-cyan); border-radius: 6px; color: var(--neon-cyan); font-size: 0.7rem; cursor: pointer; font-weight: bold; margin-top: 5px; }
         .sys-msg { color: var(--neon-magenta); font-size: 0.7rem; text-align: center; font-weight: bold; }
     </style>
 </head>
@@ -167,13 +167,16 @@
 
             <div class="lock-screen" id="lockScreen">
                 <div class="lock-time" id="lockClock">00:00</div>
-                <div class="lock-date" id="lockDate">الخميس، 21 مايو</div>
+                <div class="lock-date" id="lockDate">Donderdag, 21 mei</div>
                 
                 <div class="lock-blur-box">
-                    <h4 style="color: var(--neon-cyan); margin-bottom: 15px; font-size: 0.85rem; font-weight: 800;">بوابة التحقق السحابي v26.5 🔐</h4>
-                    <input type="email" id="loginUser" style="width:100%; padding:12px; background:#000; border:1px solid var(--glass-border); border-radius:8px; color:#fff; text-align:center; outline:none; margin-bottom:10px;" placeholder="أدخل إيميلك المسجل">
-                    <input type="password" id="loginPass" style="width:100%; padding:12px; background:#000; border:1px solid var(--glass-border); border-radius:8px; color:#fff; text-align:center; outline:none; margin-bottom:15px;" placeholder="كلمة المرور">
-                    <button class="action-btn" style="color:#000;" onclick="unlockWithOfficialEmail()">تسجيل دخول / إنشاء حساب رسمي 🍏</button>
+                    <h4 style="color: var(--neon-cyan); margin-bottom: 15px; font-size: 0.85rem; font-weight: 800;">Cloud Authenticatie v26.7 🔐</h4>
+                    <input type="email" id="loginUser" style="width:100%; padding:12px; background:#000; border:1px solid var(--glass-border); border-radius:8px; color:#fff; text-align:center; outline:none; margin-bottom:10px;" placeholder="Voer uw e-mailadres in">
+                    <input type="password" id="loginPass" style="width:100%; padding:12px; background:#000; border:1px solid var(--glass-border); border-radius:8px; color:#fff; text-align:center; outline:none; margin-bottom:15px;" placeholder="Wachtwoord">
+                    <button class="action-btn" style="color:#000;" onclick="unlockWithOfficialEmail()">Inloggen / Registreren 🍏</button>
+                    
+                    <button class="info-btn" onclick="showAboutUs()">Over ons ℹ️</button>
+                    
                     <div id="lockScreenFeedback" class="sys-msg" style="margin-top:10px;"></div>
                 </div>
             </div>
@@ -190,39 +193,40 @@
             <div class="window-instance" id="win_cmd_system">
                 <div class="window-header-bar">
                     <div class="window-title">⚡ A0Z_OS:\System32\cmd.exe</div>
-                    <button class="win-btn" onclick="closeAppWindow('cmd_system')">إغلاق</button>
+                    <button class="win-btn" onclick="closeAppWindow('cmd_system')">Sluiten</button>
                 </div>
                 <div class="window-body">
                     <div class="cmd-body">
                         <div class="terminal-box" id="systemTerminal">
-                            <div>A0Z Quantum OS [Version 26.5]</div>
-                            <div>System Custom Logo Engine active.</div>
+                            <div>A0Z Quantum OS [Version 26.7]</div>
+                            <div>Systeemtaal ingesteld op Nederlands.</div>
                         </div>
                         <div class="cmd-inputs">
                             <div class="cmd-line">
                                 <span class="cmd-label">app_name=</span>
-                                <input type="text" id="appNameInput" class="cmd-input" placeholder="اسم التطبيق الجديد">
+                                <input type="text" id="appNameInput" class="cmd-input" placeholder="App Naam">
                             </div>
                             <span class="cmd-label" style="margin-top:4px; display:block;">inject_code=</span>
-                            <textarea id="appCodeInput" class="cmd-text" placeholder="// اكتب كود الـ JavaScript هنا لتوليد الأيقونة..."></textarea>
+                            <textarea id="appCodeInput" class="cmd-text" placeholder="// Typ hier uw JavaScript code..."></textarea>
                         </div>
                         <button class="action-btn" style="color:#000;" onclick="addNewAppFromPanel()">EXECUTE & INJECT 🚀</button>
+                        <button class="info-btn" onclick="showAboutUs()" style="border-color: var(--neon-green); color: var(--neon-green);">Over ons Systeem ℹ️</button>
                     </div>
                 </div>
             </div>
 
             <div class="window-instance" id="win_global_chat">
                 <div class="window-header-bar">
-                    <div class="window-title">💬 الدردشة العامة لايف</div>
-                    <button class="win-btn" onclick="closeAppWindow('global_chat')">إغلاق</button>
+                    <div class="window-title">💬 Wereldwijde Live Chat</div>
+                    <button class="win-btn" onclick="closeAppWindow('global_chat')">Sluiten</button>
                 </div>
                 <div class="window-body" id="chatContainer"></div>
             </div>
 
             <div class="window-instance" id="win_custom_runtime">
                 <div class="window-header-bar">
-                    <div class="window-title" id="customWinTitle">🛸 تطبيق مخصص</div>
-                    <button class="win-btn" onclick="closeAppWindow('custom_runtime')">إغلاق</button>
+                    <div class="window-title" id="customWinTitle">🛸 Custom App</div>
+                    <button class="win-btn" onclick="closeAppWindow('custom_runtime')">Sluiten</button>
                 </div>
                 <div class="window-body" id="customContainer" style="padding:15px; color:#fff;"></div>
             </div>
@@ -231,7 +235,7 @@
     </div>
 
     <script>
-        // إعدادات الـ Firebase الخاصة بك
+        // Firebase Configuratie
         const firebaseConfig = {
             apiKey: "AIzaSyA7Pu0DJOWmdoDYUUVP1J9aqhxh4f3wyfA",
             authDomain: "a0zai-56c3a.firebaseapp.com",
@@ -249,6 +253,20 @@
         let currentUserUID = null; let currentUserEmail = "";
         let globalAppsData = {};
 
+        // ℹ️ Over Ons Functie
+        function showAboutUs() {
+            alert(
+                "ℹ️ OVER A0Z QUANTUM OS (v26.7)\n\n" +
+                "Dit is een geavanceerd web-gebaseerd cloud-besturingssysteem ontwikkeld voor mobiele apparaten.\n\n" +
+                "✨ Belangrijkste Kenmerken:\n" +
+                "1. Realtime Cloud Injectie: Programmeer en start direct uw eigen apps via de ingebouwde CMD terminal.\n" +
+                "2. Custom Logo Engine: Elke geïnjecteerde app krijgt automatisch uw persoonlijke 'N.png' logo.\n" +
+                "3. Cloud Verwijderaar: Verwijder ongewenste externe apps permanent met één klik op de ❌ knop.\n" +
+                "4. Live Chat: Communiceer direct en realtime met andere actieve gebruikers via Firebase.\n\n" +
+                "Ontwikkeld door en voor professionele ontwikkelaars! 🚀"
+            );
+        }
+
         function printTerminal(text) {
             const term = document.getElementById('systemTerminal'); if(!term) return;
             term.innerHTML += `<div>A0Z:\> ${text}</div>`; term.scrollTop = term.scrollHeight;
@@ -258,15 +276,15 @@
             const email = document.getElementById('loginUser').value.trim();
             const pass = document.getElementById('loginPass').value;
             const feedback = document.getElementById('lockScreenFeedback');
-            if(!email || !pass) { alert("أدخل البيانات الحقيقية!"); return; }
+            if(!email || !pass) { alert("Vul alle velden correct in!"); return; }
 
-            feedback.innerText = "جاري الفحص السحابي... ⏳";
+            feedback.innerText = "Controleren in de cloud... ⏳";
 
             auth.signInWithEmailAndPassword(email, pass)
             .then((u) => {
                 if (u.user.emailVerified) { execLoginSuccess(u.user.uid, email); } 
                 else {
-                    feedback.innerText = "❌ الحساب غير مفعل! يرجى مراجعة بريدك وتفعيل الحساب أولاً.";
+                    feedback.innerText = "❌ E-mail niet geverifieerd! Controleer uw inbox.";
                     auth.signOut();
                 }
             })
@@ -275,13 +293,13 @@
                     auth.createUserWithEmailAndPassword(email, pass)
                     .then((u) => {
                         u.user.sendEmailVerification().then(() => {
-                            feedback.innerText = "📧 تم تسجيل حساب جديد بنجاح! تفقد بريدك واضغط على رابط التفعيل ثم سجل دخولك.";
+                            feedback.innerText = "📧 Account aangemaakt! Activeer uw account via de link in uw e-mail en log opnieuw in.";
                             auth.signOut();
                         });
                     })
-                    .catch((err) => { feedback.innerText = `خطأ: ${err.message}`; });
+                    .catch((err) => { feedback.innerText = `Fout: ${err.message}`; });
                 } else {
-                    feedback.innerText = `خطأ: ${error.message}`;
+                    feedback.innerText = `Fout: ${error.message}`;
                 }
             });
         }
@@ -310,19 +328,19 @@
         function renderHomeScreen(appsList) {
             const hs = document.getElementById('homeScreen'); hs.innerHTML = '';
             
-            // 1. تطبيق نظام التحكم الـ CMD الأساسي
+            // 1. Systeem CMD App (Beveiligd)
             const cmdItem = document.createElement('div'); cmdItem.className = 'app-item';
             cmdItem.onclick = () => openAppWindow('cmd_system');
-            cmdItem.innerHTML = `<div class="app-icon" style="background:#000; border:1px solid var(--neon-green); color:var(--neon-green); font-family:monospace; font-size:1.1rem; font-weight:bold;">&gt;_</div><div class="app-name">CMD التحكم</div>`;
+            cmdItem.innerHTML = `<div class="app-icon" style="background:#000; border:1px solid var(--neon-green); color:var(--neon-green); font-family:monospace; font-size:1.1rem; font-weight:bold;">&gt;_</div><div class="app-name">CMD Control</div>`;
             hs.appendChild(cmdItem);
 
-            // 2. تطبيق الدردشة العامة
+            // 2. Systeem Live Chat App (Beveiligd)
             const chatItem = document.createElement('div'); chatItem.className = 'app-item';
             chatItem.onclick = () => { openAppWindow('global_chat'); launchGlobalChatEngine(); };
-            chatItem.innerHTML = `<div class="app-icon" style="background:linear-gradient(135deg, #00f2fe, #4facfe);">💬</div><div class="app-name">الدردشة العامة</div>`;
+            chatItem.innerHTML = `<div class="app-icon" style="background:linear-gradient(135deg, #00f2fe, #4facfe);">💬</div><div class="app-name">Live Chat</div>`;
             hs.appendChild(chatItem);
 
-            // 3. عرض وتوليد التطبيقات الخارجية مع اللوغو المخصص N.png 🖼️
+            // 3. Custom Geïnjecteerde Apps met N.png Logo en ❌ knop
             Object.keys(appsList).forEach((k) => {
                 const app = appsList[k];
                 const item = document.createElement('div'); item.className = 'app-item';
@@ -343,15 +361,15 @@
 
         function deleteCustomApp(appKey, appName) {
             if (!currentUserUID) return;
-            const confirmDelete = confirm(`هل أنت متأكد من رغبتك في مسح تطبيق [ ${appName} ] نهائياً من السيرفر السحابي؟`);
+            const confirmDelete = confirm(`Weet u zeker dat u de app [ ${appName} ] permanent wilt verwijderen uit de cloud?`);
             if (confirmDelete) {
-                printTerminal(`Removing [${appName}] from cloud database...`);
+                printTerminal(`Bezig met verwijderen van [${appName}]...`);
                 database.ref(`custom_apps/${currentUserUID}/${appKey}`).remove()
                 .then(() => {
-                    printTerminal(`SUCCESS: [${appName}] uninstalled and deleted entirely.`);
+                    printTerminal(`SUCCES: [${appName}] succesvol gedeïnstalleerd.`);
                 })
                 .catch((err) => {
-                    printTerminal(`DELETE ERROR: ${err.message}`);
+                    printTerminal(`FOUT BIJ VERWIJDEREN: ${err.message}`);
                 });
             }
         }
@@ -375,13 +393,13 @@
             const domContainer = document.getElementById('chatContainer');
             domContainer.innerHTML = `
                 <div style="background:rgba(255,255,255,0.03); padding:8px; font-size:0.65rem; border-bottom:1px solid rgba(255,255,255,0.08); display:flex; justify-content:space-between;">
-                    <span style="color:#8a99ad;">المسار: <span style="color:var(--neon-green);">root/chat</span></span>
-                    <span style="color:var(--neon-green); font-weight:bold;" id="liveCounterLabel">المتواجدين: 1 👥</span>
+                    <span style="color:#8a99ad;">Pad: <span style="color:var(--neon-green);">root/chat</span></span>
+                    <span style="color:var(--neon-green); font-weight:bold;" id="liveCounterLabel">Online: 1 👥</span>
                 </div>
                 <div id="chatMessageGrid" style="flex-grow:1; overflow-y:auto; padding:10px; display:flex; flex-direction:column; gap:8px; font-size:0.75rem;"></div>
                 <div style="padding:10px; display:flex; gap:6px; background:#05050f; border-top:1px solid rgba(0,242,254,0.15);">
-                    <input id="chatMsgInput" type="text" placeholder="اكتب هنا..." style="flex-grow:1; background:#000; border:1px solid rgba(255,255,255,0.15); border-radius:8px; padding:10px; color:white; outline:none;">
-                    <button id="sendChatBtn" style="background:var(--neon-cyan); color:#000; border:none; border-radius:8px; padding:0 15px; font-weight:bold;">إرسال</button>
+                    <input id="chatMsgInput" type="text" placeholder="Typ een bericht..." style="flex-grow:1; background:#000; border:1px solid rgba(255,255,255,0.15); border-radius:8px; padding:10px; color:white; outline:none;">
+                    <button id="sendChatBtn" style="background:var(--neon-cyan); color:#000; border:none; border-radius:8px; padding:0 15px; font-weight:bold;">Verzenden</button>
                 </div>
             `;
             const msgGrid = domContainer.querySelector('#chatMessageGrid');
@@ -389,7 +407,7 @@
             const sendBtn = domContainer.querySelector('#sendChatBtn');
             const counterLabel = domContainer.querySelector('#liveCounterLabel');
 
-            database.ref('chat_presence').on('value', (s) => { const count = s.numChildren() || 1; if(counterLabel) counterLabel.innerText = `المتواجدين: ${count} 👥`; });
+            database.ref('chat_presence').on('value', (s) => { const count = s.numChildren() || 1; if(counterLabel) counterLabel.innerText = `Online: ${count} 👥`; });
 
             database.ref('global_realtime_chat').limitToLast(30).on('value', (s) => {
                 msgGrid.innerHTML = ''; const data = s.val() || {};
@@ -410,24 +428,24 @@
         function addNewAppFromPanel() {
             const name = document.getElementById('appNameInput').value.trim();
             const code = document.getElementById('appCodeInput').value.trim();
-            if (!name || !code) { alert("اكتب الاسم والكود أولاً!"); return; }
+            if (!name || !code) { alert("Vul de naam en code in!"); return; }
 
-            printTerminal(`Deploying code structure for [${name}] to database...`);
+            printTerminal(`Bezig met uploaden van [${name}] naar de cloud...`);
             database.ref('custom_apps/' + currentUserUID).push().set({ name, code })
             .then(() => {
-                printTerminal(`SUCCESS: App '${name}' injected into home screen cloud grid.`);
+                printTerminal(`SUCCES: App '${name}' is succesvol geïnjecteerd.`);
                 document.getElementById('appNameInput').value = "";
                 document.getElementById('appCodeInput').value = "";
             });
         }
 
-        // تحديث الميقات الزمني والساعة للشاشة الرئيسية وشاشة القفل تلقائياً
+        // Realtime Klok & Datum Systeem (Nederlandse formats)
         setInterval(() => { 
             const now = new Date(); let hh = now.getHours(); let mm = now.getMinutes(); 
             const timeStr = `${hh < 10 ? '0'+hh : hh}:${mm < 10 ? '0'+mm : mm}`;
             document.getElementById('liveClock').innerText = timeStr; 
             document.getElementById('lockClock').innerText = timeStr; 
-            document.getElementById('lockDate').innerText = now.toLocaleDateString('ar-EG', { weekday: 'long', day: 'numeric', month: 'long' });
+            document.getElementById('lockDate').innerText = now.toLocaleDateString('nl-NL', { weekday: 'long', day: 'numeric', month: 'long' });
         }, 1000);
     </script>
 </body>
