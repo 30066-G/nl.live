@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
-    <title>A0Z Quantum OS v24.5 - Mobile CMD Fixed</title>
+    <title>A0Z Quantum OS v26.5 - Custom Logo Engine</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -74,24 +74,24 @@
             display: flex; justify-content: center; align-items: center; font-size: 0.65rem; color: var(--neon-green); pointer-events: none;
         }
 
-        /* 🔒 شاشة القفل المعدلة لتصحيح التجاوب والظهور الفوري */
+        /* 🔒 شاشة القفل بخلفية N.png كاملة النقاء */
         .lock-screen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: url('N.png') center center / cover no-repeat, #03030a;
             z-index: 95; display: flex; flex-direction: column;
-            justify-content: center; align-items: center; padding: 30px; transition: transform 0.5s ease-in-out;
+            justify-content: center; align-items: center; padding: 30px; transition: transform 0.5s cubic-bezier(0.1, 0.9, 0.2, 1);
         }
-        .lock-time { font-size: 3rem; font-weight: 200; color: white; margin-bottom: 2px; text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
-        .lock-date { font-size: 0.85rem; color: #fff; margin-bottom: 25px; text-shadow: 0 1px 5px rgba(0,0,0,0.8); }
+        .lock-time { font-size: 3rem; font-weight: 200; color: white; margin-bottom: 2px; text-shadow: 0 2px 10px rgba(0,0,0,0.9); }
+        .lock-date { font-size: 0.85rem; color: #fff; margin-bottom: 25px; text-shadow: 0 1px 5px rgba(0,0,0,0.9); }
 
         .lock-blur-box {
-            background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
             border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 20px; padding: 20px; width: 100%; display: flex; flex-direction: column; align-items: center;
         }
 
-
+        /* 📱 الشاشة الرئيسية - تظهر خلفية N.png بشكل دائم ومباشر تحت الأيقونات */
         .phone-screen {
-            width: 71%; height: 100%; display: flex; flex-direction: column;
+            width: 100%; height: 100%; display: flex; flex-direction: column;
             padding: 50px 14px 20px 14px;
             background: url('N.png') center center / cover no-repeat, #03030a;
             position: relative; z-index: 5;
@@ -104,16 +104,35 @@
             grid-auto-rows: max-content; gap: 20px 12px; overflow-y: auto;
         }
 
-        .app-item { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+        /* تصميم الأيقونات المطور لمنع حجب اللمس */
+        .app-item { position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
         .app-icon {
             width: 55px; height: 55px; border-radius: 15px; background: rgba(0, 0, 0, 0.7);
             backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2); display: flex; justify-content: center; align-items: center;
             font-size: 1.6rem; box-shadow: 0 6px 12px rgba(0,0,0,0.6); pointer-events: none;
         }
-        .app-name { font-size: 0.65rem; color: #ffffff; text-align: center; text-shadow: 0 2px 4px rgba(0,0,0,1); font-weight: bold; pointer-events: none; }
+        
+        /* 🎯 محرك اللوغو المخصص للتطبيقات الخارجية باستخدام صورتك N.png */
+        .app-icon-custom {
+            width: 55px; height: 55px; border-radius: 15px; 
+            background: url('N.png') center center / cover no-repeat, rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--neon-cyan); display: flex; justify-content: center; align-items: center;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.6); pointer-events: none;
+        }
 
-        /* 🌗 واجهة النوافذ وتطبيق الـ CMD الداخلي */
+        .app-name { font-size: 0.65rem; color: #ffffff; text-align: center; text-shadow: 0 2px 4px rgba(0,0,0,1); font-weight: bold; pointer-events: none; padding: 0 2px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+        /* زر حذف التطبيقات غير الأساسية ❌ */
+        .delete-app-btn {
+            position: absolute; top: -4px; right: -4px; width: 20px; height: 20px;
+            background: var(--neon-magenta); border: 1px solid rgba(255,255,255,0.4);
+            color: white; border-radius: 50%; display: flex; justify-content: center;
+            align-items: center; font-size: 0.55rem; font-weight: bold; z-index: 20;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5); cursor: pointer;
+        }
+
+        /* 🌗 واجهة النوافذ */
         .window-instance {
             position: absolute; width: 100%; height: 100%; top: 0; left: 0; background: #000; 
             z-index: 80; display: flex; flex-direction: column; overflow: hidden; 
@@ -123,11 +142,11 @@
 
         .window-header-bar { background: #0d0d18; padding: 12px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
         .window-title { font-size: 0.75rem; color: var(--neon-cyan); font-weight: bold; font-family: monospace; }
-        .win-btn { padding: 4px 12px; border-radius: 6px; border: none; background: var(--neon-magenta); color: white; font-size: 0.65rem; font-weight: bold; cursor: pointer; }
+        .win-btn { padding: 5px 14px; border-radius: 6px; border: none; background: var(--neon-magenta); color: white; font-size: 0.65rem; font-weight: bold; cursor: pointer; }
         
         .window-body { flex-grow: 1; width: 100%; height: 100%; overflow: auto; background: #010103; display: flex; flex-direction: column; }
         
-        /* تصميم داخلي للـ CMD الاحترافي في الموبايل */
+        /* 💻 لوحة التحكم الـ CMD */
         .cmd-body { padding: 12px; display: flex; flex-direction: column; gap: 10px; height: 100%; }
         .terminal-box { flex-grow: 1; background: #000; border-radius: 6px; padding: 10px; font-family: monospace; font-size: 0.7rem; color: var(--neon-green); overflow-y: auto; border: 1px solid rgba(255,255,255,0.05); }
         .cmd-inputs { background: #070714; border: 1px solid var(--glass-border); padding: 10px; border-radius: 8px; display: flex; flex-direction: column; gap: 8px; }
@@ -151,7 +170,7 @@
                 <div class="lock-date" id="lockDate">الخميس، 21 مايو</div>
                 
                 <div class="lock-blur-box">
-                    <h4 style="color: var(--neon-cyan); margin-bottom: 15px; font-size: 0.85rem; font-weight: 800;">بوابة التحقق السحابي 🔐</h4>
+                    <h4 style="color: var(--neon-cyan); margin-bottom: 15px; font-size: 0.85rem; font-weight: 800;">بوابة التحقق السحابي v26.5 🔐</h4>
                     <input type="email" id="loginUser" style="width:100%; padding:12px; background:#000; border:1px solid var(--glass-border); border-radius:8px; color:#fff; text-align:center; outline:none; margin-bottom:10px;" placeholder="أدخل إيميلك المسجل">
                     <input type="password" id="loginPass" style="width:100%; padding:12px; background:#000; border:1px solid var(--glass-border); border-radius:8px; color:#fff; text-align:center; outline:none; margin-bottom:15px;" placeholder="كلمة المرور">
                     <button class="action-btn" style="color:#000;" onclick="unlockWithOfficialEmail()">تسجيل دخول / إنشاء حساب رسمي 🍏</button>
@@ -176,8 +195,8 @@
                 <div class="window-body">
                     <div class="cmd-body">
                         <div class="terminal-box" id="systemTerminal">
-                            <div>A0Z Quantum OS [Version 24.5]</div>
-                            <div>Mobile Command Center active.</div>
+                            <div>A0Z Quantum OS [Version 26.5]</div>
+                            <div>System Custom Logo Engine active.</div>
                         </div>
                         <div class="cmd-inputs">
                             <div class="cmd-line">
@@ -185,7 +204,7 @@
                                 <input type="text" id="appNameInput" class="cmd-input" placeholder="اسم التطبيق الجديد">
                             </div>
                             <span class="cmd-label" style="margin-top:4px; display:block;">inject_code=</span>
-                            <textarea id="appCodeInput" class="cmd-text" placeholder="// اكتب كود الـ JavaScript هنا..."></textarea>
+                            <textarea id="appCodeInput" class="cmd-text" placeholder="// اكتب كود الـ JavaScript هنا لتوليد الأيقونة..."></textarea>
                         </div>
                         <button class="action-btn" style="color:#000;" onclick="addNewAppFromPanel()">EXECUTE & INJECT 🚀</button>
                     </div>
@@ -212,6 +231,7 @@
     </div>
 
     <script>
+        // إعدادات الـ Firebase الخاصة بك
         const firebaseConfig = {
             apiKey: "AIzaSyA7Pu0DJOWmdoDYUUVP1J9aqhxh4f3wyfA",
             authDomain: "a0zai-56c3a.firebaseapp.com",
@@ -240,13 +260,13 @@
             const feedback = document.getElementById('lockScreenFeedback');
             if(!email || !pass) { alert("أدخل البيانات الحقيقية!"); return; }
 
-            feedback.innerText = "جاري الاتصال بالسحابة... ⏳";
+            feedback.innerText = "جاري الفحص السحابي... ⏳";
 
             auth.signInWithEmailAndPassword(email, pass)
             .then((u) => {
                 if (u.user.emailVerified) { execLoginSuccess(u.user.uid, email); } 
                 else {
-                    feedback.innerText = "❌ الحساب غير مفعل! يرجى فتح بريدك وتفعيل الحساب أولاً.";
+                    feedback.innerText = "❌ الحساب غير مفعل! يرجى مراجعة بريدك وتفعيل الحساب أولاً.";
                     auth.signOut();
                 }
             })
@@ -255,7 +275,7 @@
                     auth.createUserWithEmailAndPassword(email, pass)
                     .then((u) => {
                         u.user.sendEmailVerification().then(() => {
-                            feedback.innerText = "📧 تم تسجيل حساب جديد! أرسلنا رابط تفعيل لبريدك الإلكتروني، اضغط عليه ثم سجل دخولك.";
+                            feedback.innerText = "📧 تم تسجيل حساب جديد بنجاح! تفقد بريدك واضغط على رابط التفعيل ثم سجل دخولك.";
                             auth.signOut();
                         });
                     })
@@ -277,12 +297,8 @@
             listenToUserApps(uid);
         }
 
-        function openAppWindow(id) {
-            document.getElementById(`win_${id}`).classList.add('open');
-        }
-        function closeAppWindow(id) {
-            document.getElementById(`win_${id}`).classList.remove('open');
-        }
+        function openAppWindow(id) { document.getElementById(`win_${id}`).classList.add('open'); }
+        function closeAppWindow(id) { document.getElementById(`win_${id}`).classList.remove('open'); }
 
         function listenToUserApps(uid) { 
             database.ref('custom_apps/' + uid).on('value', (s) => { 
@@ -294,30 +310,55 @@
         function renderHomeScreen(appsList) {
             const hs = document.getElementById('homeScreen'); hs.innerHTML = '';
             
-            // 1. تطبيق الـ CMD
+            // 1. تطبيق نظام التحكم الـ CMD الأساسي
             const cmdItem = document.createElement('div'); cmdItem.className = 'app-item';
             cmdItem.onclick = () => openAppWindow('cmd_system');
             cmdItem.innerHTML = `<div class="app-icon" style="background:#000; border:1px solid var(--neon-green); color:var(--neon-green); font-family:monospace; font-size:1.1rem; font-weight:bold;">&gt;_</div><div class="app-name">CMD التحكم</div>`;
             hs.appendChild(cmdItem);
 
-            // 2. تطبيق المحادثة العامة
+            // 2. تطبيق الدردشة العامة
             const chatItem = document.createElement('div'); chatItem.className = 'app-item';
             chatItem.onclick = () => { openAppWindow('global_chat'); launchGlobalChatEngine(); };
             chatItem.innerHTML = `<div class="app-icon" style="background:linear-gradient(135deg, #00f2fe, #4facfe);">💬</div><div class="app-name">الدردشة العامة</div>`;
             hs.appendChild(chatItem);
 
-            // 3. حقن بقية التطبيقات المحقونة سحابياً
+            // 3. عرض وتوليد التطبيقات الخارجية مع اللوغو المخصص N.png 🖼️
             Object.keys(appsList).forEach((k) => {
                 const app = appsList[k];
                 const item = document.createElement('div'); item.className = 'app-item';
-                item.onclick = () => launchCustomApp(k);
-                item.innerHTML = `<div class="app-icon">🛸</div><div class="app-name">${app.name}</div>`;
+                
+                item.onclick = (e) => {
+                    if (e.target.classList.contains('delete-app-btn')) return; 
+                    launchCustomApp(k);
+                };
+
+                item.innerHTML = `
+                    <div class="delete-app-btn" onclick="deleteCustomApp('${k}', '${app.name}')">❌</div>
+                    <div class="app-icon-custom"></div>
+                    <div class="app-name">${app.name}</div>
+                `;
                 hs.appendChild(item);
             });
         }
 
+        function deleteCustomApp(appKey, appName) {
+            if (!currentUserUID) return;
+            const confirmDelete = confirm(`هل أنت متأكد من رغبتك في مسح تطبيق [ ${appName} ] نهائياً من السيرفر السحابي؟`);
+            if (confirmDelete) {
+                printTerminal(`Removing [${appName}] from cloud database...`);
+                database.ref(`custom_apps/${currentUserUID}/${appKey}`).remove()
+                .then(() => {
+                    printTerminal(`SUCCESS: [${appName}] uninstalled and deleted entirely.`);
+                })
+                .catch((err) => {
+                    printTerminal(`DELETE ERROR: ${err.message}`);
+                });
+            }
+        }
+
         function launchCustomApp(key) {
             const app = globalAppsData[key];
+            if (!app) return;
             document.getElementById('customWinTitle').innerText = `🛸 ${app.name}`;
             const container = document.getElementById('customContainer');
             container.innerHTML = '';
@@ -326,7 +367,7 @@
                 const appScript = new Function('container', app.code);
                 appScript(container);
             } catch (err) {
-                container.innerHTML = `<div style="color:var(--neon-magenta); font-family:monospace;">Runtime Error: ${err.message}</div>`;
+                container.innerHTML = `<div style="color:var(--neon-magenta); font-family:monospace; padding:10px;">Runtime Error: ${err.message}</div>`;
             }
         }
 
@@ -369,17 +410,18 @@
         function addNewAppFromPanel() {
             const name = document.getElementById('appNameInput').value.trim();
             const code = document.getElementById('appCodeInput').value.trim();
-            if (!name || !code) { alert("اكتب الاسم والكود!"); return; }
+            if (!name || !code) { alert("اكتب الاسم والكود أولاً!"); return; }
 
-            printTerminal(`Uploading ${name} to cluster...`);
+            printTerminal(`Deploying code structure for [${name}] to database...`);
             database.ref('custom_apps/' + currentUserUID).push().set({ name, code })
             .then(() => {
-                printTerminal(`SUCCESS: ${name} added to home screen.`);
+                printTerminal(`SUCCESS: App '${name}' injected into home screen cloud grid.`);
                 document.getElementById('appNameInput').value = "";
                 document.getElementById('appCodeInput').value = "";
             });
         }
 
+        // تحديث الميقات الزمني والساعة للشاشة الرئيسية وشاشة القفل تلقائياً
         setInterval(() => { 
             const now = new Date(); let hh = now.getHours(); let mm = now.getMinutes(); 
             const timeStr = `${hh < 10 ? '0'+hh : hh}:${mm < 10 ? '0'+mm : mm}`;
