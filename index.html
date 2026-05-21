@@ -2,8 +2,8 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>A0Z Quantum OS v17.0 - Ultimate Stable Engine</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+    <title>A0Z Quantum OS v21.0 </title>
     
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
@@ -34,36 +34,30 @@
         .admin-panel {
             width: 350px; height: 680px; background: var(--glass-bg);
             backdrop-filter: blur(20px); border: 1px solid var(--glass-border);
-            border-radius: 20px; padding: 20px; display: flex; flex-direction: column;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.7); gap: 12px;
+            border-radius: 20px; padding: 20px; display: flex; flex-direction: column; gap: 12px;
         }
-
-        @media (max-width: 850px) { .admin-panel { display: none; } } /* تختفي بالجوال لتوفير المساحة */
+        @media (max-width: 850px) { .admin-panel { display: none; } }
 
         .admin-panel h3 { color: var(--neon-cyan); text-align: center; font-weight: 800; font-size: 1.1rem; }
         .form-group label { display: block; font-size: 0.75rem; color: #8a99ad; margin-bottom: 4px; }
-        .form-group input, .form-group select, .form-group textarea {
-            width: 100%; padding: 10px; background: #05050f;
-            border: 1px solid var(--glass-border); border-radius: 8px; color: white; outline: none; font-size: 0.85rem;
+        .form-group input, .form-group textarea {
+            width: 100%; padding: 10px; background: #05050f; border: 1px solid var(--glass-border); border-radius: 8px; color: white; outline: none;
         }
 
         .action-btn {
             width: 100%; padding: 12px; background: linear-gradient(135deg, var(--neon-cyan), #4facfe);
-            border: none; border-radius: 8px; color: #000; font-weight: bold; cursor: pointer; font-size: 0.85rem; transition: all 0.2s;
+            border: none; border-radius: 8px; color: #000; font-weight: bold; cursor: pointer;
         }
-        .action-btn:hover { opacity: 0.9; }
 
         .terminal-box {
             flex-grow: 1; background: #010104; border: 1px solid rgba(17, 255, 189, 0.2);
-            border-radius: 8px; padding: 10px; font-family: monospace;
-            font-size: 0.7rem; color: var(--neon-green); overflow-y: auto;
+            border-radius: 8px; padding: 10px; font-family: monospace; font-size: 0.7rem; color: var(--neon-green); overflow-y: auto;
         }
 
-        /* 📱 هيكل هاتف واقعي وذكي (Adaptive Phone Shell) */
+        /* 📱 هيكل الجوال */
         .phone-container {
             width: 380px; height: 680px; background: #151518; border: 4px solid #2c2c2e;
-            border-radius: 50px; display: flex; justify-content: center; align-items: center; position: relative;
-            box-shadow: 0 35px 70px rgba(0,0,0,0.8); padding: 10px;
+            border-radius: 50px; display: flex; justify-content: center; align-items: center; position: relative; padding: 10px;
         }
 
         @media (max-width: 450px) {
@@ -74,95 +68,77 @@
 
         .phone { width: 100%; height: 100%; background: #000; border-radius: 40px; position: relative; overflow: hidden; }
 
-        /* الجزيرة التفاعلية الفخمة */
         .dynamic-island {
             width: 110px; height: 28px; background: #000; border-radius: 20px;
             position: absolute; top: 11px; left: 50%; transform: translateX(-50%); z-index: 100;
             display: flex; justify-content: center; align-items: center; font-size: 0.65rem; color: var(--neon-green);
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.1);
         }
-        .dynamic-island.expanded { width: 220px; height: 38px; background: #0d0d1a; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-
-        /* شاشة العرض */
-        .phone-screen {
-            width: 100%; height: 100%; display: flex; flex-direction: column;
-            padding: 45px 12px 15px 12px; background: linear-gradient(145deg, #0d0614, #03030a); position: relative;
-        }
-
-        .status-bar { display: flex; justify-content: space-between; font-size: 0.7rem; color: white; z-index: 40; margin-bottom: 12px; }
 
         .lock-screen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: #04040a; z-index: 95; display: flex; flex-direction: column;
-            justify-content: center; align-items: center; padding: 25px; transition: top 0.5s ease-in-out;
+            background: linear-gradient(135deg, #050510, #020205); z-index: 95; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; padding: 30px; transition: transform 0.6s cubic-bezier(0.19, 1, 0.22, 1);
         }
 
-        .spotlight-bar {
-            width: 100%; padding: 8px 12px; background: rgba(255,255,255,0.06);
-            border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: white;
-            font-size: 0.75rem; outline: none; text-align: center; margin-bottom: 15px;
+        .phone-screen {
+            width: 100%; height: 100%; display: flex; flex-direction: column;
+            padding: 50px 14px 20px 14px; background: linear-gradient(145deg, #0d0614, #03030a); position: relative;
         }
+
+        .status-bar { display: flex; justify-content: space-between; font-size: 0.7rem; color: white; z-index: 40; margin-bottom: 15px; }
+
+        .spotlight-area { position: relative; width: 100%; margin-bottom: 15px; }
+        .spotlight-bar {
+            width: 100%; padding: 10px 12px; background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; color: white;
+            font-size: 0.75rem; outline: none; text-align: center; cursor: pointer;
+        }
+        #iphoneFilePicker { display: none; }
 
         .home-screen {
             flex-grow: 1; display: grid; grid-template-columns: repeat(4, 1fr);
-            grid-auto-rows: max-content; gap: 15px 10px; overflow-y: auto;
+            grid-auto-rows: max-content; gap: 18px 12px; overflow-y: auto;
         }
+        .home-screen::-webkit-scrollbar { display: none; }
 
         .app-item { display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer; }
         .app-icon {
-            width: 50px; height: 50px; border-radius: 14px; background: rgba(255, 255, 255, 0.07);
-            border: 1px solid rgba(255, 255, 255, 0.12); display: flex; justify-content: center; align-items: center;
-            font-size: 1.4rem; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            width: 50px; height: 50px; border-radius: 14px; background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15); display: flex; justify-content: center; align-items: center;
+            font-size: 1.4rem; box-shadow: 0 4px 10px rgba(0,0,0,0.4);
         }
-        .app-name { font-size: 0.6rem; color: rgba(255, 255, 255, 0.85); text-align: center; }
+        .app-name { font-size: 0.6rem; color: rgba(255, 255, 255, 0.9); text-align: center; }
 
-        /* 🪟 نظام التحكم بالنوافذ المتطور والذكي (Hybrid Window Engine) */
         .window-instance {
-            position: absolute; width: 92%; height: 55%; top: 25%; left: 4%; background: #030308;
-            border: 1px solid rgba(0, 242, 254, 0.35); border-radius: 16px; z-index: 80;
-            display: flex; flex-direction: column; overflow: hidden;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.6); touch-action: none;
+            position: absolute; background: #030308; border: 1px solid rgba(0, 242, 254, 0.35);
+            border-radius: 16px; z-index: 80; display: flex; flex-direction: column; overflow: hidden; touch-action: none;
         }
-        
-        /* مظهر تقسيم الشاشة التلقائي والمستقر */
-        .window-instance.split-top { width: 100% !important; height: 44% !important; top: 42px !important; left: 0 !important; border-radius: 16px 16px 0 0; }
-        .window-instance.split-bottom { width: 100% !important; height: 44% !important; top: calc(44% + 47px) !important; left: 0 !important; border-radius: 0 0 16px 16px; border-top: 2px dashed var(--neon-cyan); }
+        .window-instance.floating { width: 92%; height: 55%; top: 25%; left: 4%; }
+        .window-instance.split-top { width: 100% !important; height: 44% !important; top: 45px !important; left: 0 !important; border-radius: 16px 16px 0 0; }
+        .window-instance.split-bottom { width: 100% !important; height: 44% !important; top: calc(44% + 50px) !important; left: 0 !important; border-radius: 0 0 16px 16px; border-top: 2px dashed var(--neon-cyan); }
 
         .window-header-bar { background: rgba(255,255,255,0.06); padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; }
-        .window-title { font-size: 0.68rem; color: var(--neon-cyan); font-weight: bold; }
-        .window-controls { display: flex; gap: 6px; }
-        .win-btn { width: 11px; height: 11px; border-radius: 50%; border: none; cursor: pointer; }
-        .win-close { background: var(--neon-magenta); }
-        .window-body { flex-grow: 1; width: 100%; height: 100%; overflow: auto; padding: 10px; background: #010103; color: white; }
+        .window-title { font-size: 0.65rem; color: var(--neon-cyan); font-weight: bold; }
+        .win-btn { width: 12px; height: 12px; border-radius: 50%; border: none; background: var(--neon-magenta); cursor: pointer; }
+        .window-body { flex-grow: 1; width: 100%; height: 100%; overflow: auto; padding: 10px; background: #010103; }
+        
+        .sys-msg { color: var(--neon-magenta); font-size: 0.75rem; text-align: center; margin-top: 10px; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div class="admin-panel">
-        <h3>مصفوفة التحكم v17.0 🛸</h3>
+        <h3>مصفوفة التحكم كوانتوم v21.0 🛸</h3>
         <div class="form-group">
             <label>اسم التطبيق السحابي:</label>
             <input type="text" id="appNameInput" placeholder="مثال: آلة كوانتوم">
         </div>
         <div class="form-group">
-            <label>الأيقونة المخصصة:</label>
-            <select id="appIconSelect">
-                <option value="🧮">🧮 آلة حاسبة ذكية</option>
-                <option value="🛍️">🛍️ متجر إلكتروني</option>
-                <option value="🎮">🎮 منصة ألعاب كوانتوم</option>
-                <option value="🌐">🌐 متصفح ويب</option>
-            </select>
-        </div>
-        <div class="form-group">
             <label>حقن الكود البرمجي (JS):</label>
-            <textarea id="appCodeInput" rows="4" placeholder="// اكتب كود الـ JS للتطبيق هنا..."></textarea>
+            <textarea id="appCodeInput" rows="5" placeholder="// اكتب الكود هنا..."></textarea>
         </div>
         <button class="action-btn" onclick="addNewAppFromPanel()">رفع وحفظ سحابي ☁️🚀</button>
-        
-        <div class="terminal-box" id="systemTerminal">
-            <div>[Kernel Connected & Stable]</div>
-            <div>[Waiting for user login...]</div>
-        </div>
+        <div class="terminal-box" id="systemTerminal"><div>[Verification Gate Ready]</div></div>
     </div>
 
     <div class="phone-container">
@@ -170,23 +146,27 @@
             <div class="dynamic-island" id="island">A0Z Quantum</div>
 
             <div class="lock-screen" id="lockScreen">
-                <h4 style="color: var(--neon-cyan); margin-bottom: 15px; font-size: 0.85rem;">نظام الأمن السحابي المعزول 🍏</h4>
-                <div class="form-group" style="width:100%; margin-bottom:8px;">
-                    <input type="text" id="loginUser" style="text-align:center;" value="test@a0z.com">
+                <h4 style="color: var(--neon-cyan); margin-bottom: 20px; font-size: 0.9rem; text-shadow: 0 0 10px rgba(0,242,254,0.4);">بوابة أبل للتحقق الرسمي 🍏</h4>
+                <div class="form-group" style="width:100%; margin-bottom:10px;">
+                    <input type="email" id="loginUser" style="text-align:center; padding:12px;" placeholder="أدخل إيميلك الحقيقي والفعّال">
                 </div>
-                <div class="form-group" style="width:100%; margin-bottom:12px;">
-                    <input type="password" id="loginPass" style="text-align:center;" value="123456">
+                <div class="form-group" style="width:100%; margin-bottom:15px;">
+                    <input type="password" id="loginPass" style="text-align:center; padding:12px;" placeholder="كلمة المرور">
                 </div>
-                <button class="action-btn" onclick="unlockPhone()">ولوج آمن ومزامنة السحاب 🔓</button>
+                <button class="action-btn" style="padding:14px;" onclick="unlockPhoneWithOfficialEmail()">تسجيل دخول / إنشاء حساب رسمي 🔐</button>
+                <div id="lockScreenFeedback" class="sys-msg"></div>
             </div>
 
             <div class="phone-screen" id="phoneScreen">
                 <div class="status-bar">
                     <div id="liveClock">00:00</div>
-                    <div>100% 🔋</div>
+                    <div>5G 🔋</div>
                 </div>
 
-                <input type="text" class="spotlight-bar" placeholder="🔍 بحث في السحابة...">
+                <div class="spotlight-area">
+                    <input type="text" class="spotlight-bar" id="spotlightSearch" readonly placeholder="🔍 اضغط لرفع كود إلى حسابك الحقيقي..." onclick="triggerIphonePicker()">
+                    <input type="file" id="iphoneFilePicker" onchange="handleIphoneFile(event)">
+                </div>
 
                 <div class="home-screen" id="homeScreen"></div>
             </div>
@@ -194,7 +174,6 @@
     </div>
 
     <script>
-        // ☁️ الإعدادات الرسمية والمجربة لقاعدة بياناتك السحابية
         const firebaseConfig = {
             apiKey: "AIzaSyA7Pu0DJOWmdoDYUUVP1J9aqhxh4f3wyfA",
             authDomain: "a0zai-56c3a.firebaseapp.com",
@@ -208,147 +187,201 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
         const auth = firebase.auth();
-
-        let currentUserUID = null; let globalAppsData = {}; 
+        
+        let currentUserUID = null; let currentUserEmail = "";
+        let globalAppsData = {};
 
         function printTerminal(text) {
             const term = document.getElementById('systemTerminal'); if(!term) return;
-            const log = document.createElement('div'); log.innerText = `> ${text}`; term.appendChild(log);
-            term.scrollTop = term.scrollHeight;
+            term.innerHTML += `<div>> ${text}</div>`; term.scrollTop = term.scrollHeight;
         }
 
-        function unlockPhone() {
+        // 🧠 محرك التحقق الرسمي والأمان الصارم
+        function unlockPhoneWithOfficialEmail() {
             const email = document.getElementById('loginUser').value.trim();
             const pass = document.getElementById('loginPass').value;
-            auth.signInWithEmailAndPassword(email, pass).then((u) => { execLoginSuccess(u.user.uid); })
-            .catch(() => { auth.createUserWithEmailAndPassword(email, pass).then((u) => { execLoginSuccess(u.user.uid); }); });
+            const feedback = document.getElementById('lockScreenFeedback');
+            if(!email || !pass) { alert("أدخل الإيميل والباسورد!"); return; }
+
+            feedback.innerText = "جاري فحص الحساب سحابياً... ⏳";
+            feedback.style.color = "var(--neon-cyan)";
+
+            auth.signInWithEmailAndPassword(email, pass)
+            .then((userCredential) => {
+                const user = userCredential.user;
+                // 🔐 الشرط الخارق: نفحص هل المستخدم ضغط على رابط التأكيد في إيميله الحقيقي؟
+                if (user.emailVerified) {
+                    execLoginSuccess(user.uid, email);
+                } else {
+                    feedback.innerText = "❌ الحساب غير مفعّل! يرجى مراجعة إيميلك والضغط على رابط التأكيد المرسل لك، ثم حاول مجدداً.";
+                    feedback.style.color = "var(--neon-magenta)";
+                    auth.signOut(); // طرده بره السيستم حتى يفعل الإيميل
+                }
+            })
+            .catch((error) => {
+                // إذا الإيميل مش مسجل أصلاً، نصنع له حساب حقيقي ونرسل له إيميل تفعيل فوراً!
+                if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+                    auth.createUserWithEmailAndPassword(email, pass)
+                    .then((userCredential) => {
+                        userCredential.user.sendEmailVerification().then(() => {
+                            feedback.innerText = "📧 تم إنشاء حسابك بنجاح! أرسلنا رابط تفعيل إلى إيميلك الحقيقي الحين. افتح بريدك وفعلّه ثم سجل دخولك!";
+                            feedback.style.color = "var(--neon-green)";
+                            auth.signOut();
+                        });
+                    })
+                    .catch((err) => { feedback.innerText = `خطأ: ${err.message}`; feedback.style.color = "var(--neon-magenta)"; });
+                } else {
+                    feedback.innerText = `خطأ: ${error.message}`;
+                    feedback.style.color = "var(--neon-magenta)";
+                }
+            });
         }
 
-        function execLoginSuccess(uid) {
-            currentUserUID = uid; document.getElementById('lockScreen').style.top = "-100%";
-            triggerIslandNotification("تم الاتصال بنجاح! 🔓"); listenToUserApps(uid); 
+        function execLoginSuccess(uid, email) {
+            currentUserUID = uid; currentUserEmail = email.split('@')[0];
+            document.getElementById('lockScreen').style.transform = "translateY(-100%)";
+            
+            const myPresenceRef = database.ref(`chat_presence/${uid}`);
+            myPresenceRef.set({ username: currentUserEmail, online: true });
+            myPresenceRef.onDisconnect().remove();
+
+            printTerminal(`Official User Verified: ${email}`);
+            listenToUserApps(uid);
         }
 
-        // 🧠 محرك توازن وترتيب النوافذ المستقر
+        function triggerIphonePicker() { document.getElementById('iphoneFilePicker').click(); }
+
+        function handleIphoneFile(e) {
+            const file = e.target.files[0]; if (!file || !currentUserUID) return;
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const name = file.name.replace(/\.[^/.]+$/, "");
+                const newAppRef = database.ref('custom_apps/' + currentUserUID).push();
+                newAppRef.set({ name, icon: "⚡", code: event.target.result });
+            };
+            reader.readAsText(file);
+        }
+
         function arrangeWindows() {
             const windows = document.querySelectorAll('.window-instance');
             if (windows.length === 0) return;
-            
-            if (windows.length === 1) {
-                windows[0].className = "window-instance floating";
-                windows[0].style.display = "flex";
-            } else if (windows.length >= 2) {
+            if (windows.length === 1) { windows[0].className = "window-instance floating"; }
+            else if (windows.length >= 2) {
                 windows[0].className = "window-instance split-top";
                 windows[1].className = "window-instance split-bottom";
-                windows[0].style.display = "flex";
-                windows[1].style.display = "flex";
-                
-                // إخفاء أي نافذة زائدة عن تطبيقين للحفاظ على استقرار الشاشة المقسمة
                 for(let i = 2; i < windows.length; i++) { windows[i].style.display = "none"; }
             }
         }
 
-        // محرك سحب النوافذ الشغال للكمبيوتر والجوال لايف (Fixed Drag Engine)
-        let isDragging = false; let currentWin = null;
-        let startX, startY, initialLeft, initialTop;
-
+        let isDragging = false; let currentWin = null; let startX, startY, initialLeft, initialTop;
         function initDrag(e, winId) {
-            const win = document.getElementById(winId);
-            if (win.classList.contains('split-top') || win.classList.contains('split-bottom')) return;
-
+            const win = document.getElementById(winId); if (win.classList.contains('split-top') || win.classList.contains('split-bottom')) return;
             isDragging = true; currentWin = win;
             const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
             const clientY = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
             startX = clientX; startY = clientY;
             const style = window.getComputedStyle(currentWin);
             initialLeft = parseInt(style.left, 10) || 0; initialTop = parseInt(style.top, 10) || 0;
-
-            document.addEventListener('mousemove', processDrag);
-            document.addEventListener('touchmove', processDrag, { passive: false });
-            document.addEventListener('mouseup', endDrag);
-            document.addEventListener('touchend', endDrag);
+            document.addEventListener('mousemove', processDrag); document.addEventListener('touchmove', processDrag, { passive: false });
+            document.addEventListener('mouseup', endDrag); document.addEventListener('touchend', endDrag);
         }
-
         function processDrag(e) {
-            if (!isDragging || !currentWin) return;
-            if (e.type === 'touchmove') e.preventDefault();
+            if (!isDragging || !currentWin) return; if (e.type === 'touchmove') e.preventDefault();
             const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
             const clientY = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
-            currentWin.style.left = (initialLeft + (clientX - startX)) + 'px';
-            currentWin.style.top = (initialTop + (clientY - startY)) + 'px';
+            currentWin.style.left = (initialLeft + (clientX - startX)) + 'px'; currentWin.style.top = (initialTop + (clientY - startY)) + 'px';
         }
-
         function endDrag() { isDragging = false; currentWin = null; }
 
         function createWindowInstance(key) {
-            const app = globalAppsData[key]; if(!app) return;
             if(document.getElementById(`win_${key}`)) return;
+            let app = globalAppsData[key];
+            if(key === "global_chat_system") { app = { name: "الدردشة العامة", icon: "💬" }; }
 
             const win = document.createElement('div'); win.className = 'window-instance floating'; win.id = `win_${key}`;
-            
             win.innerHTML = `
                 <div class="window-header-bar" onmousedown="initDrag(event, 'win_${key}')" ontouchstart="initDrag(event, 'win_${key}')">
                     <div class="window-title">${app.icon} ${app.name}</div>
-                    <div class="window-controls"><button class="win-btn win-close" onclick="closeWindowInstance(event, '${key}')"></button></div>
+                    <div class="window-controls"><button class="win-btn" onclick="closeWindowInstance(event, '${key}')"></button></div>
                 </div>
-                <div class="window-body"><div id="container_${key}" style="width:100%; height:100%;"></div></div>
+                <div class="window-body" style="padding:0; display:flex; flex-direction:column;"><div id="container_${key}" style="width:100%; height:100%; display:flex; flex-direction:column;"></div></div>
             `;
-
             document.getElementById('phoneScreen').appendChild(win);
             arrangeWindows();
 
-            // حقن وتشغيل كود الـ JS الخاص بالتطبيق داخل بيئة آمنة وشغالة ومستقرة
-            try {
-                const appContainer = document.getElementById(`container_${key}`);
-                const appScript = new Function('container', app.code);
-                appScript(appContainer);
-            } catch (err) { printTerminal(`Runtime Error: ${err.message}`); }
+            if(key === "global_chat_system") { launchGlobalChatEngine(document.getElementById(`container_${key}`)); } 
+            else {
+                try {
+                    const appContainer = document.getElementById(`container_${key}`);
+                    const appScript = new Function('container', app.code);
+                    appScript(appContainer);
+                } catch (err) { printTerminal(`Error: ${err.message}`); }
+            }
         }
 
-        function closeWindowInstance(event, key) {
-            event.stopPropagation();
-            const win = document.getElementById(`win_${key}`);
-            if(win) { win.remove(); arrangeWindows(); }
-        }
-
-        function listenToUserApps(uid) {
-            database.ref('custom_apps/' + uid).on('value', (s) => {
-                globalAppsData = s.val() || {};
-                renderHomeScreen(globalAppsData);
-            });
-        }
-
+        function closeWindowInstance(event, key) { event.stopPropagation(); const win = document.getElementById(`win_${key}`); if(win) { win.remove(); arrangeWindows(); } }
+        function listenToUserApps(uid) { database.ref('custom_apps/' + uid).on('value', (s) => { globalAppsData = s.val() || {}; renderHomeScreen(globalAppsData); }); }
+        
         function renderHomeScreen(appsList) {
             const hs = document.getElementById('homeScreen'); hs.innerHTML = '';
             
-            // إضافة كود افتراضي للآلة الحاسبة في حال كانت قاعدة البيانات فارغة تماماً عند الدخول الأول
-            if(Object.keys(appsList).length === 0) {
-                printTerminal("Database empty. Injecting core system template apps...");
-                appsList["default_calc"] = {
-                    name: "حاسبة كوانتوم", icon: "🧮",
-                    code: "container.innerHTML = `<div style='padding:10px; text-align:center;'><h3>الآلة الحاسبة</h3><input id='num' type='number' style='width:80%; margin:10px 0; padding:5px; text-align:center; color:#000;' value='5'><button style='padding:5px 15px;' onclick='alert(document.getElementById(\"num\").value * 2)'>اضرب في 2</button></div>`;"
-                };
-            }
+            const chatItem = document.createElement('div'); chatItem.className = 'app-item';
+            chatItem.setAttribute('onclick', "createWindowInstance('global_chat_system')");
+            chatItem.innerHTML = `<div class="app-icon" style="background:linear-gradient(135deg, #00f2fe, #4facfe); border:1px solid var(--neon-cyan);">💬</div><div class="app-name" style="color:var(--neon-cyan); font-weight:bold;">الدردشة العامة</div>`;
+            hs.appendChild(chatItem);
 
             Object.keys(appsList).forEach((k) => {
                 const app = appsList[k];
-                const item = document.createElement('div'); item.className = 'app-item';
-                item.setAttribute('onclick', `createWindowInstance('${k}')`);
-                item.innerHTML = `<div class="app-icon">${app.icon}</div><div class="app-name">${app.name}</div>`;
+                const item = document.createElement('div'); item.className = 'app-item'; item.setAttribute('onclick', `createWindowInstance('${k}')`);
+                item.innerHTML = `<div class="app-icon">${app.icon || '⚡'}</div><div class="app-name">${app.name}</div>`;
                 hs.appendChild(item);
             });
         }
 
+        function launchGlobalChatEngine(domContainer) {
+            domContainer.innerHTML = `
+                <div style="background:rgba(255,255,255,0.03); padding:6px 10px; font-size:0.65rem; border-bottom:1px solid rgba(255,255,255,0.08); display:flex; justify-content:between; align-items:center;">
+                    <span style="color:#8a99ad;">المسار: <span style="color:var(--neon-green);">root/chat</span></span>
+                    <span style="background:rgba(17,255,189,0.15); color:var(--neon-green); padding:2px 6px; border-radius:10px; font-weight:bold;" id="liveCounterLabel">المتواجدين: 1 👥</span>
+                </div>
+                <div id="chatMessageGrid" style="flex-grow:1; overflow-y:auto; padding:10px; display:flex; flex-direction:column; gap:8px; font-size:0.75rem;"></div>
+                <div style="padding:8px; display:flex; gap:6px; background:#05050f; border-top:1px solid rgba(0,242,254,0.15);">
+                    <input id="chatMsgInput" type="text" placeholder="اكتب رسالة حقيقية..." style="flex-grow:1; background:#000; border:1px solid rgba(255,255,255,0.15); border-radius:8px; padding:8px; color:white; outline:none; font-size:0.75rem;">
+                    <button id="sendChatBtn" style="background:var(--neon-cyan); color:#000; border:none; border-radius:8px; padding:0 12px; font-weight:bold; font-size:0.7rem;">إرسال</button>
+                </div>
+            `;
+            const msgGrid = domContainer.querySelector('#chatMessageGrid');
+            const msgInput = domContainer.querySelector('#chatMsgInput');
+            const sendBtn = domContainer.querySelector('#sendChatBtn');
+            const counterLabel = domContainer.querySelector('#liveCounterLabel');
+
+            database.ref('chat_presence').on('value', (snapshot) => { const count = snapshot.numChildren() || 1; if(counterLabel) counterLabel.innerText = `المتواجدين: ${count} 👥`; });
+
+            database.ref('global_realtime_chat').limitToLast(40).on('value', (snapshot) => {
+                msgGrid.innerHTML = ''; const data = snapshot.val() || {};
+                Object.keys(data).forEach((key) => {
+                    const m = data[key]; const msgRow = document.createElement('div'); const isMe = m.user === currentUserEmail;
+                    msgRow.style.alignSelf = isMe ? 'flex-end' : 'flex-start';
+                    msgRow.style.background = isMe ? 'linear-gradient(135deg, #00f2fe, #4facfe)' : 'rgba(255,255,255,0.07)';
+                    msgRow.style.color = isMe ? '#000' : '#fff'; msgRow.style.padding = '6px 10px'; msgRow.style.borderRadius = '10px'; msgRow.style.maxWidth = '80%'; msgRow.style.wordBreak = 'break-all';
+                    msgRow.innerHTML = `<b style="font-size:0.55rem; display:block; opacity:0.75; margin-bottom:2px;">${m.user}</b>${m.text}`; msgGrid.appendChild(msgRow);
+                });
+                msgGrid.scrollTop = msgGrid.scrollHeight;
+            });
+
+            function transmitMsg() { const text = msgInput.value.trim(); if(!text) return; database.ref('global_realtime_chat').push().set({ user: currentUserEmail, text: text }); msgInput.value = ''; }
+            sendBtn.onclick = transmitMsg; msgInput.onkeydown = (e) => { if(e.key === 'Enter') transmitMsg(); };
+        }
+
         function addNewAppFromPanel() {
+            if(!currentUserUID) { alert("سجل دخولك أولاً!"); return; }
             const name = document.getElementById('appNameInput').value.trim();
-            const icon = document.getElementById('appIconSelect').value;
             const code = document.getElementById('appCodeInput').value.trim();
             if (!name || !code) return;
-            database.ref('custom_apps/' + currentUserUID).push().set({ name, icon, code });
+            database.ref('custom_apps/' + currentUserUID).push().set({ name, icon: "🛸", code });
             document.getElementById('appNameInput').value = ""; document.getElementById('appCodeInput').value = "";
         }
 
-        function triggerIslandNotification(text) { const island = document.getElementById('island'); island.innerText = text; island.classList.add('expanded'); setTimeout(() => { island.classList.remove('expanded'); island.innerText = "A0Z Quantum"; }, 2500); }
         setInterval(() => { const now = new Date(); let hh = now.getHours(); let mm = now.getMinutes(); document.getElementById('liveClock').innerText = `${hh < 10 ? '0'+hh : hh}:${mm < 10 ? '0'+mm : mm}`; }, 1000);
     </script>
 </body>
