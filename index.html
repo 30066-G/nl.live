@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
-    <title>A0Z Quantum OS v27.0 - Core AI & Chat</title>
+    <title>A0Z Quantum OS v27.1 - Ultimate AI Fix</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -110,7 +110,6 @@
             font-size: 1.6rem; box-shadow: 0 6px 12px rgba(0,0,0,0.6); pointer-events: none;
         }
         
-        /* أيقونة البوت الحركية بالخلفية الجديدة */
         .app-icon-ai {
             width: 55px; height: 55px; border-radius: 15px; 
             background: url('121.GIF') center center / cover no-repeat, rgba(0, 0, 0, 0.5);
@@ -150,7 +149,7 @@
                 <div class="lock-date" id="lockDate">Donderdag, 21 mei</div>
                 
                 <div class="lock-blur-box">
-                    <h4 style="color: var(--neon-cyan); margin-bottom: 15px; font-size: 0.85rem; font-weight: 800;">Cloud Workspace v27.0 🔐</h4>
+                    <h4 style="color: var(--neon-cyan); margin-bottom: 15px; font-size: 0.85rem; font-weight: 800;">Cloud Workspace v27.1 🔐</h4>
                     <input type="email" id="loginUser" style="width:100%; padding:12px; background:#000; border:1px solid var(--glass-border); border-radius:8px; color:#fff; text-align:center; outline:none; margin-bottom:10px;" placeholder="E-mailadres">
                     <input type="password" id="loginPass" style="width:100%; padding:12px; background:#000; border:1px solid var(--glass-border); border-radius:8px; color:#fff; text-align:center; outline:none; margin-bottom:15px;" placeholder="Wachtwoord">
                     <button class="action-btn" style="color:#000;" onclick="unlockWithOfficialEmail()">Inloggen 🍏</button>
@@ -183,7 +182,7 @@
                 <div class="window-body" style="background:#020208; display:flex; flex-direction:column; height:100%;">
                     <div id="coreAiChatGrid" style="flex-grow:1; overflow-y:auto; padding:15px; display:flex; flex-direction:column; gap:10px; font-size:0.75rem;">
                         <div style="align-self: flex-start; background: rgba(255,255,255,0.06); color: #fff; padding: 10px; border-radius: 12px 12px 12px 0; max-width: 85%;">
-                            Hallo King! 🤖 Ik ben uw officiële stabiele AI Copilot binnen v27.0. Vraag me alles wat u wilt!
+                            Hallo King! 🤖 Ik ben uw officiële stabiele AI Copilot binnen v27.1. Vraag me alles wat u wilt, ik antwoord direct!
                         </div>
                     </div>
                     <div id="coreAiTyping" style="padding:0 15px; font-size:0.65rem; color:var(--neon-cyan); display:none; font-family:monospace;">AI denkt na... 🧠⚡</div>
@@ -198,7 +197,6 @@
     </div>
 
     <script>
-        // تكوين فايربيس الرسمي المستقر الخاص بك
         const firebaseConfig = {
             apiKey: "AIzaSyA7Pu0DJOWmdoDYUUVP1J9aqhxh4f3wyfA",
             authDomain: "a0zai-56c3a.firebaseapp.com",
@@ -217,7 +215,7 @@
 
         function showAboutUs() {
             alert(
-                "ℹ️ OVER A0Z QUANTUM OS (v27.0)\n\n" +
+                "ℹ️ OVER A0Z QUANTUM OS (v27.1)\n\n" +
                 "Dit is de schone, stabiele editie van het cloud-besturingssysteem met een bewegende '121.GIF' achtergrond.\n\n" +
                 "🔋 Inbegrepen Functies:\n" +
                 "1. Live Chat: Realtime wereldwijde communicatie via Firebase.\n" +
@@ -276,20 +274,18 @@
         function renderHomeScreen() {
             const hs = document.getElementById('homeScreen'); hs.innerHTML = '';
             
-            // 1. تطبيق غرف الدردشة العالمية المباشرة
             const chatItem = document.createElement('div'); chatItem.className = 'app-item';
             chatItem.onclick = () => { openAppWindow('global_chat'); launchGlobalChatEngine(); };
             chatItem.innerHTML = `<div class="app-icon" style="background:linear-gradient(135deg, #00f2fe, #4facfe);">💬</div><div class="app-name">Live Chat</div>`;
             hs.appendChild(chatItem);
 
-            // 2. تطبيق الذكاء الاصطناعي الأساسي والمستقر المدمج بالخلفية الحركية
             const aiItem = document.createElement('div'); aiItem.className = 'app-item';
             aiItem.onclick = () => openAppWindow('official_ai_bot');
             aiItem.innerHTML = `<div class="app-icon-ai">🤖</div><div class="app-name">A0Z AI Bot</div>`;
             hs.appendChild(aiItem);
         }
 
-        // 🧠 تشغيل محرك الذكاء الاصطناعي الأساسي المستقر بالـ API المباشر
+        // 🧠 محرك الذكاء الاصطناعي العالمي الجديد فائق الاستقرار وبدون CORS وبدون مفاتيح مفاجئة
         function setupOfficialAiEngine() {
             const grid = document.getElementById('coreAiChatGrid');
             const input = document.getElementById('coreAiInput');
@@ -314,20 +310,29 @@
             async function askCoreAi(promptText) {
                 typing.style.display = 'block';
                 try {
-                    const res = await fetch('https://api.api-ninjas.com/v1/chatgpt?text=' + encodeURIComponent(promptText), {
-                        method: 'GET',
-                        headers: { 'X-Api-Key': 'ujbVdfbVfXwAksJbHqgqyA==9m9V8X7K7o8SbeYh' }
+                    // سيرفر دردشة مفتوح المصدر ومستقر جداً يتعامل مع المتصفحات بدون مشاكل CORS
+                    const res = await fetch('https://text.pollinations.ai/', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            messages: [
+                                { role: 'system', content: 'أنت مساعد ذكاء اصطناعي عبقري يدعى A0Z AI. تجيب بذكاء واختصار وبنفس لغة المستخدم.' },
+                                { role: 'user', content: promptText }
+                            ]
+                        })
                     });
-                    const data = await res.json();
+                    
+                    const responseText = await res.text();
                     typing.style.display = 'none';
-                    if(data && data.response) {
-                        appendCoreMsg('bot', data.response);
+                    
+                    if(responseText && responseText.trim().length > 0) {
+                        appendCoreMsg('bot', responseText.trim());
                     } else {
-                        appendCoreMsg('bot', "Er is een time-out opgetreden in de cloud. Probeer het opnieuw.");
+                        appendCoreMsg('bot', "اممم، السيرفر لم يرسل نصاً دقيقاً. جرب مجدداً.");
                     }
                 } catch(e) {
                     typing.style.display = 'none';
-                    appendCoreMsg('bot', "Verbindingsfout met de AI-server.");
+                    appendCoreMsg('bot', "خطأ بالاتصال بالسيرفر السحابي، تأكد من الإنترنت.");
                 }
             }
 
@@ -378,7 +383,6 @@
             msgInput.onkeypress = (e) => { if(e.key === 'Enter') transmitMsg(); }
         }
 
-        // الوقت والتاريخ تلقائياً
         setInterval(() => { 
             const now = new Date(); let hh = now.getHours(); let mm = now.getMinutes(); 
             const timeStr = `${hh < 10 ? '0'+hh : hh}:${mm < 10 ? '0'+mm : mm}`;
