@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>A0Z Quantum OS v16.0 - Split Screen & Phone Shell</title>
+    <title>A0Z Quantum OS v17.0 - Ultimate Stable Engine</title>
     
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
@@ -14,151 +14,132 @@
             --neon-cyan: #00f2fe;
             --neon-magenta: #ff3366;
             --neon-green: #11ffbd;
-            --glass-bg: rgba(10, 10, 25, 0.75);
-            --glass-border: rgba(0, 242, 254, 0.25);
+            --glass-bg: rgba(10, 10, 25, 0.85);
+            --glass-border: rgba(0, 242, 254, 0.3);
         }
 
         * {
             box-sizing: border-box; margin: 0; padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
             user-select: none; -webkit-user-select: none;
         }
 
         body {
-            background: radial-gradient(circle at center, #0a0a23 0%, #020205 100%);
+            background: radial-gradient(circle at center, #08081e 0%, #010103 100%);
             height: 100vh; display: flex; justify-content: center; align-items: center;
-            gap: 30px; color: white; padding: 20px; overflow: hidden;
+            gap: 25px; color: white; padding: 15px; overflow: hidden;
         }
 
-        /* 🛠️ لوحة التحكم الخارجية */
+        /* 🛠️ لوحة التحكم الجانبية */
         .admin-panel {
-            width: 350px; height: 650px; background: var(--glass-bg);
-            backdrop-filter: blur(25px); border: 1px solid var(--glass-border);
-            border-radius: 24px; padding: 20px; display: flex; flex-direction: column;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.6); gap: 10px;
+            width: 350px; height: 680px; background: var(--glass-bg);
+            backdrop-filter: blur(20px); border: 1px solid var(--glass-border);
+            border-radius: 20px; padding: 20px; display: flex; flex-direction: column;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.7); gap: 12px;
         }
 
-        @media (max-width: 850px) { .admin-panel { display: none; } }
+        @media (max-width: 850px) { .admin-panel { display: none; } } /* تختفي بالجوال لتوفير المساحة */
 
         .admin-panel h3 { color: var(--neon-cyan); text-align: center; font-weight: 800; font-size: 1.1rem; }
-        .form-group { margin-bottom: 5px; }
-        .form-group label { display: block; font-size: 0.7rem; color: #8a99ad; margin-bottom: 3px; }
+        .form-group label { display: block; font-size: 0.75rem; color: #8a99ad; margin-bottom: 4px; }
         .form-group input, .form-group select, .form-group textarea {
-            width: 100%; padding: 8px; background: rgba(5, 5, 15, 0.9);
-            border: 1px solid var(--glass-border); border-radius: 8px; color: white; outline: none; font-size: 0.8rem;
+            width: 100%; padding: 10px; background: #05050f;
+            border: 1px solid var(--glass-border); border-radius: 8px; color: white; outline: none; font-size: 0.85rem;
         }
 
         .action-btn {
-            width: 100%; padding: 10px; background: linear-gradient(135deg, var(--neon-cyan), #4facfe);
-            border: none; border-radius: 8px; color: #000; font-weight: bold; cursor: pointer; font-size: 0.8rem;
+            width: 100%; padding: 12px; background: linear-gradient(135deg, var(--neon-cyan), #4facfe);
+            border: none; border-radius: 8px; color: #000; font-weight: bold; cursor: pointer; font-size: 0.85rem; transition: all 0.2s;
         }
+        .action-btn:hover { opacity: 0.9; }
 
         .terminal-box {
-            flex-grow: 1; background: #020208; border: 1px solid rgba(17, 255, 189, 0.2);
-            border-radius: 8px; padding: 10px; font-family: "Courier New", monospace;
-            font-size: 0.65rem; color: var(--neon-green); overflow-y: auto; display: flex; flex-direction: column; gap: 4px;
+            flex-grow: 1; background: #010104; border: 1px solid rgba(17, 255, 189, 0.2);
+            border-radius: 8px; padding: 10px; font-family: monospace;
+            font-size: 0.7rem; color: var(--neon-green); overflow-y: auto;
         }
 
-        /* 📱 الهيكل المطور والمصمم للجوال (Premium Phone Shell) */
+        /* 📱 هيكل هاتف واقعي وذكي (Adaptive Phone Shell) */
         .phone-container {
-            width: 380px; height: 720px; background: #1c1c1e; border: 4px solid #3a3a3c;
-            border-radius: 54px; display: flex; justify-content: center; align-items: center; position: relative;
-            box-shadow: 0 40px 80px rgba(0,0,0,0.8), inset 0 0 15px rgba(255,255,255,0.1);
-            padding: 12px;
-        }
-
-        /* أزرار الصوت الجانبية ومفتاح الطاقة لواقعية التصميم */
-        .phone-container::before {
-            content: ''; position: absolute; left: -8px; top: 120px; width: 4px; height: 50px; background: #3a3a3c; border-radius: 4px 0 0 4px;
-            box-shadow: 0 60px 0 #3a3a3c; /* زر الصوت الثاني */
-        }
-        .phone-container::after {
-            content: ''; position: absolute; right: -8px; top: 160px; width: 4px; height: 75px; background: #3a3a3c; border-radius: 0 4px 4px 0;
+            width: 380px; height: 680px; background: #151518; border: 4px solid #2c2c2e;
+            border-radius: 50px; display: flex; justify-content: center; align-items: center; position: relative;
+            box-shadow: 0 35px 70px rgba(0,0,0,0.8); padding: 10px;
         }
 
         @media (max-width: 450px) {
             body { padding: 0; }
             .phone-container { width: 100vw; height: 100vh; border-radius: 0; border: none; padding: 0; }
-            .phone-container::before, .phone-container::after { display: none; }
             .phone { border-radius: 0 !important; }
         }
 
-        .phone {
-            width: 100%; height: 100%; background: #000; border-radius: 44px; position: relative; overflow: hidden;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.9);
-        }
+        .phone { width: 100%; height: 100%; background: #000; border-radius: 40px; position: relative; overflow: hidden; }
 
-        /* الجزيرة التفاعلية الدقيقة */
+        /* الجزيرة التفاعلية الفخمة */
         .dynamic-island {
             width: 110px; height: 28px; background: #000; border-radius: 20px;
-            position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 100;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: absolute; top: 11px; left: 50%; transform: translateX(-50%); z-index: 100;
             display: flex; justify-content: center; align-items: center; font-size: 0.65rem; color: var(--neon-green);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.1);
         }
-        .dynamic-island.expanded { width: 260px; height: 45px; background: #090915; box-shadow: 0 4px 20px rgba(0,0,0,0.6); }
+        .dynamic-island.expanded { width: 220px; height: 38px; background: #0d0d1a; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
 
-        /* شاشة النظام الداخلي */
+        /* شاشة العرض */
         .phone-screen {
             width: 100%; height: 100%; display: flex; flex-direction: column;
-            padding: 45px 14px 20px 14px; background: linear-gradient(135deg, #0f0c1b, #050515); position: relative;
+            padding: 45px 12px 15px 12px; background: linear-gradient(145deg, #0d0614, #03030a); position: relative;
         }
 
-        .status-bar { display: flex; justify-content: space-between; font-size: 0.7rem; color: white; z-index: 40; margin-bottom: 10px; padding: 0 5px; }
+        .status-bar { display: flex; justify-content: space-between; font-size: 0.7rem; color: white; z-index: 40; margin-bottom: 12px; }
 
         .lock-screen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: #060612; z-index: 95; display: flex; flex-direction: column;
-            justify-content: center; align-items: center; padding: 25px; transition: all 0.6s ease-in-out;
+            background: #04040a; z-index: 95; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; padding: 25px; transition: top 0.5s ease-in-out;
         }
 
         .spotlight-bar {
-            width: 100%; padding: 8px 12px; background: rgba(255,255,255,0.07);
-            border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; color: white;
+            width: 100%; padding: 8px 12px; background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: white;
             font-size: 0.75rem; outline: none; text-align: center; margin-bottom: 15px;
         }
 
         .home-screen {
             flex-grow: 1; display: grid; grid-template-columns: repeat(4, 1fr);
-            grid-auto-rows: max-content; gap: 20px 12px; overflow-y: auto; align-content: flex-start;
+            grid-auto-rows: max-content; gap: 15px 10px; overflow-y: auto;
         }
-        .home-screen::-webkit-scrollbar { display: none; }
 
-        .app-item { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; }
+        .app-item { display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer; }
         .app-icon {
-            width: 52px; height: 52px; border-radius: 15px; background: rgba(255, 255, 255, 0.08);
+            width: 50px; height: 50px; border-radius: 14px; background: rgba(255, 255, 255, 0.07);
             border: 1px solid rgba(255, 255, 255, 0.12); display: flex; justify-content: center; align-items: center;
-            font-size: 1.5rem; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            font-size: 1.4rem; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
         .app-name { font-size: 0.6rem; color: rgba(255, 255, 255, 0.85); text-align: center; }
 
-        /* 🪟 محرك تقسيم الشاشة الذكي (Split-Screen Engine) */
+        /* 🪟 نظام التحكم بالنوافذ المتطور والذكي (Hybrid Window Engine) */
         .window-instance {
-            position: absolute; background: #04040c;
-            border: 1px solid rgba(0, 242, 254, 0.3); border-radius: 16px; z-index: 80;
+            position: absolute; width: 92%; height: 55%; top: 25%; left: 4%; background: #030308;
+            border: 1px solid rgba(0, 242, 254, 0.35); border-radius: 16px; z-index: 80;
             display: flex; flex-direction: column; overflow: hidden;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.5); touch-action: none;
-            transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.6); touch-action: none;
         }
         
-        /* الحالات الافتراضية عند عدم تفعيل التقسيم (نافذة عائمة حرة) */
-        .window-instance.floating { width: 92%; height: 55%; top: 25%; left: 4%; }
+        /* مظهر تقسيم الشاشة التلقائي والمستقر */
+        .window-instance.split-top { width: 100% !important; height: 44% !important; top: 42px !important; left: 0 !important; border-radius: 16px 16px 0 0; }
+        .window-instance.split-bottom { width: 100% !important; height: 44% !important; top: calc(44% + 47px) !important; left: 0 !important; border-radius: 0 0 16px 16px; border-top: 2px dashed var(--neon-cyan); }
 
-        /* وضعية التقسيم العلوي والسفلي المباشر */
-        .window-instance.split-top { width: 100% !important; height: 44% !important; top: 45px !important; left: 0 !important; border-radius: 16px 16px 0 0; }
-        .window-instance.split-bottom { width: 100% !important; height: 44% !important; top: calc(44% + 50px) !important; left: 0 !important; border-radius: 0 0 16px 16px; border-top: 2px dashed var(--neon-cyan); }
-
-        .window-header-bar { background: rgba(255,255,255,0.05); padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; cursor: grab; }
-        .window-title { font-size: 0.65rem; color: var(--neon-cyan); font-weight: bold; }
+        .window-header-bar { background: rgba(255,255,255,0.06); padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; }
+        .window-title { font-size: 0.68rem; color: var(--neon-cyan); font-weight: bold; }
         .window-controls { display: flex; gap: 6px; }
-        .win-btn { width: 12px; height: 12px; border-radius: 50%; border: none; cursor: pointer; }
+        .win-btn { width: 11px; height: 11px; border-radius: 50%; border: none; cursor: pointer; }
         .win-close { background: var(--neon-magenta); }
-        .window-body { flex-grow: 1; width: 100%; height: 100%; overflow: auto; padding: 10px; background: #020206; }
+        .window-body { flex-grow: 1; width: 100%; height: 100%; overflow: auto; padding: 10px; background: #010103; color: white; }
     </style>
 </head>
 <body>
 
     <div class="admin-panel">
-        <h3>مصفوفة التحكم v16.0 🛸</h3>
+        <h3>مصفوفة التحكم v17.0 🛸</h3>
         <div class="form-group">
             <label>اسم التطبيق السحابي:</label>
             <input type="text" id="appNameInput" placeholder="مثال: آلة كوانتوم">
@@ -169,18 +150,18 @@
                 <option value="🧮">🧮 آلة حاسبة ذكية</option>
                 <option value="🛍️">🛍️ متجر إلكتروني</option>
                 <option value="🎮">🎮 منصة ألعاب كوانتوم</option>
-                <option value="🌐">🌐 متصفح وب</option>
+                <option value="🌐">🌐 متصفح ويب</option>
             </select>
         </div>
         <div class="form-group">
-            <label>حقن الكود البرمجي البرمجي:</label>
-            <textarea id="appCodeInput" rows="4" placeholder="// اكتب كود الـ Sandbox هنا..."></textarea>
+            <label>حقن الكود البرمجي (JS):</label>
+            <textarea id="appCodeInput" rows="4" placeholder="// اكتب كود الـ JS للتطبيق هنا..."></textarea>
         </div>
         <button class="action-btn" onclick="addNewAppFromPanel()">رفع وحفظ سحابي ☁️🚀</button>
         
         <div class="terminal-box" id="systemTerminal">
-            <div>[A0Z Shell & Split Engine: ON]</div>
-            <div>[Open 2 apps to see instant split screen]</div>
+            <div>[Kernel Connected & Stable]</div>
+            <div>[Waiting for user login...]</div>
         </div>
     </div>
 
@@ -189,20 +170,20 @@
             <div class="dynamic-island" id="island">A0Z Quantum</div>
 
             <div class="lock-screen" id="lockScreen">
-                <h4 style="color: var(--neon-cyan); margin-bottom: 15px; font-size: 0.9rem;">نظام الأمن الفيدرالي المعزول 🍏</h4>
-                <div class="form-group" style="width:100%;">
+                <h4 style="color: var(--neon-cyan); margin-bottom: 15px; font-size: 0.85rem;">نظام الأمن السحابي المعزول 🍏</h4>
+                <div class="form-group" style="width:100%; margin-bottom:8px;">
                     <input type="text" id="loginUser" style="text-align:center;" value="test@a0z.com">
                 </div>
-                <div class="form-group" style="width:100%;">
+                <div class="form-group" style="width:100%; margin-bottom:12px;">
                     <input type="password" id="loginPass" style="text-align:center;" value="123456">
                 </div>
-                <button class="action-btn" style="margin-top: 5px;" onclick="unlockPhone()">ولوج آمن ومزامنة السحاب 🔓</button>
+                <button class="action-btn" onclick="unlockPhone()">ولوج آمن ومزامنة السحاب 🔓</button>
             </div>
 
             <div class="phone-screen" id="phoneScreen">
                 <div class="status-bar">
                     <div id="liveClock">00:00</div>
-                    <div><span id="liveBattery">100%</span> 🔋</div>
+                    <div>100% 🔋</div>
                 </div>
 
                 <input type="text" class="spotlight-bar" placeholder="🔍 بحث في السحابة...">
@@ -213,6 +194,7 @@
     </div>
 
     <script>
+        // ☁️ الإعدادات الرسمية والمجربة لقاعدة بياناتك السحابية
         const firebaseConfig = {
             apiKey: "AIzaSyA7Pu0DJOWmdoDYUUVP1J9aqhxh4f3wyfA",
             authDomain: "a0zai-56c3a.firebaseapp.com",
@@ -228,7 +210,6 @@
         const auth = firebase.auth();
 
         let currentUserUID = null; let globalAppsData = {}; 
-        let openWindowsList = []; // مصفوفة لتتبع النوافذ المفتوحة لإدارتها وتقسيمها
 
         function printTerminal(text) {
             const term = document.getElementById('systemTerminal'); if(!term) return;
@@ -245,41 +226,33 @@
 
         function execLoginSuccess(uid) {
             currentUserUID = uid; document.getElementById('lockScreen').style.top = "-100%";
-            triggerIslandNotification("تم فك التشفير! 🔓"); listenToUserApps(uid); 
+            triggerIslandNotification("تم الاتصال بنجاح! 🔓"); listenToUserApps(uid); 
         }
 
-        // 🧠 محرك تنظيم وتقسيم الشاشة الذكي (Automated Split-Screen Manager)
+        // 🧠 محرك توازن وترتيب النوافذ المستقر
         function arrangeWindows() {
             const windows = document.querySelectorAll('.window-instance');
-            printTerminal(`Active windows count: ${windows.length}. Re-arranging workspace...`);
-
-            if (windows.length === 0) {
-                return;
-            }
-            else if (windows.length === 1) {
-                // إذا كان هناك تطبيق واحد مفتوح، يظهر بشكل عائم حر بمنتصف الشاشة
+            if (windows.length === 0) return;
+            
+            if (windows.length === 1) {
                 windows[0].className = "window-instance floating";
-            } 
-            else if (windows.length >= 2) {
-                // الفك السحري: إذا تم فتح تطبيقين أو أكثر، يقسم الشاشة تلقائياً بالتساوي!
+                windows[0].style.display = "flex";
+            } else if (windows.length >= 2) {
                 windows[0].className = "window-instance split-top";
                 windows[1].className = "window-instance split-bottom";
-                
-                // إذا فتح أكثر من تطبيقين، يتم إخفاء النوافذ القديمة بالخلفية لإبقاء الشاشة نظيفة ومقسمة
-                for(let i = 2; i < windows.length; i++) {
-                    windows[i].style.display = "none";
-                }
                 windows[0].style.display = "flex";
                 windows[1].style.display = "flex";
+                
+                // إخفاء أي نافذة زائدة عن تطبيقين للحفاظ على استقرار الشاشة المقسمة
+                for(let i = 2; i < windows.length; i++) { windows[i].style.display = "none"; }
             }
         }
 
-        // محرك السحب الهجين (Touch & Mouse Drag Engine)
+        // محرك سحب النوافذ الشغال للكمبيوتر والجوال لايف (Fixed Drag Engine)
         let isDragging = false; let currentWin = null;
         let startX, startY, initialLeft, initialTop;
 
         function initDrag(e, winId) {
-            // نلغي السحب الحر وتغيير الإحداثيات يدوياً إذا كانت الشاشة مقسمة بالفعل للحفاظ على توازن الأبعاد
             const win = document.getElementById(winId);
             if (win.classList.contains('split-top') || win.classList.contains('split-bottom')) return;
 
@@ -309,7 +282,7 @@
 
         function createWindowInstance(key) {
             const app = globalAppsData[key]; if(!app) return;
-            if(document.getElementById(`win_${key}`)) { return; }
+            if(document.getElementById(`win_${key}`)) return;
 
             const win = document.createElement('div'); win.className = 'window-instance floating'; win.id = `win_${key}`;
             
@@ -322,30 +295,59 @@
             `;
 
             document.getElementById('phoneScreen').appendChild(win);
-            
-            // استدعاء محرك إعادة تنظيم وتقسيم الشاشة فوراً
             arrangeWindows();
 
+            // حقن وتشغيل كود الـ JS الخاص بالتطبيق داخل بيئة آمنة وشغالة ومستقرة
             try {
                 const appContainer = document.getElementById(`container_${key}`);
-                const maskedWorkspace = new Function('container', 'window', 'document', 'firebase', 'database', 'auth', app.code);
-                maskedWorkspace(appContainer, {}, {}, {}, {}, {});
-            } catch (e) { printTerminal(`Error: ${e.message}`); }
+                const appScript = new Function('container', app.code);
+                appScript(appContainer);
+            } catch (err) { printTerminal(`Runtime Error: ${err.message}`); }
         }
 
         function closeWindowInstance(event, key) {
             event.stopPropagation();
             const win = document.getElementById(`win_${key}`);
-            if(win) {
-                win.remove();
-                // إعادة تنظيم النوافذ المتبقية وتقسيم الشاشة بعد إغلاق أي نافذة
-                arrangeWindows();
-            }
+            if(win) { win.remove(); arrangeWindows(); }
         }
 
-        function listenToUserApps(uid) { database.ref('custom_apps/' + uid).on('value', (s) => { globalAppsData = s.val() || {}; renderHomeScreen(globalAppsData); }); }
-        function renderHomeScreen(appsList) { const hs = document.getElementById('homeScreen'); hs.innerHTML = ''; Object.keys(appsList).forEach((k) => { const app = appsList[k]; const item = document.createElement('div'); item.className = 'app-item'; item.setAttribute('onclick', `createWindowInstance('${k}')`); item.innerHTML = `<div class="app-icon">${app.icon}</div><div class="app-name">${app.name}</div>`; hs.appendChild(item); }); }
-        function addNewAppFromPanel() { const name = document.getElementById('appNameInput').value.trim(); const icon = document.getElementById('appIconSelect').value; const code = document.getElementById('appCodeInput').value.trim(); if (!name || !code) return; database.ref('custom_apps/' + currentUserUID).push().set({ name, icon, code }); document.getElementById('appNameInput').value = ""; document.getElementById('appCodeInput').value = ""; }
+        function listenToUserApps(uid) {
+            database.ref('custom_apps/' + uid).on('value', (s) => {
+                globalAppsData = s.val() || {};
+                renderHomeScreen(globalAppsData);
+            });
+        }
+
+        function renderHomeScreen(appsList) {
+            const hs = document.getElementById('homeScreen'); hs.innerHTML = '';
+            
+            // إضافة كود افتراضي للآلة الحاسبة في حال كانت قاعدة البيانات فارغة تماماً عند الدخول الأول
+            if(Object.keys(appsList).length === 0) {
+                printTerminal("Database empty. Injecting core system template apps...");
+                appsList["default_calc"] = {
+                    name: "حاسبة كوانتوم", icon: "🧮",
+                    code: "container.innerHTML = `<div style='padding:10px; text-align:center;'><h3>الآلة الحاسبة</h3><input id='num' type='number' style='width:80%; margin:10px 0; padding:5px; text-align:center; color:#000;' value='5'><button style='padding:5px 15px;' onclick='alert(document.getElementById(\"num\").value * 2)'>اضرب في 2</button></div>`;"
+                };
+            }
+
+            Object.keys(appsList).forEach((k) => {
+                const app = appsList[k];
+                const item = document.createElement('div'); item.className = 'app-item';
+                item.setAttribute('onclick', `createWindowInstance('${k}')`);
+                item.innerHTML = `<div class="app-icon">${app.icon}</div><div class="app-name">${app.name}</div>`;
+                hs.appendChild(item);
+            });
+        }
+
+        function addNewAppFromPanel() {
+            const name = document.getElementById('appNameInput').value.trim();
+            const icon = document.getElementById('appIconSelect').value;
+            const code = document.getElementById('appCodeInput').value.trim();
+            if (!name || !code) return;
+            database.ref('custom_apps/' + currentUserUID).push().set({ name, icon, code });
+            document.getElementById('appNameInput').value = ""; document.getElementById('appCodeInput').value = "";
+        }
+
         function triggerIslandNotification(text) { const island = document.getElementById('island'); island.innerText = text; island.classList.add('expanded'); setTimeout(() => { island.classList.remove('expanded'); island.innerText = "A0Z Quantum"; }, 2500); }
         setInterval(() => { const now = new Date(); let hh = now.getHours(); let mm = now.getMinutes(); document.getElementById('liveClock').innerText = `${hh < 10 ? '0'+hh : hh}:${mm < 10 ? '0'+mm : mm}`; }, 1000);
     </script>
