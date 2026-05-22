@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
-    <title>A0Z Quantum OS v27.4 - Zulu Chat Edition</title>
+    <title>A0Z Quantum OS</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -15,13 +15,17 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
     <script>
+        // هندسة المانيفست الديناميكية: فحص ما إذا كان المستخدم يفتح تطبيقاً مخصصاً على شاشة الهاتف مباشرة
+        const urlParams = new URLSearchParams(window.location.search);
+        const appToRun = urlParams.get('run');
+
         const manifest = {
-            "short_name": "A0Z OS v27.4",
-            "name": "A0Z Quantum OS v27.4",
+            "short_name": appToRun ? appToRun.charAt(0).toUpperCase() + appToRun.slice(1) : "A0Z OS v27.4",
+            "name": appToRun ? `${appToRun} App (A0Z Custom)` : "A0Z Quantum OS v27.4",
             "icons": [
-                { "src": "https://img.icons8.com/neon/512/quantum-computing.png", "type": "image/png", "sizes": "512x512" }
+                { "src": appToRun ? "https://img.icons8.com/neon/512/rocket.png" : "https://img.icons8.com/neon/512/quantum-computing.png", "type": "image/png", "sizes": "512x512" }
             ],
-            "start_url": window.location.href,
+            "start_url": window.location.href, // لحفظ المسار الدقيق بالتطبيق لتشغيله مباشرة من الهاتف
             "background_color": "#010103",
             "theme_color": "#00f2fe",
             "display": "standalone",
@@ -47,6 +51,11 @@
         * {
             box-sizing: border-box; margin: 0; padding: 0;
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+            -webkit-user-select: none; user-select: none; touch-action: manipulation;
+        }
+
+        input, textarea, .terminal-box, #chatMessageGrid, #coreAiChatGrid, select {
+            -webkit-user-select: text; user-select: text;
         }
 
         body {
@@ -158,6 +167,18 @@
         .action-btn { width: 100%; padding: 12px; background: linear-gradient(135deg, var(--neon-cyan), #4facfe); border: none; border-radius: 6px; color: #000; font-weight: bold; font-size: 0.75rem; cursor: pointer; font-family: monospace; }
         .info-btn { width: 100%; padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--neon-cyan); border-radius: 6px; color: var(--neon-cyan); font-size: 0.7rem; cursor: pointer; font-weight: bold; margin-top: 5px; }
         .sys-msg { color: var(--neon-magenta); font-size: 0.7rem; text-align: center; font-weight: bold; }
+        .choice-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); backdrop-filter: blur(10px);
+            z-index: 200; display: flex; justify-content: center; align-items: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s ease; padding: 20px;
+        }
+        .choice-overlay.active { opacity: 1; pointer-events: auto; }
+        .choice-box {
+            background: #070714; border: 2px solid var(--neon-cyan); border-radius: 20px;
+            padding: 24px; width: 100%; max-width: 320px; text-align: center;
+            box-shadow: 0 0 30px rgba(0, 242, 254, 0.3); display: flex; flex-direction: column; gap: 14px;
+        }
     </style>
 </head>
 <body>
@@ -165,6 +186,16 @@
     <div class="phone-container">
         <div class="phone">
             <div class="dynamic-island" id="island">A0Z Zulu v27.4</div>
+
+            <div class="choice-overlay" id="destinationChoiceOverlay">
+                <div class="choice-box">
+                    <h3 style="color: var(--neon-cyan); font-size: 0.95rem;">تثبيت التطبيق الجديد 🛸</h3>
+                    <p style="font-size: 0.75rem; color: #aaa; line-height: 1.4;" id="choiceBoxDesc">أين تريد تثبيت هذا التطبيق بموافقتك؟</p>
+                    <button class="action-btn" style="background: linear-gradient(135deg, #ffcc00, #ffaa00);" onclick="confirmDeployDestination('in-app')">داخل نظام A0Z 📱</button>
+                    <button class="action-btn" onclick="confirmDeployDestination('home-screen')">على الشاشة الرئيسية للهاتف 📲</button>
+                    <button class="win-btn" style="background: #333;" onclick="hideDeployChoiceBox()">إلغاء الأمر</button>
+                </div>
+            </div>
 
             <div class="lock-screen" id="lockScreen">
                 <div class="lock-time" id="lockClock">00:00</div>
@@ -175,7 +206,7 @@
                     <input type="email" id="loginUser" style="width:100%; padding:12px; background:#000; border:1px solid var(--glass-border); border-radius:8px; color:#fff; text-align:center; outline:none; margin-bottom:10px;" placeholder="E-mailadres">
                     <input type="password" id="loginPass" style="width:100%; padding:12px; background:#000; border:1px solid var(--glass-border); border-radius:8px; color:#fff; text-align:center; outline:none; margin-bottom:15px;" placeholder="Wachtwoord">
                     <button class="action-btn" style="color:#000;" onclick="unlockWithOfficialEmail()">Inloggen 🍏</button>
-                    <button class="info-btn" onclick="showAboutUs()">Over ons ℹ️</button>
+                    <button class="info-btn" onclick="showAboutUs()">Over ons ℹ dependency</button>
                     <div id="lockScreenFeedback" class="sys-msg" style="margin-top:10px;"></div>
                 </div>
             </div>
@@ -234,7 +265,7 @@
                 <div class="window-body" style="background:#020208; display:flex; flex-direction:column; height:100%;">
                     <div id="coreAiChatGrid" style="flex-grow:1; overflow-y:auto; padding:15px; display:flex; flex-direction:column; gap:10px; font-size:0.75rem;">
                         <div style="align-self: flex-start; background: rgba(255,255,255,0.06); color: #fff; padding: 10px; border-radius: 12px 12px 12px 0; max-width: 85%;">
-                            Hallo King! 🤖 Zulu Chat Rooms zijn nu live! Switch van kamers en geniet van de retro-stijl! ⚡
+                            Hallo youu! ⚡🤖...
                         </div>
                     </div>
                     <div id="coreAiTyping" style="padding:0 15px; font-size:0.65rem; color:var(--neon-cyan); display:none; font-family:monospace;">AI denkt na... 🧠⚡</div>
@@ -273,8 +304,9 @@
         
         let currentUserUID = null; let currentUserEmail = "";
         let globalAppsData = {};
-        let currentActiveRoom = "General"; // الغرفة الافتراضية لشات زولو
+        let currentActiveRoom = "General"; 
         let currentChatListenerRef = null;
+        let tempAppData = null; // وعاء مؤقت لحفظ الكود أثناء اتخاذ المستخدم لقراره
 
         function showAboutUs() {
             alert(". MVG: Only brother");
@@ -442,24 +474,72 @@
             input.onkeypress = (e) => { if(e.key === 'Enter') sendAction(); }
         }
 
+        // 🚀 دالة الفتح والتحضير وخيار المطور الجديد
         function addNewAppFromPanel() {
             const mode = document.getElementById('appSelector').value;
             const name = document.getElementById('appNameInput').value.trim();
             const code = document.getElementById('appCodeInput').value.trim();
             if (!name || !code) { alert("Vul alles in!"); return; }
 
-            if(mode === 'new') {
-                database.ref('custom_apps/' + currentUserUID).push().set({ name, code })
-                .then(() => {
-                    document.getElementById('appNameInput').value = ""; document.getElementById('appCodeInput').value = "";
-                    alert("App succesvol geïnjecteerd via CMD! 🚀");
-                });
-            } else {
-                database.ref(`custom_apps/${currentUserUID}/${mode}`).set({ name, code })
-                .then(() => {
-                    alert("App succesvol GEUPDATE via CMD! ⚡🔄");
-                });
+            // تخزين البيانات مؤقتاً في الذاكرة لعرض الخيارات
+            tempAppData = { mode, name, code };
+            
+            // فتح شاشة الاختيار المنبثقة
+            document.getElementById('choiceBoxDesc').innerText = `Waar wilt u [ ${name} ] installeren? Kies de gewenste bestemming:`;
+            document.getElementById('destinationChoiceOverlay').classList.add('active');
+        }
+
+        function hideDeployChoiceBox() {
+            document.getElementById('destinationChoiceOverlay').classList.remove('active');
+            tempAppData = null;
+        }
+
+        // 📲 تأكيد الاختيار من المستخدم وبدء هندسة الـ Injection الفورية
+        function confirmDeployDestination(target) {
+            if (!tempAppData) return;
+            const { mode, name, code } = tempAppData;
+            hideDeployChoiceBox();
+
+            if (target === 'in-app') {
+                // الخيار 1: الحقن العادي داخل التطبيق والموقع عندك كما كان سابقاً
+                if(mode === 'new') {
+                    database.ref('custom_apps/' + currentUserUID).push().set({ name, code })
+                    .then(() => {
+                        alert(`[ ${name} ] succesvol geïnjecteerd in A0Z Workspace! 🚀`);
+                        clearCmdInputs();
+                    });
+                } else {
+                    database.ref(`custom_apps/${currentUserUID}/${mode}`).set({ name, code })
+                    .then(() => {
+                        alert(`[ ${name} ] succesvol GEUPDATE in A0Z Workspace! ⚡🔄`);
+                        clearCmdInputs();
+                    });
+                }
+            } else if (target === 'home-screen') {
+                // الخيار 2: التثبيت الصاروخي على شاشة الموبايل الرئيسية عبر هندسة الـ Dynamic Routing
+                const generatedUrl = `${window.location.origin}${window.location.pathname}?run=${encodeURIComponent(name)}`;
+                
+                // نقوم برفع الكود أولاً كاحتياط للمزامنة التلقائية
+                database.ref('custom_apps/' + currentUserUID + '/pwa_' + name).set({ name, code });
+
+                // إخراج الرابط التفاعلي في الـ Terminal ليقوم المستخدم بالضغط عليه وتثبيته فوراً بلمسة واحدة
+                const terminal = document.getElementById('systemTerminal');
+                terminal.innerHTML += `
+                    <div style="margin-top:10px; padding:12px; background:rgba(0,242,254,0.12); border:1px dashed var(--neon-cyan); border-radius:8px; font-family:monospace;">
+                        <span style="color:#fff; font-weight:bold;">[SYSTEM]: Ready for Mobile Screen Deployment! 📲</span><br>
+                        <a href="${generatedUrl}" target="_blank" style="color:var(--zulu-yellow); font-size:0.7rem; word-break:break-all; display:block; margin-top:6px; text-decoration:underline;">Klik hier om de installatiepagina op uw telefoon te openen 🔗</a>
+                    </div>
+                `;
+                terminal.scrollTop = terminal.scrollHeight;
+                alert("Installatielink gegenereerd in de CMD Terminal! Klik erop om het op uw startscherm te plaatsen. 📱⚡");
+                clearCmdInputs();
             }
+        }
+
+        function clearCmdInputs() {
+            document.getElementById('appNameInput').value = ""; 
+            document.getElementById('appCodeInput').value = "";
+            document.getElementById('appSelector').value = 'new';
         }
 
         function deleteCustomApp(appKey, appName) {
@@ -516,12 +596,10 @@
             roomSelector.value = currentActiveRoom;
             currentRoomLabel.innerText = roomSelector.options[roomSelector.selectedIndex].text.split(':')[0];
 
-            // مراقبة المستخدمين المتصلين بالمنظومة
             database.ref('chat_presence').on('value', (s) => { const count = s.numChildren() || 1; if(counterLabel) counterLabel.innerText = `Online: ${count} 👥`; });
 
-            // دالة ربط وسحب الرسائل للغرفة المحددة
             function listenToRoomMessages(roomName) {
-                if(currentChatListenerRef) { currentChatListenerRef.off(); } // قطع الاتصال بالغرفة القديمة أولاً
+                if(currentChatListenerRef) { currentChatListenerRef.off(); } 
                 
                 currentChatListenerRef = database.ref(`zulu_rooms_chat/${roomName}`).limitToLast(40);
                 currentChatListenerRef.on('value', (s) => {
@@ -530,7 +608,6 @@
                         const m = data[key]; const msgRow = document.createElement('div'); const isMe = m.user === currentUserEmail;
                         msgRow.style.alignSelf = isMe ? 'flex-end' : 'flex-start';
                         
-                        // تخصيص الألوان على حسب أسلوب شات زولو القديم
                         if (isMe) {
                             msgRow.style.background = 'linear-gradient(135deg, #ffcc00, #ffaa00)';
                             msgRow.style.color = '#000';
@@ -547,10 +624,8 @@
                 });
             }
 
-            // تفعيل مستمع الرسائل للغرفة الحالية
             listenToRoomMessages(currentActiveRoom);
 
-            // عند تغيير الغرفة من القائمة
             roomSelector.onchange = () => {
                 currentActiveRoom = roomSelector.value;
                 currentRoomLabel.innerText = roomSelector.options[roomSelector.selectedIndex].text.split('[')[1]?.replace(']', '') || currentActiveRoom;
@@ -566,6 +641,20 @@
             sendBtn.onclick = transmitMsg;
             msgInput.onkeypress = (e) => { if(e.key === 'Enter') transmitMsg(); }
         }
+
+        // 🛸 التحميل التلقائي للتطبيقات المثبتة خارجياً عند فتح رابط الموبايل المباشر
+        window.addEventListener('DOMContentLoaded', () => {
+            if (appToRun) {
+                document.getElementById('lockScreen').style.display = 'none';
+                const checkExist = setInterval(() => {
+                    if (globalAppsData && Object.keys(globalAppsData).length > 0) {
+                        clearInterval(checkExist);
+                        const targetKey = Object.keys(globalAppsData).find(k => globalAppsData[k].name.toLowerCase() === appToRun.toLowerCase() || k === 'pwa_' + appToRun);
+                        if (targetKey) launchCustomApp(targetKey);
+                    }
+                }, 300);
+            }
+        });
 
         setInterval(() => { 
             const now = new Date(); let hh = now.getHours(); let mm = now.getMinutes(); 
