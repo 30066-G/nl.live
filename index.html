@@ -528,49 +528,80 @@
         }
 
 
-        function openChatWindow() {
-            document.getElementById('win_chat').classList.add('open');
-            renderChatInterface();
-        }
+let currentChatListenerRef = null; 
 
-        function closeAppWindow(id) { document.getElementById('win_' + id).classList.remove('open'); }
+function launchGlobalChatEngine() {
+    document.getElementById('win_global_chat').classList.add('open');
+    
+    const container = document.getElementById('chatContainer');
+    container.innerHTML = `
+        <div style="padding: 15px; display:flex; flex-direction:column; height:100%;">
+            <input type="text" id="rCode" placeholder="Room ID" style="width:100%; padding:10px; margin-bottom:5px; background:#111; color:#fff; border:1px solid #444; border-radius:5px;">
+            <input type="password" id="rPass" placeholder="Password (Required)" style="width:100%; padding:10px; margin-bottom:10px; background:#111; color:#fff; border:1px solid #444; border-radius:5px;">
+            <button class="action-btn" onclick="joinRoom()" style="margin-bottom:10px;">Enter Private Room</button>
+            <div id="msgLog" style="flex-grow:1; overflow-y:auto; font-size:0.7rem; color:#fff; background:#050505; padding:10px; border-radius:5px; border:1px solid #222;"></div>
+            <div style="display:flex; margin-top:10px;">
+                <input type="text" id="msgInput" placeholder="Message..." style="flex-grow:1; padding:10px; background:#111; color:white; border:1px solid #444; border-radius:5px;">
+                <button onclick="sendPrivateMsg()" style="background:var(--zulu-yellow); border:none; padding:10px; color:#000; font-weight:bold; border-radius:5px;">Send</button>
+            </div>
+            <button onclick="leaveRoom()" style="background:#555; border:none; padding:8px; color:white; font-size:0.6rem; margin-top:10px; border-radius:5px;">Leave Room</button>
+        </div>
+    `;
 
-        function renderChatInterface() {
-            const container = document.getElementById('chatContainer');
-            container.innerHTML = `
-                <input type="text" id="rCode" class="input-style" placeholder="Room ID">
-                <input type="password" id="rPass" class="input-style" placeholder="Password (Optional)">
-                <button class="action-btn" onclick="joinRoom()">Join/Create Room</button>
-                <div id="msgLog" style="margin-top:20px; font-size:0.7rem; height: 300px; overflow-y: auto;"></div>
-            `;
-        }
+    document.getElementById('msgInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') sendPrivateMsg();
+    });
+}
 
-        async function joinRoom() {
-            const id = document.getElementById('rCode').value;
-            const pass = document.getElementById('rPass').value;
-            const roomRef = database.ref('rooms/' + id);
-            
-            const snapshot = await roomRef.once('value');
-            if(snapshot.exists()) {
-                const roomData = snapshot.val();
-                if(roomData.password && roomData.password !== pass) {
-                    alert("Wrong Password!");
-                    return;
-                }
-            } else {
-                await roomRef.set({ password: pass });
-            }
-            currentRoom = id;
-            startChatSession();
+async function joinRoom() {
+    const id = document.getElementById('rCode').value.trim();
+    const pass = document.getElementById('rPass').value;
+    if(!id || !pass) { alert("Room ID & Password are required!"); return; }
+    
+    if (currentChatListenerRef) currentChatListenerRef.off();
+    
+    const roomRef = database.ref('rooms/' + id);
+    const snapshot = await roomRef.once('value');
+    
+    if(snapshot.exists()) {
+        if(snapshot.val().password !== pass) {
+            alert("Access Denied: Incorrect Password");
+            return;
         }
+    } else {
+        await roomRef.set({ password: pass });
+    }
+    
+    currentActiveRoom = id;
+    document.getElementById('msgLog').innerHTML = "Connected to private room: " + id + "<br>---";
+    currentChatListenerRef = database.ref('chat/' + id);
+    currentChatListenerRef.on('child_added', (s) => {
+        const m = s.val();
+        document.getElementById('msgLog').innerHTML += `<br><b>${m.user}:</b> ${m.text}`;
+        document.getElementById('msgLog').scrollTop = document.getElementById('msgLog').scrollHeight;
+    });
+}
 
-        function startChatSession() {
-            document.getElementById('msgLog').innerHTML = "Connected to " + currentRoom;
-            database.ref('chat/' + currentRoom).on('child_added', (s) => {
-                const m = s.val();
-                document.getElementById('msgLog').innerHTML += `<br><b>${m.user}:</b> ${m.text}`;
-            });
-        }
+function sendPrivateMsg() {
+    const msgInput = document.getElementById('msgInput');
+    const text = msgInput.value.trim();
+    if(!text || !currentActiveRoom) { alert("Please join a room first!"); return; }
+    
+    database.ref('chat/' + currentActiveRoom).push().set({
+        user: currentUserEmail || "Guest",
+        text: text,
+        timestamp: firebase.database.ServerValue.TIMESTAMP
+    });
+    msgInput.value = '';
+}
+
+function leaveRoom() {
+    if (currentChatListenerRef) currentChatListenerRef.off();
+    currentActiveRoom = null;
+    document.getElementById('msgLog').innerHTML = "Disconnected.";
+    alert("You have left the room.");
+}
+
    
         window.addEventListener('DOMContentLoaded', () => {
             if (appToRun) {
