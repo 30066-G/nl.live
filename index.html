@@ -3,42 +3,268 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
-    <title>A0Z Quantum OS v28</title>
+    <title>A0Z</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="A0Z OS">
+    <meta name="mobile-web-app-capable" content="yes">
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const appToRun = urlParams.get('run');
+
+        const manifest = {
+            "short_name": appToRun ? appToRun.charAt(0).toUpperCase() + appToRun.slice(1) : "A0Z OS v27.4",
+            "name": appToRun ? `${appToRun} App (A0Z Custom)` : "A0Z Quantum OS v27.4",
+            "icons": [
+                { "src": appToRun ? "https://img.icons8.com/neon/512/rocket.png" : "https://img.icons8.com/neon/512/quantum-computing.png", "type": "image/png", "sizes": "512x512" }
+            ],
+            "start_url": window.location.href, // لحفظ المسار الدقيق بالتطبيق لتشغيله مباشرة من الهاتف
+            "background_color": "#010103",
+            "theme_color": "#00f2fe",
+            "display": "standalone",
+            "orientation": "portrait"
+        };
+        const blob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
+        const relManifest = document.createElement('link');
+        relManifest.setAttribute('rel', 'manifest');
+        relManifest.setAttribute('href', URL.createObjectURL(blob));
+        document.head.appendChild(relManifest);
+    </script>
+
     <style>
-        :root { --neon-cyan: #00f2fe; --neon-magenta: #ff3366; --neon-green: #11ffbd; --zulu-yellow: #ffcc00; }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; -webkit-user-select: none; user-select: none; }
-        body { background: #000; height: 100vh; display: flex; justify-content: center; align-items: center; color: white; overflow: hidden; }
-        .phone-container { width: 100vw; height: 100vh; position: relative; }
-        @media (min-width: 450px) { .phone-container { width: 380px; height: 680px; border: 12px solid #2e2e33; border-radius: 50px; } }
+        :root {
+            --neon-cyan: #00f2fe;
+            --neon-magenta: #ff3366;
+            --neon-green: #11ffbd;
+            --zulu-yellow: #ffcc00;
+            --glass-bg: rgba(5, 5, 15, 0.85);
+            --glass-border: rgba(0, 242, 254, 0.3);
+        }
+
+        * {
+            box-sizing: border-box; margin: 0; padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+            -webkit-user-select: none; user-select: none; touch-action: manipulation;
+        }
+
+        input, textarea, .terminal-box, #chatMessageGrid, #coreAiChatGrid, select {
+            -webkit-user-select: text; user-select: text;
+        }
+
+        body {
+            background: #000;
+            height: 100vh; display: flex; justify-content: center; align-items: center;
+            color: white; overflow: hidden;
+        }
+
+        .phone-container {
+            width: 100vw; height: 100vh; background: #000; position: relative;
+        }
+
+        @media (min-width: 450px) {
+            body { background: radial-gradient(circle at center, #0c0c28 0%, #010105 100%); }
+            .phone-container { width: 380px; height: 680px; border: 12px solid #2e2e33; border-radius: 50px; box-shadow: 0 40px 90px rgba(0,0,0,0.8); }
+        }
+
         .phone { width: 100%; height: 100%; position: relative; overflow: hidden; border-radius: inherit; }
-        .window-instance { position: absolute; width: 100%; height: 100%; top: 0; left: 0; background: #000; z-index: 80; transform: translateY(100%); transition: transform 0.3s; display: flex; flex-direction: column; }
+
+        .dynamic-island {
+            width: 110px; height: 28px; background: #000; border-radius: 20px;
+            position: absolute; top: 11px; left: 50%; transform: translateX(-50%); z-index: 100;
+            display: flex; justify-content: center; align-items: center; font-size: 0.65rem; color: var(--neon-green); pointer-events: none;
+        }
+
+        .lock-screen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: url('121.GIF') center center / cover no-repeat, #03030a;
+            z-index: 95; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; padding: 30px; transition: transform 0.5s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+        .lock-time { font-size: 3rem; font-weight: 200; color: white; margin-bottom: 2px; text-shadow: 0 2px 10px rgba(0,0,0,0.9); }
+        .lock-date { font-size: 0.85rem; color: #fff; margin-bottom: 25px; text-shadow: 0 1px 5px rgba(0,0,0,0.9); }
+
+        .lock-blur-box {
+            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 20px; padding: 20px; width: 100%; display: flex; flex-direction: column; align-items: center;
+        }
+
+        .phone-screen {
+            width: 100%; height: 100%; display: flex; flex-direction: column;
+            padding: 50px 14px 20px 14px;
+            background: url('121.GIF') center center / cover no-repeat, #03030a;
+            position: relative; z-index: 5;
+        }
+
+        .status-bar { display: flex; justify-content: space-between; font-size: 0.7rem; color: white; z-index: 40; margin-bottom: 25px; text-shadow: 0 1px 4px rgba(0,0,0,0.8); pointer-events: none; }
+
+        .home-screen {
+            position: relative; z-index: 10; flex-grow: 1; display: grid; grid-template-columns: repeat(4, 1fr);
+            grid-auto-rows: max-content; gap: 20px 12px; overflow-y: auto;
+        }
+        .app-item { position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+        .app-icon {
+            width: 55px; height: 55px; border-radius: 15px; background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2); display: flex; justify-content: center; align-items: center;
+            font-size: 1.6rem; box-shadow: 0 6px 12px rgba(0,0,0,0.6); pointer-events: none;
+        }
+        
+        .app-icon-ai {
+            width: 55px; height: 55px; border-radius: 15px; 
+            background: url('121.GIF') center center / cover no-repeat, rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--neon-cyan); display: flex; justify-content: center; align-items: center;
+            font-size: 1.6rem; box-shadow: 0 6px 12px rgba(0,0,0,0.6); pointer-events: none;
+        }
+        .app-name { font-size: 0.65rem; color: #ffffff; text-align: center; text-shadow: 0 2px 4px rgba(0,0,0,1); font-weight: bold; pointer-events: none; }
+        .delete-app-btn {
+            position: absolute; top: -4px; right: -4px; width: 20px; height: 20px;
+            background: var(--neon-magenta); border: 1px solid rgba(255,255,255,0.4);
+            color: white; border-radius: 50%; display: flex; justify-content: center;
+            align-items: center; font-size: 0.55rem; font-weight: bold; z-index: 20;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5); cursor: pointer;
+        }
+
+        .window-instance {
+            position: absolute; width: 100%; height: 100%; top: 0; left: 0; background: #000; 
+            z-index: 80; display: flex; flex-direction: column; overflow: hidden; 
+            padding-top: 40px; transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
         .window-instance.open { transform: translateY(0); }
-        .window-header-bar { background: #0d0d18; padding: 10px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; }
-        .window-body { flex-grow: 1; overflow: auto; padding: 10px; }
-        .action-btn { width: 100%; padding: 10px; background: var(--neon-cyan); border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
-        .input-style { width: 100%; padding: 10px; background: #000; border: 1px solid #444; color: white; border-radius: 6px; margin-bottom: 10px; }
+        .window-header-bar { background: #0d0d18; padding: 12px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .window-title { font-size: 0.75rem; color: var(--neon-cyan); font-weight: bold; font-family: monospace; }
+        .win-btn { padding: 5px 14px; border-radius: 6px; border: none; background: var(--neon-magenta); color: white; font-size: 0.65rem; font-weight: bold; cursor: pointer; }   
+        .window-body { flex-grow: 1; width: 100%; height: 100%; overflow: auto; background: #010103; display: flex; flex-direction: column; }
+        .cmd-body { padding: 12px; display: flex; flex-direction: column; gap: 10px; height: 100%; }
+        .terminal-box { flex-grow: 1; background: #000; border-radius: 6px; padding: 10px; font-family: monospace; font-size: 0.7rem; color: var(--neon-green); overflow-y: auto; border: 1px solid rgba(255,255,255,0.05); }
+        .cmd-inputs { background: #070714; border: 1px solid var(--glass-border); padding: 10px; border-radius: 8px; display: flex; flex-direction: column; gap: 8px; }
+        .cmd-line { display: flex; align-items: center; gap: 6px; }
+        .cmd-label { font-family: monospace; font-size: 0.7rem; color: var(--neon-cyan); white-space: nowrap; }
+        .cmd-input { flex-grow: 1; background: transparent; border: none; color: #fff; font-family: monospace; font-size: 0.75rem; outline: none; }
+        .cmd-select { width: 100%; background: #000; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; padding: 6px; color: var(--neon-cyan); font-size: 0.7rem; outline: none; font-family: monospace; }
+        .cmd-text { width: 100%; height: 120px; background: #000; border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; color: var(--neon-green); font-family: monospace; font-size: 0.7rem; padding: 6px; resize: none; outline: none; }
+        .window-instance-runtime { z-index: 85; }
+        .action-btn { width: 100%; padding: 12px; background: linear-gradient(135deg, var(--neon-cyan), #4facfe); border: none; border-radius: 6px; color: #000; font-weight: bold; font-size: 0.75rem; cursor: pointer; font-family: monospace; }
+        .info-btn { width: 100%; padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--neon-cyan); border-radius: 6px; color: var(--neon-cyan); font-size: 0.7rem; cursor: pointer; font-weight: bold; margin-top: 5px; }
+        .sys-msg { color: var(--neon-magenta); font-size: 0.7rem; text-align: center; font-weight: bold; }
+        .choice-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); backdrop-filter: blur(10px);
+            z-index: 200; display: flex; justify-content: center; align-items: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s ease; padding: 20px;
+        }
+        .choice-overlay.active { opacity: 1; pointer-events: auto; }
+        .choice-box {
+            background: #070714; border: 2px solid var(--neon-cyan); border-radius: 20px;
+            padding: 24px; width: 100%; max-width: 320px; text-align: center;
+            box-shadow: 0 0 30px rgba(0, 242, 254, 0.3); display: flex; flex-direction: column; gap: 14px;
+        }
     </style>
 </head>
 <body>
 
     <div class="phone-container">
-        <div class="phone" id="appRoot">
-            <div id="homeScreen" style="padding: 20px;">
-                <button class="action-btn" onclick="openChatWindow()">Open Zulu Chat</button>
+        <div class="phone">
+            <div class="dynamic-island" id="island">A0Z</div>
+            <div class="choice-overlay" id="destinationChoiceOverlay">
+                <div class="choice-box">
+                    <h3 style="color: var(--neon-cyan); font-size: 0.95rem;">تثبيت التطبيق الجديد 🛸</h3>
+                    <p style="font-size: 0.75rem; color: #aaa; line-height: 1.4;" id="choiceBoxDesc">أين تريد تثبيت هذا التطبيق بموافقتك؟</p>
+                    <button class="action-btn" style="background: linear-gradient(135deg, #ffcc00, #ffaa00);" onclick="confirmDeployDestination('in-app')">داخل نظام A0Z 📱</button>
+                    <button class="action-btn" onclick="confirmDeployDestination('home-screen')">على الشاشة الرئيسية للهاتف 📲</button>
+                    <button class="win-btn" style="background: #333;" onclick="hideDeployChoiceBox()">إلغاء الأمر</button>
+                </div>
             </div>
-            <div class="window-instance" id="win_chat">
+
+            <div class="lock-screen" id="lockScreen">
+                <div class="lock-time" id="lockClock">00:00</div>
+                <div class="lock-date" id="lockDate">Donderdag, 21 mei</div>
+                
+                <div class="lock-blur-box">
+                    <h4 style="color: var(--neon-cyan); margin-bottom: 15px; font-size: 0.85rem; font-weight: 800;">Cloud Workspace v27.4 🔐</h4>
+                    <input type="email" id="loginUser" style="width:100%; padding:12px; background:#000; border:1px solid var(--glass-border); border-radius:8px; color:#fff; text-align:center; outline:none; margin-bottom:10px;" placeholder="E-mailadres">
+                    <input type="password" id="loginPass" style="width:100%; padding:12px; background:#000; border:1px solid var(--glass-border); border-radius:8px; color:#fff; text-align:center; outline:none; margin-bottom:15px;" placeholder="Wachtwoord">
+                    <button class="action-btn" style="color:#000;" onclick="unlockWithOfficialEmail()">Inloggen 🍏</button>
+                    <button class="info-btn" onclick="showAboutUs()">Over ons ℹ dependency</button>
+                    <div id="lockScreenFeedback" class="sys-msg" style="margin-top:10px;"></div>
+                </div>
+            </div>
+
+            <div class="phone-screen" id="phoneScreen">
+                <div class="status-bar">
+                    <div id="liveClock">00:00</div>
+                    <div>•</div>
+                </div>
+                <div class="home-screen" id="homeScreen"></div>
+            </div>
+
+            <div class="window-instance" id="win_cmd_system">
                 <div class="window-header-bar">
-                    <div style="font-size: 0.8rem;">Zulu V28 Rooms</div>
-                    <button onclick="closeAppWindow('chat')">X</button>
+                    <div class="window-title">⚡ A0Z_OS:\System32\cmd.exe</div>
+                    <button class="win-btn" onclick="closeAppWindow('cmd_system')">Sluiten</button>
+                </div>
+                <div class="window-body">
+                    <div class="cmd-body">
+                        <div class="terminal-box" id="systemTerminal">
+                            <div>A0Z</div>
+                            <div>Live Code Injection & Editor system active.</div>
+                        </div>
+                        <div class="cmd-inputs">
+                            <div class="cmd-line" style="margin-bottom:4px;">
+                                <span class="cmd-label">select_app=</span>
+                                <select id="appSelector" class="cmd-select" onchange="loadSelectedAppCode()">
+                                    <option value="new">-- Creëer Nieuwe App (New) --</option>
+                                </select>
+                            </div>
+                            <div class="cmd-line">
+                                <span class="cmd-label">app_name=</span>
+                                <input type="text" id="appNameInput" class="cmd-input" placeholder="App Naam">
+                            </div>
+                            <span class="cmd-label" style="margin-top:4px; display:block;">inject_code=</span>
+                            <textarea id="appCodeInput" class="cmd-text" placeholder="// Typ hier uw JavaScript code..."></textarea>
+                        </div>
+                        <button class="action-btn" style="color:#000;" onclick="addNewAppFromPanel()">INJECT & UPDATE 🚀</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="window-instance" id="win_global_chat">
+                <div class="window-header-bar">
+                    <div class="window-title">💬 Zulu Chat Rooms</div>
+                    <button class="win-btn" onclick="closeAppWindow('global_chat')">Sluiten</button>
                 </div>
                 <div class="window-body" id="chatContainer"></div>
             </div>
+            <div class="window-instance" id="win_official_ai_bot">
+                <div class="window-header-bar">
+                    <div class="window-title">🤖 A0Z Core AI Copilot</div>
+                    <button class="win-btn" onclick="closeAppWindow('official_ai_bot')">Sluiten</button>
+                </div>
+                <div class="window-body" style="background:#020208; display:flex; flex-direction:column; height:100%;">
+                    <div id="coreAiChatGrid" style="flex-grow:1; overflow-y:auto; padding:15px; display:flex; flex-direction:column; gap:10px; font-size:0.75rem;">
+                        <div style="align-self: flex-start; background: rgba(255,255,255,0.06); color: #fff; padding: 10px; border-radius: 12px 12px 12px 0; max-width: 85%;">
+                            Hallo youu! ⚡🤖...
+                        </div>
+                    </div>
+                    <div id="coreAiTyping" style="padding:0 15px; font-size:0.65rem; color:var(--neon-cyan); display:none; font-family:monospace;">AI denkt na... 🧠⚡</div>
+                    <div style="padding:10px; display:flex; gap:6px; background:#05050f; border-top:1px solid rgba(0,242,254,0.15);">
+                        <input id="coreAiInput" type="text" placeholder="Stel een vraag..." style="flex-grow:1; background:#000; border:1px solid rgba(255,255,255,0.15); border-radius:8px; padding:10px; color:white; outline:none; font-size:0.75rem;">
+                        <button id="coreAiSendBtn" style="background:var(--neon-cyan); color:#000; border:none; border-radius:8px; padding:0 15px; font-weight:bold; cursor:pointer;">Verzenden</button>
+                    </div>
+                </div>
+            </div>
+            <div class="window-instance window-instance-runtime" id="win_custom_runtime">
+                <div class="window-header-bar">
+                    <div class="window-title" id="customWinTitle">🛸 Custom App</div>
+                    <button class="win-btn" onclick="closeAppWindow('custom_runtime')">Sluiten</button>
+                </div>
+                <div class="window-body" id="customContainer" style="padding:15px; color:#fff;"></div>
+            </div>
+
         </div>
     </div>
-
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyA7Pu0DJOWmdoDYUUVP1J9aqhxh4f3wyfA",
@@ -49,9 +275,258 @@
             messagingSenderId: "198838438266",
             appId: "1:198838438266:web:379e782653f014a32a2ec3"
         };
+
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
-        let currentRoom = null;
+        const auth = firebase.auth();
+        
+        let currentUserUID = null; let currentUserEmail = "";
+        let globalAppsData = {};
+        let currentActiveRoom = "General"; 
+        let currentChatListenerRef = null;
+        let tempAppData = null; 
+
+        function showAboutUs() {
+            alert(". MVG: Only brother");
+        }
+
+        function unlockWithOfficialEmail() {
+            const email = document.getElementById('loginUser').value.trim();
+            const pass = document.getElementById('loginPass').value;
+            const feedback = document.getElementById('lockScreenFeedback');
+            if(!email || !pass) { alert("Vul alle velden in!"); return; }
+
+            feedback.innerText = "Cloud verbinding maken... ⏳";
+
+            auth.signInWithEmailAndPassword(email, pass)
+            .then((u) => {
+                if (u.user.emailVerified) { execLoginSuccess(u.user.uid, email); } 
+                else {
+                    feedback.innerText = "❌ Activeer uw account via de link in uw e-mail.";
+                    auth.signOut();
+                }
+            })
+            .catch((error) => {
+                if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+                    auth.createUserWithEmailAndPassword(email, pass)
+                    .then((u) => {
+                        u.user.sendEmailVerification().then(() => {
+                            feedback.innerText = "📧 Activeer uw account via de verzonden e-mail link.";
+                            auth.signOut();
+                        });
+                    })
+                    .catch((err) => { feedback.innerText = `Fout: ${err.message}`; });
+                } else {
+                    feedback.innerText = `Fout: ${error.message}`;
+                }
+            });
+        }
+
+        function execLoginSuccess(uid, email) {
+            currentUserUID = uid; currentUserEmail = email.split('@')[0];
+            document.getElementById('lockScreen').style.transform = "translateY(-100%)";
+            
+            const myPresenceRef = database.ref(`chat_presence/${uid}`);
+            myPresenceRef.set({ username: currentUserEmail, online: true });
+            myPresenceRef.onDisconnect().remove();
+
+            listenToUserApps(uid);
+            setupOfficialAiEngine();
+        }
+
+        function openAppWindow(id) { document.getElementById(`win_${id}`).classList.add('open'); }
+        function closeAppWindow(id) { document.getElementById(`win_${id}`).classList.remove('open'); }
+        
+        function listenToUserApps(uid) { 
+            database.ref('custom_apps/' + uid).on('value', (s) => { 
+                globalAppsData = s.val() || {}; 
+                updateAppSelectorOptions();
+                renderHomeScreen(globalAppsData); 
+            }); 
+        }
+
+        function updateAppSelectorOptions() {
+            const selector = document.getElementById('appSelector');
+            const currentSelected = selector.value;
+            selector.innerHTML = '<option value="new">-- Creëer Nieuwe App (New) --</option>';
+            
+            Object.keys(globalAppsData).forEach((k) => {
+                const option = document.createElement('option');
+                option.value = k;
+                option.innerText = globalAppsData[k].name;
+                selector.appendChild(option);
+            });
+            selector.value = currentSelected;
+        }
+
+        function loadSelectedAppCode() {
+            const id = document.getElementById('appSelector').value;
+            if(id === 'new') {
+                document.getElementById('appNameInput').value = "";
+                document.getElementById('appCodeInput').value = "";
+            } else {
+                const app = globalAppsData[id];
+                if(app) {
+                    document.getElementById('appNameInput').value = app.name;
+                    document.getElementById('appCodeInput').value = app.code;
+                }
+            }
+        }
+
+        function renderHomeScreen(appsList) {
+            const hs = document.getElementById('homeScreen'); hs.innerHTML = '';
+            
+            const cmdItem = document.createElement('div'); cmdItem.className = 'app-item';
+            cmdItem.onclick = () => openAppWindow('cmd_system');
+            cmdItem.innerHTML = `<div class="app-icon" style="background:#000; border:1px solid var(--neon-green); color:var(--neon-green); font-family:monospace; font-size:1.1rem; font-weight:bold;">&gt;_</div><div class="app-name">CMD Control</div>`;
+            hs.appendChild(cmdItem);
+
+            const chatItem = document.createElement('div'); chatItem.className = 'app-item';
+            chatItem.onclick = () => { openAppWindow('global_chat'); launchGlobalChatEngine(); };
+            chatItem.innerHTML = `<div class="app-icon" style="background:linear-gradient(135deg, #ffcc00, #ff3366);">👑</div><div class="app-name">Zulu Chat</div>`;
+            hs.appendChild(chatItem);
+
+            const aiItem = document.createElement('div'); aiItem.className = 'app-item';
+            aiItem.onclick = () => openAppWindow('official_ai_bot');
+            aiItem.innerHTML = `<div class="app-icon-ai">🤖</div><div class="app-name">A0Z AI Bot</div>`;
+            hs.appendChild(aiItem);
+
+            Object.keys(appsList).forEach((k) => {
+                const app = appsList[k];
+                const item = document.createElement('div'); item.className = 'app-item';
+                item.onclick = (e) => { if (e.target.classList.contains('delete-app-btn')) return; launchCustomApp(k); };
+                item.innerHTML = `
+                    <div class="delete-app-btn" onclick="deleteCustomApp('${k}', '${app.name}')">❌</div>
+                    <div class="app-icon-ai" style="filter: hue-rotate(80deg);"></div>
+                    <div class="app-name">${app.name}</div>
+                `;
+                hs.appendChild(item);
+            });
+        }
+
+        function setupOfficialAiEngine() {
+            const grid = document.getElementById('coreAiChatGrid');
+            const input = document.getElementById('coreAiInput');
+            const btn = document.getElementById('coreAiSendBtn');
+            const typing = document.getElementById('coreAiTyping');
+
+            function appendCoreMsg(sender, text) {
+                const box = document.createElement('div');
+                const isMe = sender === 'user';
+                box.style.alignSelf = isMe ? 'flex-end' : 'flex-start';
+                box.style.background = isMe ? 'linear-gradient(135deg, #00f2fe, #4facfe)' : 'rgba(255,255,255,0.08)';
+                box.style.color = isMe ? '#000' : '#fff';
+                box.style.padding = '10px 14px';
+                box.style.borderRadius = isMe ? '12px 12px 0 12px' : '12px 12px 12px 0';
+                box.style.maxWidth = '85%';
+                box.style.wordBreak = 'break-word';
+                box.innerText = text;
+                grid.appendChild(box);
+                grid.scrollTop = grid.scrollHeight;
+            }
+
+            async function askCoreAi(promptText) {
+                typing.style.display = 'block';
+                try {
+                    const res = await fetch(`https://text.pollinations.ai/${encodeURIComponent(promptText)}?system=${encodeURIComponent("أنت مساعد ذكاء اصطناعي عبقري وسريع جداً تدعى A0Z AI. تجيب باختصار شديد وبلاغة وبنفس لغة المطور.")}`);
+                    const responseText = await res.text();
+                    typing.style.display = 'none';
+                    if(responseText && responseText.trim().length > 0) {
+                        appendCoreMsg('bot', responseText.trim());
+                    } else {
+                        appendCoreMsg('bot', "Er is een fout opgetreden. Probeer het opnieuw.");
+                    }
+                } catch(e) {
+                    typing.style.display = 'none';
+                    appendCoreMsg('bot', "Verbindingsfout met de snelle cloud.");
+                }
+            }
+
+            function sendAction() {
+                const txt = input.value.trim(); if(!txt) return;
+                appendCoreMsg('user', txt); input.value = '';
+                askCoreAi(txt);
+            }
+
+            btn.onclick = sendAction;
+            input.onkeypress = (e) => { if(e.key === 'Enter') sendAction(); }
+        }
+
+        function addNewAppFromPanel() {
+            const mode = document.getElementById('appSelector').value;
+            const name = document.getElementById('appNameInput').value.trim();
+            const code = document.getElementById('appCodeInput').value.trim();
+            if (!name || !code) { alert("Vul alles in!"); return; }
+            tempAppData = { mode, name, code };
+            document.getElementById('choiceBoxDesc').innerText = `Waar wilt u [ ${name} ] installeren? Kies de gewenste bestemming:`;
+            document.getElementById('destinationChoiceOverlay').classList.add('active');
+        }
+
+        function hideDeployChoiceBox() {
+            document.getElementById('destinationChoiceOverlay').classList.remove('active');
+            tempAppData = null;
+        }
+        function confirmDeployDestination(target) {
+            if (!tempAppData) return;
+            const { mode, name, code } = tempAppData;
+            hideDeployChoiceBox();
+            if (target === 'in-app') {
+                if(mode === 'new') {
+                    database.ref('custom_apps/' + currentUserUID).push().set({ name, code })
+                    .then(() => {
+                        alert(`[ ${name} ] succesvol geïnjecteerd in A0Z Workspace! 🚀`);
+                        clearCmdInputs();
+                    });
+                } else {
+                    database.ref(`custom_apps/${currentUserUID}/${mode}`).set({ name, code })
+                    .then(() => {
+                        alert(`[ ${name} ] succesvol GEUPDATE in A0Z Workspace! ⚡🔄`);
+                        clearCmdInputs();
+                    });
+                }
+            } else if (target === 'home-screen') {
+                const generatedUrl = `${window.location.origin}${window.location.pathname}?run=${encodeURIComponent(name)}`;
+                database.ref('custom_apps/' + currentUserUID + '/pwa_' + name).set({ name, code });
+                const terminal = document.getElementById('systemTerminal');
+                terminal.innerHTML += `
+                    <div style="margin-top:10px; padding:12px; background:rgba(0,242,254,0.12); border:1px dashed var(--neon-cyan); border-radius:8px; font-family:monospace;">
+                        <span style="color:#fff; font-weight:bold;">[SYSTEM]: Ready for Mobile Screen Deployment! 📲</span><br>
+                        <a href="${generatedUrl}" target="_blank" style="color:var(--zulu-yellow); font-size:0.7rem; word-break:break-all; display:block; margin-top:6px; text-decoration:underline;">Klik hier om de installatiepagina op uw telefoon te openen 🔗</a>
+                    </div>
+                `;
+                terminal.scrollTop = terminal.scrollHeight;
+                alert("Installatielink gegenereerd in de CMD Terminal! Klik erop om het op uw startscherm te plaatsen. 📱⚡");
+                clearCmdInputs();
+            }
+        }
+
+        function clearCmdInputs() {
+            document.getElementById('appNameInput').value = ""; 
+            document.getElementById('appCodeInput').value = "";
+            document.getElementById('appSelector').value = 'new';
+        }
+
+        function deleteCustomApp(appKey, appName) {
+            if (!currentUserUID) return;
+            if (confirm(`Weet u zeker dat u [ ${appName} ] wilt verwijderen?`)) {
+                database.ref(`custom_apps/${currentUserUID}/${appKey}`).remove();
+                document.getElementById('appSelector').value = 'new';
+                loadSelectedAppCode();
+            }
+        }
+
+        function launchCustomApp(key) {
+            const app = globalAppsData[key]; if (!app) return;
+            document.getElementById('customWinTitle').innerText = `🛸 ${app.name}`;
+            const container = document.getElementById('customContainer'); container.innerHTML = '';
+            openAppWindow('custom_runtime');
+            try {
+                const appScript = new Function('container', app.code); appScript(container);
+            } catch (err) {
+                container.innerHTML = `<div style="color:var(--neon-magenta);">Runtime Error: ${err.message}</div>`;
+            }
+        }
+
 
         function openChatWindow() {
             document.getElementById('win_chat').classList.add('open');
@@ -96,6 +571,26 @@
                 document.getElementById('msgLog').innerHTML += `<br><b>${m.user}:</b> ${m.text}`;
             });
         }
+   
+        window.addEventListener('DOMContentLoaded', () => {
+            if (appToRun) {
+                document.getElementById('lockScreen').style.display = 'none';
+                const checkExist = setInterval(() => {
+                    if (globalAppsData && Object.keys(globalAppsData).length > 0) {
+                        clearInterval(checkExist);
+                        const targetKey = Object.keys(globalAppsData).find(k => globalAppsData[k].name.toLowerCase() === appToRun.toLowerCase() || k === 'pwa_' + appToRun);
+                        if (targetKey) launchCustomApp(targetKey);
+                    }
+                }, 300);
+            }
+        });
+
+        setInterval(() => { 
+            const now = new Date(); let hh = now.getHours(); let mm = now.getMinutes(); 
+            const timeStr = `${hh < 10 ? '0'+hh : hh}:${mm < 10 ? '0'+mm : mm}`;
+            document.getElementById('liveClock').innerText = timeStr; document.getElementById('lockClock').innerText = timeStr; 
+            document.getElementById('lockDate').innerText = now.toLocaleDateString('nl-NL', { weekday: 'long', day: 'numeric', month: 'long' });
+        }, 1000);
     </script>
 </body>
 </html>
