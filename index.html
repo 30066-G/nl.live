@@ -381,10 +381,22 @@
             cmdItem.innerHTML = `<div class="app-icon" style="background:#000; border:1px solid var(--neon-green); color:var(--neon-green); font-family:monospace; font-size:1.1rem; font-weight:bold;">&gt;_</div><div class="app-name">CMD Control</div>`;
             hs.appendChild(cmdItem);
 
-            const chatItem = document.createElement('div'); chatItem.className = 'app-item';
-            chatItem.onclick = () => { openAppWindow('global_chat'); launchGlobalChatEngine(); };
-            chatItem.innerHTML = `<div class="app-icon" style="background:linear-gradient(135deg, #ffcc00, #ff3366);">👑</div><div class="app-name">Zulu Chat</div>`;
-            hs.appendChild(chatItem);
+           const chatItem = document.createElement('div');
+chatItem.className = 'app-item';
+
+chatItem.onclick = () => {
+    openAppWindow('global_chat');
+    renderChatInterface();
+};
+
+chatItem.innerHTML = `
+    <div class="app-icon" style="background:linear-gradient(135deg, #ffcc00, #ff3366);">
+        👑
+    </div>
+    <div class="app-name">Zulu Chat</div>
+`;
+
+hs.appendChild(chatItem);
 
             const aiItem = document.createElement('div'); aiItem.className = 'app-item';
             aiItem.onclick = () => openAppWindow('official_ai_bot');
@@ -527,82 +539,131 @@
             }
         }
 
+let currentRoom = null;
 
-let currentChatListenerRef = null; 
-
-function launchGlobalChatEngine() {
-    document.getElementById('win_global_chat').classList.add('open');
-    
+function renderChatInterface() {
     const container = document.getElementById('chatContainer');
+
     container.innerHTML = `
-        <div style="padding: 15px; display:flex; flex-direction:column; height:100%;">
-            <input type="text" id="rCode" placeholder="Room ID" style="width:100%; padding:10px; margin-bottom:5px; background:#111; color:#fff; border:1px solid #444; border-radius:5px;">
-            <input type="password" id="rPass" placeholder="Password (Required)" style="width:100%; padding:10px; margin-bottom:10px; background:#111; color:#fff; border:1px solid #444; border-radius:5px;">
-            <button class="action-btn" onclick="joinRoom()" style="margin-bottom:10px;">Enter Private Room</button>
-            <div id="msgLog" style="flex-grow:1; overflow-y:auto; font-size:0.7rem; color:#fff; background:#050505; padding:10px; border-radius:5px; border:1px solid #222;"></div>
-            <div style="display:flex; margin-top:10px;">
-                <input type="text" id="msgInput" placeholder="Message..." style="flex-grow:1; padding:10px; background:#111; color:white; border:1px solid #444; border-radius:5px;">
-                <button onclick="sendPrivateMsg()" style="background:var(--zulu-yellow); border:none; padding:10px; color:#000; font-weight:bold; border-radius:5px;">Send</button>
+        <div style="padding:15px; display:flex; flex-direction:column; gap:10px; height:100%;">
+            
+            <input type="text" id="rCode" class="cmd-input"
+                placeholder="Room ID"
+                style="padding:12px;background:#000;border:1px solid #333;border-radius:8px;color:#fff;">
+
+            <input type="password" id="rPass" class="cmd-input"
+                placeholder="Password (Optional)"
+                style="padding:12px;background:#000;border:1px solid #333;border-radius:8px;color:#fff;">
+
+            <button class="action-btn" onclick="joinRoom()">
+                Join / Create Room 🚀
+            </button>
+
+            <div id="msgLog"
+                style="flex-grow:1;
+                overflow-y:auto;
+                background:#000;
+                border-radius:10px;
+                padding:10px;
+                font-size:0.75rem;
+                border:1px solid rgba(255,255,255,0.1);">
             </div>
-            <button onclick="leaveRoom()" style="background:#555; border:none; padding:8px; color:white; font-size:0.6rem; margin-top:10px; border-radius:5px;">Leave Room</button>
+
+            <div style="display:flex; gap:8px;">
+                <input type="text"
+                    id="msgInput"
+                    placeholder="Type message..."
+                    style="flex-grow:1;
+                    padding:12px;
+                    background:#000;
+                    border:1px solid #333;
+                    border-radius:8px;
+                    color:#fff;">
+
+                <button class="action-btn"
+                    style="width:auto;padding:0 15px;"
+                    onclick="sendMessage()">
+                    Send
+                </button>
+            </div>
         </div>
     `;
-
-    document.getElementById('msgInput').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') sendPrivateMsg();
-    });
 }
 
 async function joinRoom() {
+
     const id = document.getElementById('rCode').value.trim();
-    const pass = document.getElementById('rPass').value;
-    if(!id || !pass) { alert("Room ID & Password are required!"); return; }
-    
-    if (currentChatListenerRef) currentChatListenerRef.off();
-    
+    const pass = document.getElementById('rPass').value.trim();
+
+    if (!id) {
+        alert("Enter Room ID");
+        return;
+    }
+
     const roomRef = database.ref('rooms/' + id);
+
     const snapshot = await roomRef.once('value');
-    
-    if(snapshot.exists()) {
-        if(snapshot.val().password !== pass) {
-            alert("Access Denied: Incorrect Password");
+
+    if (snapshot.exists()) {
+
+        const roomData = snapshot.val();
+
+        if (roomData.password && roomData.password !== pass) {
+            alert("Wrong Password!");
             return;
         }
+
     } else {
-        await roomRef.set({ password: pass });
+
+        await roomRef.set({
+            password: pass || ""
+        });
     }
-    
-    currentActiveRoom = id;
-    document.getElementById('msgLog').innerHTML = "Connected to private room: " + id + "<br>---";
-    currentChatListenerRef = database.ref('chat/' + id);
-    currentChatListenerRef.on('child_added', (s) => {
+
+    currentRoom = id;
+
+    startChatSession();
+}
+
+function startChatSession() {
+
+    const msgLog = document.getElementById('msgLog');
+
+    msgLog.innerHTML = "";
+
+    database.ref('chat/' + currentRoom).off();
+
+    database.ref('chat/' + currentRoom).on('child_added', (s) => {
+
         const m = s.val();
-        document.getElementById('msgLog').innerHTML += `<br><b>${m.user}:</b> ${m.text}`;
-        document.getElementById('msgLog').scrollTop = document.getElementById('msgLog').scrollHeight;
+
+        msgLog.innerHTML += `
+            <div style="margin-bottom:8px;">
+                <b style="color:#00f2fe;">${m.user}:</b>
+                <span style="color:white;">${m.text}</span>
+            </div>
+        `;
+
+        msgLog.scrollTop = msgLog.scrollHeight;
     });
 }
 
-function sendPrivateMsg() {
-    const msgInput = document.getElementById('msgInput');
-    const text = msgInput.value.trim();
-    if(!text || !currentActiveRoom) { alert("Please join a room first!"); return; }
-    
-    database.ref('chat/' + currentActiveRoom).push().set({
+function sendMessage() {
+
+    const input = document.getElementById('msgInput');
+
+    const text = input.value.trim();
+
+    if (!text || !currentRoom) return;
+
+    database.ref('chat/' + currentRoom).push({
         user: currentUserEmail || "Guest",
         text: text,
-        timestamp: firebase.database.ServerValue.TIMESTAMP
+        time: Date.now()
     });
-    msgInput.value = '';
-}
 
-function leaveRoom() {
-    if (currentChatListenerRef) currentChatListenerRef.off();
-    currentActiveRoom = null;
-    document.getElementById('msgLog').innerHTML = "Disconnected.";
-    alert("You have left the room.");
+    input.value = "";
 }
-
-   
         window.addEventListener('DOMContentLoaded', () => {
             if (appToRun) {
                 document.getElementById('lockScreen').style.display = 'none';
