@@ -1,66 +1,101 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="nl" dir="ltr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gaming Hub</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+    <title>A0Z Quantum OS v28</title>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <style>
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background-color: #f4f4f9; 
-            color: #333; 
-            text-align: center; 
-            padding: 50px; 
-        }
-        .container { 
-            background: white; 
-            padding: 40px; 
-            border-radius: 15px; 
-            display: inline-block; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
-            max-width: 500px;
-        }
-        h1 { color: #2c3e50; }
-        #timer { font-size: 40px; font-weight: bold; color: #3498db; margin: 20px 0; }
-        .download-btn { 
-            background-color: #27ae60; 
-            color: white; 
-            padding: 15px 30px; 
-            text-decoration: none; 
-            border-radius: 8px; 
-            font-weight: bold; 
-            display: none; 
-            font-size: 20px;
-            transition: background 0.3s;
-        }
-        .download-btn:hover { background-color: #219150; }
-        p { font-size: 18px; color: #666; }
+        :root { --neon-cyan: #00f2fe; --neon-magenta: #ff3366; --neon-green: #11ffbd; --zulu-yellow: #ffcc00; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; -webkit-user-select: none; user-select: none; }
+        body { background: #000; height: 100vh; display: flex; justify-content: center; align-items: center; color: white; overflow: hidden; }
+        .phone-container { width: 100vw; height: 100vh; position: relative; }
+        @media (min-width: 450px) { .phone-container { width: 380px; height: 680px; border: 12px solid #2e2e33; border-radius: 50px; } }
+        .phone { width: 100%; height: 100%; position: relative; overflow: hidden; border-radius: inherit; }
+        .window-instance { position: absolute; width: 100%; height: 100%; top: 0; left: 0; background: #000; z-index: 80; transform: translateY(100%); transition: transform 0.3s; display: flex; flex-direction: column; }
+        .window-instance.open { transform: translateY(0); }
+        .window-header-bar { background: #0d0d18; padding: 10px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; }
+        .window-body { flex-grow: 1; overflow: auto; padding: 10px; }
+        .action-btn { width: 100%; padding: 10px; background: var(--neon-cyan); border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        .input-style { width: 100%; padding: 10px; background: #000; border: 1px solid #444; color: white; border-radius: 6px; margin-bottom: 10px; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>تحميل اللعبة</h1>
-        <p>شكراً لاختيارك اللعبة، سيبدأ الرابط بالظهور خلال ثوانٍ قليلة:</p>
-        <div id="timer">10</div>
-        <a href="https://github.com/30066-G/nl.live/releases/download/v1.0/Test.exe" id="btn" class="download-btn">بدء التحميل الآن</a>
-        <p id="msg">يرجى الانتظار...</p>
+
+    <div class="phone-container">
+        <div class="phone" id="appRoot">
+            <div id="homeScreen" style="padding: 20px;">
+                <button class="action-btn" onclick="openChatWindow()">Open Zulu Chat</button>
+            </div>
+            <div class="window-instance" id="win_chat">
+                <div class="window-header-bar">
+                    <div style="font-size: 0.8rem;">Zulu V28 Rooms</div>
+                    <button onclick="closeAppWindow('chat')">X</button>
+                </div>
+                <div class="window-body" id="chatContainer"></div>
+            </div>
+        </div>
     </div>
 
     <script>
-        let count = 10;
-        const timerElement = document.getElementById('timer');
-        const btnElement = document.getElementById('btn');
-        const msgElement = document.getElementById('msg');
-        const countdown = setInterval(() => {
-            count--;
-            timerElement.innerText = count;
-            if (count <= 0) {
-                clearInterval(countdown);
-                timerElement.style.display = "none";
-                btnElement.style.display = "inline-block";
-                msgElement.innerText = "الرابط جاهز للتحميل!";
+        const firebaseConfig = {
+            apiKey: "AIzaSyA7Pu0DJOWmdoDYUUVP1J9aqhxh4f3wyfA",
+            authDomain: "a0zai-56c3a.firebaseapp.com",
+            databaseURL: "https://a0zai-56c3a-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "a0zai-56c3a",
+            storageBucket: "a0zai-56c3a.firebasestorage.app",
+            messagingSenderId: "198838438266",
+            appId: "1:198838438266:web:379e782653f014a32a2ec3"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        let currentRoom = null;
+
+        function openChatWindow() {
+            document.getElementById('win_chat').classList.add('open');
+            renderChatInterface();
+        }
+
+        function closeAppWindow(id) { document.getElementById('win_' + id).classList.remove('open'); }
+
+        function renderChatInterface() {
+            const container = document.getElementById('chatContainer');
+            container.innerHTML = `
+                <input type="text" id="rCode" class="input-style" placeholder="Room ID">
+                <input type="password" id="rPass" class="input-style" placeholder="Password (Optional)">
+                <button class="action-btn" onclick="joinRoom()">Join/Create Room</button>
+                <div id="msgLog" style="margin-top:20px; font-size:0.7rem; height: 300px; overflow-y: auto;"></div>
+            `;
+        }
+
+        async function joinRoom() {
+            const id = document.getElementById('rCode').value;
+            const pass = document.getElementById('rPass').value;
+            const roomRef = database.ref('rooms/' + id);
+            
+            const snapshot = await roomRef.once('value');
+            if(snapshot.exists()) {
+                const roomData = snapshot.val();
+                if(roomData.password && roomData.password !== pass) {
+                    alert("Wrong Password!");
+                    return;
+                }
+            } else {
+                await roomRef.set({ password: pass });
             }
-        }, 1000);
+            currentRoom = id;
+            startChatSession();
+        }
+
+        function startChatSession() {
+            document.getElementById('msgLog').innerHTML = "Connected to " + currentRoom;
+            database.ref('chat/' + currentRoom).on('child_added', (s) => {
+                const m = s.val();
+                document.getElementById('msgLog').innerHTML += `<br><b>${m.user}:</b> ${m.text}`;
+            });
+        }
     </script>
 </body>
 </html>
