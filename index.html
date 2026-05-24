@@ -1335,47 +1335,7 @@ ${promptText}
         }
     };
 }
-            function appendCoreMsg(sender, text) {
-                const box = document.createElement('div');
-                const isMe = sender === 'user';
-                box.style.alignSelf = isMe ? 'flex-end' : 'flex-start';
-                box.style.background = isMe ? 'linear-gradient(135deg, #00f2fe, #4facfe)' : 'rgba(255,255,255,0.08)';
-                box.style.color = isMe ? '#000' : '#fff';
-                box.style.padding = '10px 14px';
-                box.style.borderRadius = isMe ? '12px 12px 0 12px' : '12px 12px 12px 0';
-                box.style.maxWidth = '85%';
-                box.style.wordBreak = 'break-word';
-                box.innerText = text;
-                grid.appendChild(box);
-                grid.scrollTop = grid.scrollHeight;
-            }
 
-            async function askCoreAi(promptText) {
-                typing.style.display = 'block';
-                try {
-                    const res = await fetch(`https://text.pollinations.ai/${encodeURIComponent(promptText)}?system=${encodeURIComponent("أنت مساعد ذكاء اصطناعي عبقري وسريع جداً تدعى A0Z AI. تجيب باختصار شديد وبلاغة وبنفس لغة المطور.")}`);
-                    const responseText = await res.text();
-                    typing.style.display = 'none';
-                    if(responseText && responseText.trim().length > 0) {
-                        appendCoreMsg('bot', responseText.trim());
-                    } else {
-                        appendCoreMsg('bot', "Er is een fout opgetreden. Probeer het opnieuw.");
-                    }
-                } catch(e) {
-                    typing.style.display = 'none';
-                    appendCoreMsg('bot', "Verbindingsfout met de snelle cloud.");
-                }
-            }
-
-            function sendAction() {
-                const txt = input.value.trim(); if(!txt) return;
-                appendCoreMsg('user', txt); input.value = '';
-                askCoreAi(txt);
-            }
-
-            btn.onclick = sendAction;
-            input.onkeypress = (e) => { if(e.key === 'Enter') sendAction(); }
-        }
 
         function addNewAppFromPanel() {
             const mode = document.getElementById('appSelector').value;
