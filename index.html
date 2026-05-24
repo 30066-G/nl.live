@@ -1223,6 +1223,14 @@ new Function('container', code)
 7. If user is chatting normally:
 reply normally.
 
+8. ALWAYS CLOSE:
+- all brackets
+- all functions
+- all divs
+- all parentheses
+
+9. NEVER RETURN PARTIAL CODE.
+
 `;
 
             const finalPrompt = `
@@ -1255,13 +1263,25 @@ ${promptText}
                 return;
             }
 
-            // تنظيف الرد
-            responseText =
-                cleanAiResponse(responseText);
+responseText =
+    cleanAiResponse(responseText).trim();
 
-            // إذا الرد تطبيق
-            if (isProbablyAppCode(responseText)) {
+if (
+    !responseText.startsWith("(container)")
+) {
 
+    responseText = `
+(container) => {
+
+${responseText}
+
+}
+`.trim();
+
+}
+
+// إذا الرد تطبيق
+if (isProbablyAppCode(responseText)) {
                 // حماية
                 if (!isSafeCode(responseText)) {
 
@@ -1400,7 +1420,7 @@ ${promptText}
             }
         }
 
-        function launchCustomApp(key) {
+function launchCustomApp(key) {
 
     const app = globalAppsData[key];
 
@@ -1419,20 +1439,9 @@ ${promptText}
 
     try {
 
-        let safeCode = app.code.trim();
+        let code = app.code.trim();
 
-        // إزالة wrapper إذا موجود
-        safeCode = safeCode.replace(
-            /^[(\s]*container[\s]*=>[\s]*{/i,
-            ''
-        );
-
-        safeCode = safeCode.replace(
-            /}[\s;]*$/i,
-            ''
-        );
-
-        // حماية إضافية
+        // حماية
         const blockedWords = [
 
             "document.body",
@@ -1448,10 +1457,6 @@ ${promptText}
 
             "for(;;)",
 
-            "eval(",
-
-            "new Function",
-
             "fetch(",
 
             "XMLHttpRequest",
@@ -1463,7 +1468,7 @@ ${promptText}
 
         const unsafe =
             blockedWords.some(word =>
-                safeCode.toLowerCase().includes(
+                code.toLowerCase().includes(
                     word.toLowerCase()
                 )
             );
@@ -1483,17 +1488,33 @@ ${promptText}
             return;
         }
 
-        const appScript = new Function(
-            'container',
+        // إذا AI نسي wrapper
+        if (
+            !code.startsWith("(container)")
+        ) {
 
-            `
-            "use strict";
+            code =
+`
+(container) => {
 
-            ${safeCode}
-            `
-        );
+${code}
 
-        appScript(container);
+}
+`;
+        }
+
+        // تشغيل التطبيق
+        const appFunction = eval(code);
+
+        if (
+            typeof appFunction !== 'function'
+        ) {
+            throw new Error(
+                "Invalid app structure"
+            );
+        }
+
+        appFunction(container);
 
     } catch (err) {
 
@@ -1509,7 +1530,6 @@ ${promptText}
         `;
     }
 }
-
 let currentRoom = null;
 
 function renderChatInterface() {
