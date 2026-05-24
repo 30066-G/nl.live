@@ -212,15 +212,13 @@
                             <div>Live Code Injection & Editor system active.</div>
                         </div>
                         <div class="cmd-inputs">
-                            <div class="cmd-line" style="margin-bottom:4px;">
-                                <span class="cmd-label">select_app=</span>
-                                <select id="appSelector" class="cmd-select" onchange="loadSelectedAppCode()">
-                                    <!-- أضف هذا السطر داخل الـ cmd-inputs -->
-<div class="cmd-line">
+                            <div class="cmd-line">
     <span class="cmd-label">cmd ></span>
     <input type="text" id="cmdLineInput" class="cmd-input" placeholder="Enter command..." onkeypress="if(event.key==='Enter') executeTerminalCmd()">
 </div>
-
+                            <div class="cmd-line" style="margin-bottom:4px;">
+                                <span class="cmd-label">select_app=</span>
+                                <select id="appSelector" class="cmd-select" onchange="loadSelectedAppCode()">
                                     <option value="new">-- Creëer Nieuwe App (New) --</option>
                                 </select>
                             </div>
@@ -344,8 +342,7 @@ const commandActions = {
   document.body.style.filter = "invert(1)";
   const msg = document.createElement("div");
   msg.className = "cmd-line";
-  msg.textContent = 
-😁🙂";
+  msg.textContent = "😁🙂";
   terminal.appendChild(msg);
   setTimeout(() => {
     document.body.style.filter = "none";
@@ -1310,7 +1307,9 @@ function sendMessage() {
     inputField.value = ""; 
     terminal.scrollTop = terminal.scrollHeight;
 }
-
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js');
+}
     </script>
 </body>
 </html>
