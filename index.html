@@ -292,12 +292,6 @@
         let currentChatListenerRef = null;
         let tempAppData = null; 
 const commandActions = {
-    "clear": () => {
-        document.getElementById("systemTerminal").innerHTML = "<div>A0Z System Cleared.</div>";
-    },
-    "status": () => {
-        document.getElementById("systemTerminal").innerHTML += `<div class='cmd-line'>Status: Online | User: ${currentUserEmail || "Guest"}</div>`;
-    },
     "wake up": () => {
     document.body.style.backgroundColor = "#001f1f";
     terminal.style.color = "#00ffcc";
