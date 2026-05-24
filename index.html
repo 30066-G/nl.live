@@ -289,6 +289,7 @@
         let currentActiveRoom = "General"; 
         let currentChatListenerRef = null;
         let tempAppData = null; 
+        const terminal = document.getElementById("systemTerminal");
 const commandActions = {
     "wake up": () => {
     document.body.style.backgroundColor = "#001f1f";
@@ -321,7 +322,7 @@ const commandActions = {
     document.body.style.backgroundColor = "#ffffff";
     terminal.style.color = "#111111";
   },
-  "run one ": () => {
+  "run one": () => {
     const msg = document.createElement("div");
     msg.className = "cmd-line";
     msg.textContent = "⚡ Executing 0 protocol...";
@@ -895,7 +896,7 @@ RAFAT 366
 };
 
         function showAboutUs() {
-            alert(". MVG: Only brother");
+            alert("MVG: Only brother");
         }
 
         function unlockWithOfficialEmail() {
