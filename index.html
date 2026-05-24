@@ -1023,12 +1023,318 @@ hs.appendChild(chatItem);
             });
         }
 
-        function setupOfficialAiEngine() {
-            const grid = document.getElementById('coreAiChatGrid');
-            const input = document.getElementById('coreAiInput');
-            const btn = document.getElementById('coreAiSendBtn');
-            const typing = document.getElementById('coreAiTyping');
+    function setupOfficialAiEngine() {
 
+    const grid = document.getElementById('coreAiChatGrid');
+    const input = document.getElementById('coreAiInput');
+    const btn = document.getElementById('coreAiSendBtn');
+    const typing = document.getElementById('coreAiTyping');
+
+    // =========================
+    // MESSAGE UI
+    // =========================
+
+    function appendCoreMsg(sender, text) {
+
+        const box = document.createElement('div');
+
+        const isMe = sender === 'user';
+
+        box.style.alignSelf =
+            isMe ? 'flex-end' : 'flex-start';
+
+        box.style.background =
+            isMe
+            ? 'linear-gradient(135deg, #00f2fe, #4facfe)'
+            : 'rgba(255,255,255,0.08)';
+
+        box.style.color = isMe ? '#000' : '#fff';
+
+        box.style.padding = '10px 14px';
+
+        box.style.borderRadius =
+            isMe
+            ? '12px 12px 0 12px'
+            : '12px 12px 12px 0';
+
+        box.style.maxWidth = '85%';
+
+        box.style.wordBreak = 'break-word';
+
+        box.innerText = text;
+
+        grid.appendChild(box);
+
+        grid.scrollTop = grid.scrollHeight;
+    }
+
+    // =========================
+    // CLEAN AI RESPONSE
+    // =========================
+
+    function cleanAiResponse(text) {
+
+        if (!text) return "";
+
+        text = text.replace(/```javascript/gi, '');
+        text = text.replace(/```js/gi, '');
+        text = text.replace(/```html/gi, '');
+        text = text.replace(/```css/gi, '');
+        text = text.replace(/```/gi, '');
+
+        text = text.replace(/<!DOCTYPE html>/gi, '');
+        text = text.replace(/<html[^>]*>/gi, '');
+        text = text.replace(/<\/html>/gi, '');
+
+        text = text.replace(/<body[^>]*>/gi, '');
+        text = text.replace(/<\/body>/gi, '');
+
+        return text.trim();
+    }
+
+    // =========================
+    // DETECT APP CODE
+    // =========================
+
+    function isProbablyAppCode(text) {
+
+        if (!text) return false;
+
+        return (
+            text.includes("container") &&
+            (
+                text.includes("createElement") ||
+                text.includes("appendChild") ||
+                text.includes("innerHTML") ||
+                text.includes("style.")
+            )
+        );
+    }
+
+    // =========================
+    // GENERATE APP NAME
+    // =========================
+
+    function generateAppName(prompt) {
+
+        const words = prompt
+            .split(" ")
+            .slice(0, 3)
+            .join("_")
+            .replace(/[^a-zA-Z0-9_]/g, '');
+
+        return words || "A0Z_App";
+    }
+
+    // =========================
+    // SECURITY CHECK
+    // =========================
+
+    const blockedWords = [
+
+        "document.body",
+        "document.documentElement",
+
+        "window.location",
+
+        "localStorage.clear",
+
+        "sessionStorage.clear",
+
+        "while(true)",
+
+        "for(;;)",
+
+        "firebase.database().ref('/').remove",
+
+        ".remove()",
+
+        "eval(",
+
+        "new Function",
+
+        "fetch(",
+
+        "XMLHttpRequest",
+
+        "WebSocket",
+
+        "indexedDB.deleteDatabase",
+
+        "navigator.serviceWorker.register"
+
+    ];
+
+    function isSafeCode(code) {
+
+        return !blockedWords.some(word =>
+            code.toLowerCase().includes(
+                word.toLowerCase()
+            )
+        );
+    }
+
+    // =========================
+    // MAIN AI ENGINE
+    // =========================
+
+    async function askCoreAi(promptText) {
+
+        typing.style.display = 'block';
+
+        try {
+
+            const SYSTEM_PROMPT = `
+
+You are A0Z AI.
+
+STRICT RULES:
+
+1. If user asks to create/build/make/generate an app:
+RETURN ONLY PURE JAVASCRIPT.
+
+2. NEVER RETURN:
+- markdown
+- explanations
+- notes
+- comments outside code
+- html page
+- body
+- markdown blocks
+
+3. OUTPUT FORMAT MUST BE:
+
+(container) => {
+
+    // app code
+
+}
+
+4. APP MUST USE:
+- vanilla javascript
+- inline css only
+
+5. MUST WORK WITH:
+
+new Function('container', code)
+
+6. NEVER WRITE ANYTHING OUTSIDE FUNCTION.
+
+7. If user is chatting normally:
+reply normally.
+
+`;
+
+            const finalPrompt = `
+${SYSTEM_PROMPT}
+
+USER:
+${promptText}
+`;
+
+            const res = await fetch(
+
+                `https://text.pollinations.ai/${encodeURIComponent(finalPrompt)}`
+
+            );
+
+            let responseText = await res.text();
+
+            typing.style.display = 'none';
+
+            if (
+                !responseText ||
+                responseText.trim().length === 0
+            ) {
+
+                appendCoreMsg(
+                    'bot',
+                    "AI returned empty response."
+                );
+
+                return;
+            }
+
+            // تنظيف الرد
+            responseText =
+                cleanAiResponse(responseText);
+
+            // إذا الرد تطبيق
+            if (isProbablyAppCode(responseText)) {
+
+                // حماية
+                if (!isSafeCode(responseText)) {
+
+                    appendCoreMsg(
+                        'bot',
+                        "❌ Unsafe app blocked."
+                    );
+
+                    return;
+                }
+
+                // تعبئة الحقول تلقائياً
+                document.getElementById(
+                    'appNameInput'
+                ).value = generateAppName(promptText);
+
+                document.getElementById(
+                    'appCodeInput'
+                ).value = responseText;
+
+                appendCoreMsg(
+                    'bot',
+                    "✅ App generated successfully."
+                );
+
+            } else {
+
+                appendCoreMsg(
+                    'bot',
+                    responseText
+                );
+            }
+
+        } catch (e) {
+
+            typing.style.display = 'none';
+
+            appendCoreMsg(
+                'bot',
+                "❌ AI cloud connection failed."
+            );
+
+            console.error(e);
+        }
+    }
+
+    // =========================
+    // SEND ACTION
+    // =========================
+
+    function sendAction() {
+
+        const txt = input.value.trim();
+
+        if (!txt) return;
+
+        appendCoreMsg('user', txt);
+
+        input.value = '';
+
+        askCoreAi(txt);
+    }
+
+    btn.onclick = sendAction;
+
+    input.onkeypress = (e) => {
+
+        if (e.key === 'Enter') {
+
+            sendAction();
+        }
+    };
+}
             function appendCoreMsg(sender, text) {
                 const box = document.createElement('div');
                 const isMe = sender === 'user';
@@ -1135,16 +1441,114 @@ hs.appendChild(chatItem);
         }
 
         function launchCustomApp(key) {
-            const app = globalAppsData[key]; if (!app) return;
-            document.getElementById('customWinTitle').innerText = `🛸 ${app.name}`;
-            const container = document.getElementById('customContainer'); container.innerHTML = '';
-            openAppWindow('custom_runtime');
-            try {
-                const appScript = new Function('container', app.code); appScript(container);
-            } catch (err) {
-                container.innerHTML = `<div style="color:var(--neon-magenta);">Runtime Error: ${err.message}</div>`;
-            }
+
+    const app = globalAppsData[key];
+
+    if (!app) return;
+
+    document.getElementById(
+        'customWinTitle'
+    ).innerText = `🛸 ${app.name}`;
+
+    const container =
+        document.getElementById('customContainer');
+
+    container.innerHTML = '';
+
+    openAppWindow('custom_runtime');
+
+    try {
+
+        let safeCode = app.code.trim();
+
+        // إزالة wrapper إذا موجود
+        safeCode = safeCode.replace(
+            /^[(\s]*container[\s]*=>[\s]*{/i,
+            ''
+        );
+
+        safeCode = safeCode.replace(
+            /}[\s;]*$/i,
+            ''
+        );
+
+        // حماية إضافية
+        const blockedWords = [
+
+            "document.body",
+            "document.documentElement",
+
+            "window.location",
+
+            "localStorage.clear",
+
+            "sessionStorage.clear",
+
+            "while(true)",
+
+            "for(;;)",
+
+            "eval(",
+
+            "new Function",
+
+            "fetch(",
+
+            "XMLHttpRequest",
+
+            ".remove()",
+
+            "firebase.database().ref('/').remove"
+        ];
+
+        const unsafe =
+            blockedWords.some(word =>
+                safeCode.toLowerCase().includes(
+                    word.toLowerCase()
+                )
+            );
+
+        if (unsafe) {
+
+            container.innerHTML = `
+                <div style="
+                    color:red;
+                    padding:20px;
+                    font-family:monospace;
+                ">
+                    Unsafe app blocked.
+                </div>
+            `;
+
+            return;
         }
+
+        const appScript = new Function(
+            'container',
+
+            `
+            "use strict";
+
+            ${safeCode}
+            `
+        );
+
+        appScript(container);
+
+    } catch (err) {
+
+        container.innerHTML = `
+            <div style="
+                color:var(--neon-magenta);
+                padding:20px;
+                font-family:monospace;
+            ">
+                Runtime Error:<br><br>
+                ${err.message}
+            </div>
+        `;
+    }
+}
 
 let currentRoom = null;
 
