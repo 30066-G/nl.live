@@ -15,18 +15,23 @@
         const urlParams = new URLSearchParams(window.location.search);
         const appToRun = urlParams.get('run');
 
-        const manifest = {
-            "short_name": appToRun ? appToRun.charAt(0).toUpperCase() + appToRun.slice(1) : "A0Z OS v27.4",
-            "name": appToRun ? `${appToRun} App (A0Z Custom)` : "A0Z Quantum OS v27.4",
-            "icons": [
-                { "src": appToRun ? "https://img.icons8.com/neon/512/rocket.png" : "https://img.icons8.com/neon/512/quantum-computing.png", "type": "image/png", "sizes": "512x512" }
-            ],
-            "start_url": window.location.href, 
-            "background_color": "#010103",
-            "theme_color": "#00f2fe",
-            "display": "standalone",
-            "orientation": "portrait"
-        };
+  const manifest = {
+    "short_name": appToRun ? appToRun.charAt(0).toUpperCase() + appToRun.slice(1) : "A0Z",
+    "name": appToRun ? `${appToRun} App (A0Z Custom)` : "A0Z Quantum OS",
+    "icons": [
+        { 
+            "src": "https://avatars.githubusercontent.com/u/201962374?s=512&v=4", 
+            "type": "image/png", 
+            "sizes": "512x512",
+            "purpose": "any maskable"
+        }
+    ],
+    "start_url": window.location.href, 
+    "background_color": "#010103",
+    "theme_color": "#00f2fe",
+    "display": "standalone",
+    "orientation": "portrait"
+};
         const blob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
         const relManifest = document.createElement('link');
         relManifest.setAttribute('rel', 'manifest');
@@ -178,7 +183,7 @@ body {
             </div>
 
             <div class="lock-screen" id="lockScreen">
-                <div class="lock-date" id="lockDate">Donderdag, 21 mei</div>
+                <div class="lock-date" id="lockDate"></div>
                 
                 <div class="lock-blur-box">
                     <h4 style="color: var(--neon-cyan); margin-bottom: 15px; font-size: 0.85rem; font-weight: 800;">Cloud Workspace</h4>
