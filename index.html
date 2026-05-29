@@ -33,7 +33,8 @@
         relManifest.setAttribute('href', URL.createObjectURL(blob));
         document.head.appendChild(relManifest);
     </script>
-
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
     <style>
         :root {
             --neon-cyan: #00f2fe;
@@ -208,6 +209,16 @@ body {
                             <div>Live Code Injection & Editor system active.</div>
                         </div>
                         <div class="cmd-inputs">
+                            <div class="cmd-line" style="margin-bottom:4px;">
+    <span class="cmd-label">radar_target=</span>
+    <select id="targetSelect" class="cmd-select">
+        <option value="bird">(Birds)</option>
+        <option value="airplane">(Airplanes)</option>
+        <option value="car">(Cars)</option>
+        <option value="person">(Persons)</option>
+        <option value="animals">(Animals)</option>
+    </select>
+</div>
                             <div class="cmd-line">
                                 <span class="cmd-label">cmd ></span>
                                 <input type="text" id="cmdLineInput" class="cmd-input" placeholder="Enter command..." onkeypress="if(event.key==='Enter') executeTerminalCmd()">
@@ -283,7 +294,6 @@ body {
     radarCanvas.style.cssText = "position:fixed;top:0;left:0;width:100vw;height:100vh;object-fit:cover;z-index:-990;pointer-events:none;mix-blend-mode:screen;";
     document.body.appendChild(radarCanvas);
     const ctx = radarCanvas.getContext('2d');
-    let previousFrame = null;
 
     const style = document.createElement('style');
     style.textContent = `
@@ -310,35 +320,43 @@ body {
         });
         bgVideo.srcObject = stream;
 
-        function processRadar() {
+        let targetObject = 'bird';
+        const selectElement = document.getElementById('targetSelect');
+        if (selectElement) {
+            selectElement.addEventListener('change', (e) => targetObject = e.target.value);
+        }
+
+        bgVideo.onloadedmetadata = async () => {
             radarCanvas.width = bgVideo.videoWidth;
             radarCanvas.height = bgVideo.videoHeight;
             
-            ctx.drawImage(bgVideo, 0, 0, radarCanvas.width, radarCanvas.height);
-            let frame = ctx.getImageData(0, 0, radarCanvas.width, radarCanvas.height);
-            let data = frame.data;
+            const terminal = document.getElementById("systemTerminal");
+            if (terminal) terminal.innerHTML += "<div class='cmd-line' style='color:#ffcc00;'>[RADAR] Loading AI Core Model... ⏳</div>";
+            
+            const model = await cocoSsd.load();
+            if (terminal) terminal.innerHTML += "<div class='cmd-line' style='color:var(--neon-green);'>[RADAR] Target Lock Active! 🚀</div>";
 
-            if (previousFrame) {
-                for (let i = 0; i < data.length; i += 4) {
-                    let rDiff = Math.abs(data[i] - previousFrame[i]);
-                    let gDiff = Math.abs(data[i + 1] - previousFrame[i + 1]);
-                    let bDiff = Math.abs(data[i + 2] - previousFrame[i + 2]);
+            async function detectSmartRadar() {
+                const predictions = await model.detect(bgVideo);
+                ctx.clearRect(0, 0, radarCanvas.width, radarCanvas.height);
 
-                    if ((rDiff + gDiff + bDiff) > 150) { 
-                        data[i] = 255;   // أحمر
-                        data[i+1] = 0;   // أخضر
-                        data[i+2] = 0;   // أزرق
-                    } else {
-                        data[i+3] = 0; 
+                predictions.forEach(prediction => {
+                    if (prediction.class === targetObject) { 
+                        const [x, y, width, height] = prediction.bbox;
+                        
+                        ctx.strokeStyle = '#ff3366';
+                        ctx.lineWidth = 3;
+                        ctx.strokeRect(x, y, width, height);
+                        
+                        ctx.fillStyle = '#ff3366';
+                        ctx.font = 'bold 16px monospace';
+                        ctx.fillText(`[ ${prediction.class.toUpperCase()} - ${Math.round(prediction.score * 100)}% ]`, x, y > 20 ? y - 8 : 20);
                     }
-                }
+                });
+                requestAnimationFrame(detectSmartRadar);
             }
-            previousFrame = new Uint8ClampedArray(data);
-            ctx.putImageData(frame, 0, 0);
-            requestAnimationFrame(processRadar);
-        }
-
-        bgVideo.onloadedmetadata = () => processRadar();
+            detectSmartRadar();
+        };
 
         setInterval(() => {
             const flicker = Math.floor(Math.random() * (90 - 70 + 1) + 70);
@@ -349,6 +367,7 @@ body {
         document.body.style.background = "repeating-linear-gradient(0deg, #001100, #001100 2px, #000 2px, #000 4px)";
     }
 })();
+
 
         const firebaseConfig = {
             apiKey: "AIzaSyA7Pu0DJOWmdoDYUUVP1J9aqhxh4f3wyfA",
@@ -1449,7 +1468,6 @@ STRICT RULES:
                 }, 300);
             }
         });
-
         setInterval(() => { 
             const now = new Date(); let hh = now.getHours(); let mm = now.getMinutes(); 
             const timeStr = `${hh < 10 ? '0'+hh : hh}:${mm < 10 ? '0'+mm : mm}`;
