@@ -285,89 +285,25 @@ body {
         bgVideo.autoplay = true;
         bgVideo.playsInline = true;
         bgVideo.muted = true;
-        bgVideo.style.cssText = "position:fixed;top:0;left:0;width:100vw;height:100vh;object-fit:cover;z-index:-999;pointer-events:none;";
+        bgVideo.style.cssText = "position:fixed;top:0;left:0;width:100vw;height:100vh;object-fit:cover;z-index:-999;";
         document.body.appendChild(bgVideo);
     }
 
-    const radarCanvas = document.createElement('canvas');
-    radarCanvas.id = 'radar-canvas';
-    radarCanvas.style.cssText = "position:fixed;top:0;left:0;width:100vw;height:100vh;object-fit:cover;z-index:-990;pointer-events:none;mix-blend-mode:screen;";
-    document.body.appendChild(radarCanvas);
-    const ctx = radarCanvas.getContext('2d');
-
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes scanline-anim {
-            0% { transform: translateY(-100vh); }
-            100% { transform: translateY(100vh); }
-        }
-        .scanline-overlay {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 15vh;
-            background: linear-gradient(to bottom, rgba(0,255,0,0), rgba(57,255,20,0.3), rgba(0,255,0,0));
-            z-index: -980; pointer-events: none;
-            animation: scanline-anim 4s linear infinite;
-        }
-    `;
-    document.head.appendChild(style);
-
-    const scanline = document.createElement('div');
-    scanline.className = 'scanline-overlay';
-    document.body.appendChild(scanline);
+    const radar = document.getElementById('radar-canvas');
+    if (radar) radar.remove();
+    const scanline = document.querySelector('.scanline-overlay');
+    if (scanline) scanline.remove();
 
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ 
-            video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } } 
+            video: { facingMode: "environment", width: { ideal: 1920 }, height: { ideal: 1080 } } 
         });
         bgVideo.srcObject = stream;
 
-        let targetObject = 'bird';
-        const selectElement = document.getElementById('targetSelect');
-        if (selectElement) {
-            selectElement.addEventListener('change', (e) => targetObject = e.target.value);
-        }
-
-        bgVideo.onloadedmetadata = async () => {
-            radarCanvas.width = bgVideo.videoWidth;
-            radarCanvas.height = bgVideo.videoHeight;
-            
-            const terminal = document.getElementById("systemTerminal");
-            if (terminal) terminal.innerHTML += "<div class='cmd-line' style='color:#ffcc00;'>[RADAR] Loading AI Core Model... ⏳</div>";
-            
-            const model = await cocoSsd.load();
-            if (terminal) terminal.innerHTML += "<div class='cmd-line' style='color:var(--neon-green);'>[RADAR] Target Lock Active! 🚀</div>";
-
-            async function detectSmartRadar() {
-                const predictions = await model.detect(bgVideo);
-                ctx.clearRect(0, 0, radarCanvas.width, radarCanvas.height);
-
-                predictions.forEach(prediction => {
-                    if (prediction.class === targetObject) { 
-                        const [x, y, width, height] = prediction.bbox;
-                        
-                        ctx.strokeStyle = '#ff3366';
-                        ctx.lineWidth = 3;
-                        ctx.strokeRect(x, y, width, height);
-                        
-                        ctx.fillStyle = '#ff3366';
-                        ctx.font = 'bold 16px monospace';
-                        ctx.fillText(`[ ${prediction.class.toUpperCase()} - ${Math.round(prediction.score * 100)}% ]`, x, y > 20 ? y - 8 : 20);
-                    }
-                });
-                requestAnimationFrame(detectSmartRadar);
-            }
-            detectSmartRadar();
-        };
-
-        setInterval(() => {
-            const flicker = Math.floor(Math.random() * (90 - 70 + 1) + 70);
-            bgVideo.style.filter = `grayscale(100%) sepia(100%) hue-rotate(70deg) saturate(700%) contrast(350%) brightness(${flicker}%)`;
-        }, 120);
-
     } catch (err) {
-        document.body.style.background = "repeating-linear-gradient(0deg, #001100, #001100 2px, #000 2px, #000 4px)";
+        console.error("Camera access denied");
     }
 })();
-
 
         const firebaseConfig = {
             apiKey: "AIzaSyA7Pu0DJOWmdoDYUUVP1J9aqhxh4f3wyfA",
