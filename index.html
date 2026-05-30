@@ -1256,77 +1256,58 @@ STRICT RULES:
             }
         }
 
-        function launchCustomApp(key) {
-            const app = globalAppsData[key];
-            if (!app) return;
+function launchCustomApp(key) {
+    const app = globalAppsData[key];
+    if (!app) return;
 
-            document.getElementById('customWinTitle').innerText = `🛸 ${app.name}`;
-            const container = document.getElementById('customContainer');
-            container.innerHTML = '';
-            openAppWindow('custom_runtime');
+    document.getElementById('customWinTitle').innerText = `🛸 ${app.name}`;
+    const container = document.getElementById('customContainer');
+    container.innerHTML = '';
+    openAppWindow('custom_runtime');
 
-            try {
-                let code = app.code.trim();
+    try {
+        let code = app.code.trim();
 
-                if (!code.startsWith("(container)")) {
-                    code = `(container) => {\n${code}\n}`;
-                }
-
-                const iframe = document.createElement('iframe');
-                iframe.sandbox = "allow-scripts";
-                iframe.style.width = "100%";
-                iframe.style.height = "100%";
-                iframe.style.border = "none";
-                iframe.style.background = "transparent";
-                container.appendChild(iframe);
-
-                const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-                
-                const runnerScript = `
-                    <!DOCTYPE html>
-                    <html>
-                    <head>
-                        <style>
-                            body { 
-                                margin: 0; 
-                                padding: 0; 
-                                color: #fff; 
-                                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-                                background: transparent;
-                            }
-                        </style>
-                    </head>
-                    <body>
-                        <script>
-                            try {
-                                const container = document.body;
-                                const appFunction = eval(${JSON.stringify(code)});
-                                if (typeof appFunction === 'function') {
-                                    appFunction(container);
-                                } else {
-                                    document.body.innerHTML = '<div style="color:#ff3366; padding:20px; font-family:monospace;">Invalid app structure.</div>';
-                                }
-                            } catch(err) {
-                                document.body.innerHTML = '<div style="color:#ff3366; padding:20px; font-family:monospace;">Runtime Error:<br><br>' + err.message + '</div>';
-                            }
-                        <\/script>
-                    </body>
-                    </html>
-                `;
-
-                iframeDoc.open();
-                iframeDoc.write(runnerScript);
-                iframeDoc.close();
-
-            } catch (err) {
-                container.innerHTML = `
-                    <div style="color:var(--neon-magenta); padding:20px; font-family:monospace;">
-                        Initialization Error:<br><br>
-                        ${err.message}
-                    </div>
-                `;
-            }
+        if (!code.startsWith("(container)")) {
+            code = `(container) => {\n${code}\n}`;
         }
+
+        const iframe = document.createElement('iframe');
+        iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin');
+        iframe.style.width = "100%";
+        iframe.style.height = "100%";
+        iframe.style.border = "none";
+        iframe.style.background = "transparent";
+        container.appendChild(iframe);
+
+        const runnerScript = `
+            <!DOCTYPE html>
+            <html>
+            <body style="margin:0; padding:0; background:transparent; color:#fff; font-family:sans-serif;">
+                <div id="app-root"></div>
+                <script>
+                    try {
+                        const container = document.getElementById('app-root');
+                        const appFunction = new Function('return (' + ${JSON.stringify(code)} + ')')();
+                        appFunction(container);
+                    } catch(err) {
+                        document.body.innerHTML = '<div style="color:#ff3366; padding:20px; font-family:monospace;">Runtime Error:<br>' + err.message + '</div>';
+                    }
+                <\/script>
+            </body>
+            </html>
+        `;
+
+        iframe.srcdoc = runnerScript;
+
+    } catch (err) {
+        container.innerHTML = `
+            <div style="color:var(--neon-magenta); padding:20px; font-family:monospace;">
+                Initialization Error:<br>${err.message}
+            </div>
+        `;
+    }
+}
 
         let currentRoom = null;
 
