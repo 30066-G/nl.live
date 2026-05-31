@@ -183,6 +183,9 @@ body {
     </style>
 </head>
 <body>
+      <div id="spider-layer">
+    <canvas id="spiderCanvas"></canvas>
+</div>
     <div class="phone-container">
         <div class="phone">
             <div class="dynamic-island" id="island">A0Z</div>
@@ -1542,9 +1545,6 @@ function launchCustomApp(key) {
           navigator.serviceWorker.register('/sw.js');
         }
     </script>
-    <div id="spider-layer">
-    <canvas id="spiderCanvas"></canvas>
-</div>
 
 </body>
 </html>
