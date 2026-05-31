@@ -65,6 +65,20 @@ body {
     height: 100vh; display: flex; justify-content: center; align-items: center;
     color: white; overflow: hidden;
 }
+#spider-layer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1; 
+    pointer-events: none; 
+    overflow: hidden;
+    background: transparent;
+}
+#spiderCanvas {
+    display: block;
+}
 
 .phone-container {
     width: 100vw; height: 100vh; background: transparent; position: relative;
@@ -282,6 +296,42 @@ body {
         </div>
     </div>
     <script>
+const canvas = document.getElementById('spiderCanvas');
+const ctx = canvas.getContext('2d');
+
+function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resize);
+resize();
+
+let mouse = { x: null, y: null };
+window.addEventListener('mousemove', e => {
+    mouse.x = e.clientX;
+    mouse.y = e.clientY;
+});
+
+function animateSpider() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    if(mouse.x != null) {
+        ctx.beginPath();
+        ctx.strokeStyle = 'rgba(0, 242, 254, 0.2)'; // لون النيون Cyan الخاص بنظامك
+        ctx.lineWidth = 1;
+        ctx.moveTo(mouse.x, mouse.y);
+        ctx.lineTo(canvas.width / 2, canvas.height / 2);
+        ctx.stroke();
+        
+        ctx.fillStyle = 'rgba(0, 242, 254, 0.5)';
+        ctx.beginPath();
+        ctx.arc(mouse.x, mouse.y, 3, 0, Math.PI * 2);
+        ctx.fill();
+    }
+    requestAnimationFrame(animateSpider);
+}
+animateSpider();
+
 (async () => {
     let bgVideo = document.getElementById('site-bg-cam');
     if (!bgVideo) {
@@ -1492,5 +1542,9 @@ function launchCustomApp(key) {
           navigator.serviceWorker.register('/sw.js');
         }
     </script>
+    <div id="spider-layer">
+    <canvas id="spiderCanvas"></canvas>
+</div>
+
 </body>
 </html>
