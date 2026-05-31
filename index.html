@@ -65,20 +65,6 @@ body {
     height: 100vh; display: flex; justify-content: center; align-items: center;
     color: white; overflow: hidden;
 }
-#spider-layer {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: -1; 
-    pointer-events: none; 
-    overflow: hidden;
-    background: transparent;
-}
-#spiderCanvas {
-    display: block;
-}
 
 .phone-container {
     width: 100vw; height: 100vh; background: transparent; position: relative;
@@ -183,9 +169,6 @@ body {
     </style>
 </head>
 <body>
-      <div id="spider-layer">
-    <canvas id="spiderCanvas"></canvas>
-</div>
     <div class="phone-container">
         <div class="phone">
             <div class="dynamic-island" id="island">A0Z</div>
@@ -299,41 +282,97 @@ body {
         </div>
     </div>
     <script>
-const canvas = document.getElementById('spiderCanvas');
-const ctx = canvas.getContext('2d');
-
-function resize() {
+const canvas = document.createElement('canvas');
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-}
-window.addEventListener('resize', resize);
-resize();
+    container.appendChild(canvas);
+    const ctx = canvas.getContext('2d');
 
-let mouse = { x: null, y: null };
-window.addEventListener('mousemove', e => {
-    mouse.x = e.clientX;
-    mouse.y = e.clientY;
-});
+    window.addEventListener('resize', () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    });
 
-function animateSpider() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    if(mouse.x != null) {
+    let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+    let pos = { x: canvas.width / 2, y: canvas.height / 2 };
+    let legPhase = 0; // زاوية حركة الأرجل
+
+    window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+    window.addEventListener('touchmove', e => { mouse.x = e.touches[0].clientX; mouse.y = e.touches[0].clientY; });
+
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+
+        let dx = mouse.x - pos.x;
+        let dy = mouse.y - pos.y;
+        let dist = Math.sqrt(dx * dx + dy * dy);
+        let angle = Math.atan2(dy, dx);
+
+        // سرعة الحركة
+        let speed = dist * 0.08;
+        if (speed > 12) speed = 12; // أقصى سرعة للكائن
+
+        if (dist > 5) {
+            pos.x += dx * 0.05;
+            pos.y += dy * 0.05;
+            legPhase += speed * 0.15; // حركة الأرجل تزيد مع السرعة
+        }
+
+        let breathe = Math.sin(Date.now() / 200) * 2;
+
+        ctx.save();
+        ctx.translate(pos.x, pos.y); 
+        ctx.rotate(angle); 
+
+        ctx.lineWidth = 4;
+        ctx.lineCap = "round";
+        ctx.strokeStyle = "#2c3e50";
+
+        for (let i = -1; i <= 1; i++) {
+            let swingLeft = Math.sin(legPhase + i) * 15;
+            ctx.beginPath();
+            ctx.moveTo(i * 12, -15);
+            ctx.lineTo(i * 15 + swingLeft, -40);
+            ctx.stroke();
+
+
+            let swingRight = Math.sin(legPhase + i + Math.PI) * 15;
+            ctx.beginPath();
+            ctx.moveTo(i * 12, 15);
+            ctx.lineTo(i * 15 + swingRight, 40);
+            ctx.stroke();
+        }
+
+        ctx.fillStyle = "#e74c3c"; 
         ctx.beginPath();
-        ctx.strokeStyle = 'rgba(0, 242, 254, 0.2)'; // لون النيون Cyan الخاص بنظامك
-        ctx.lineWidth = 1;
-        ctx.moveTo(mouse.x, mouse.y);
-        ctx.lineTo(canvas.width / 2, canvas.height / 2);
-        ctx.stroke();
-        
-        ctx.fillStyle = 'rgba(0, 242, 254, 0.5)';
-        ctx.beginPath();
-        ctx.arc(mouse.x, mouse.y, 3, 0, Math.PI * 2);
+        ctx.arc(0, 0, 20 + breathe, 0, Math.PI * 2);
         ctx.fill();
+        
+
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = "#c0392b";
+        ctx.stroke();
+
+        ctx.fillStyle = "white";
+      
+        ctx.beginPath(); ctx.arc(10, -8, 6, 0, Math.PI * 2); ctx.fill();
+
+        ctx.beginPath(); ctx.arc(10, 8, 6, 0, Math.PI * 2); ctx.fill();
+
+        ctx.fillStyle = "black";
+        let pupilShift = Math.min(dist / 20, 3); // البؤبؤ يبرز لقدام إذا كان الماوس بعيد
+        
+        ctx.beginPath(); ctx.arc(10 + pupilShift, -8, 2.5, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(10 + pupilShift, 8, 2.5, 0, Math.PI * 2); ctx.fill();
+
+        ctx.restore();
+
+        requestAnimationFrame(draw);
     }
-    requestAnimationFrame(animateSpider);
+    
+    draw();
 }
-animateSpider();
 
 (async () => {
     let bgVideo = document.getElementById('site-bg-cam');
