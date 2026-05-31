@@ -936,8 +936,85 @@ RAFAT 366
         };
 
         function showAboutUs() {
-            alert("MVG: Only brother");
-        }
+    const myToxID = "0F0F12510D8343923A1876E43BF83D0341AF3E855C58B55E6BE1D885AA405568A7216DE0"; 
+
+    if (document.getElementById('about-us-overlay')) return;
+
+    const overlay = document.createElement('div');
+    overlay.id = 'about-us-overlay';
+    
+    overlay.style.cssText = `
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(5, 5, 15, 0.96); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+        z-index: 250; display: flex; justify-content: center; align-items: center; padding: 20px;
+        box-sizing: border-box;
+    `;
+
+    overlay.innerHTML = `
+        <div style="background: #070714; border: 2px solid var(--neon-cyan); border-radius: 20px; padding: 22px; width: 100%; max-width: 320px; box-shadow: 0 0 25px rgba(0, 242, 254, 0.25); display: flex; flex-direction: column; gap: 12px; max-height: 90%; overflow-y: auto;">
+            
+            <h3 style="color: var(--neon-cyan); font-size: 1rem; text-align: center; font-family: monospace; border-bottom: 1px dashed rgba(0,242,254,0.3); padding-bottom: 6px; margin: 0;">
+                🛸 A0Z 
+            </h3>
+            
+            <div style="font-size: 0.72rem; color: #ddd; line-height: 1.5; font-family: monospace; text-align: left; word-break: break-word;">
+                <span style="color: var(--neon-green); font-weight:bold;">[+] Core Profile:</span><br>
+                A0Z is a high-end Virtual WebOS mimicking secure micro-environments with serverless capabilities, dynamic PWA profile manipulation, and real-time network integration via Firebase.<br><br>
+
+                <span style="color: var(--neon-green); font-weight:bold;">[+] Secure Comms (Tox):</span><br>
+                The integrated communication link relies on the <b>Tox P2P Protocol</b>. Unlike conventional messaging software, Tox operates entirely without centralized servers to process or store user metadata.<br><br>
+
+                <span style="color: var(--neon-green); font-weight:bold;">[+] Features:</span><br>
+                • <b>End-to-End Encryption</b>: Military-grade cryptography direct from device to device.<br>
+                • <b>Absolute Privacy</b>: No phone number or e-mail required—only a digital key cryptographic token (Tox ID).<br><br>
+
+                <span style="color: var(--neon-cyan); font-weight:bold;">[+] System Operator:</span><br>
+                MVG: Only brother ;)
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 5px;">
+                <button id="btn-open-tox" style="width: 100%; padding: 10px; background: linear-gradient(135deg, var(--neon-cyan), #4facfe); border: none; border-radius: 6px; color: #000; font-weight: bold; font-size: 0.7rem; cursor: pointer; font-family: monospace;">
+                    LAUNCH TOX CHAT 🚀
+                </button>
+                <button id="btn-copy-tox" style="width: 100%; padding: 8px; background: rgba(255,255,255,0.05); border: 1px solid var(--neon-cyan); border-radius: 6px; color: var(--neon-cyan); font-size: 0.65rem; cursor: pointer; font-weight: bold; font-family: monospace;">
+                    COPY TOX ID 📋
+                </button>
+                <button id="btn-close-about" style="width: 100%; padding: 8px; border-radius: 6px; border: none; background: var(--neon-magenta); color: white; font-size: 0.65rem; font-weight: bold; cursor: pointer; font-family: monospace;">
+                    CLOSE INTERFACE
+                </button>
+            </div>
+
+            <div id="about-toast" style="color: var(--neon-green); font-size: 0.65rem; text-align: center; display: none; font-weight: bold; font-family: monospace;"></div>
+        </div>
+    `;
+
+    const phoneContainer = document.querySelector('.phone');
+    if (phoneContainer) {
+        phoneContainer.appendChild(overlay);
+    } else {
+        document.body.appendChild(overlay);
+    }
+
+    document.getElementById('btn-open-tox').onclick = () => {
+        window.location.href = `tox:${myToxID}`;
+    };
+
+    document.getElementById('btn-copy-tox').onclick = () => {
+        navigator.clipboard.writeText(myToxID).then(() => {
+            const toast = document.getElementById('about-toast');
+            toast.innerText = "⚡ TOX ID COPIED TO CLIPBOARD!";
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 2000);
+        }).catch(() => {
+            alert(`Tox ID:\n${myToxID}`);
+        });
+    };
+
+    document.getElementById('btn-close-about').onclick = () => {
+        overlay.remove();
+    };
+}
+
 
         function unlockWithOfficialEmail() {
             const email = document.getElementById('loginUser').value.trim();
