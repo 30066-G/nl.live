@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AOZ Quantum OS - Full Core</title>
+    <title>AOZ Quantum OS - Fully Loaded Masterpiece</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -11,15 +11,17 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
     
     <style>
         :root {
             --neon-cyan: #00e5ff;
             --neon-magenta: #ff3366;
             --neon-green: #11ffbd;
-            --dark-bg: #03070d;
-            --panel-bg: rgba(4, 15, 30, 0.6);
-            --border-color: rgba(0, 229, 255, 0.3);
+            --dark-bg: #020611;
+            --panel-bg: rgba(4, 15, 30, 0.65);
+            --border-color: rgba(0, 229, 255, 0.25);
             --text-main: #a0c4d8;
         }
 
@@ -29,74 +31,77 @@
         #canvas-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
         body::after {
             content: ""; position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 229, 255, 0.05) 50%);
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 229, 255, 0.03) 50%);
             background-size: 100% 4px; z-index: 100; pointer-events: none;
         }
 
         .ui-layer { position: relative; z-index: 10; width: 100%; height: 100%; display: flex; justify-content: space-between; padding: 30px; pointer-events: none; }
-        .panel-container { pointer-events: auto; display: flex; flex-direction: column; gap: 20px; width: 260px; }
+        .panel-container { pointer-events: auto; display: flex; flex-direction: column; gap: 20px; width: 280px; }
 
-        .sci-fi-panel { background: var(--panel-bg); border: 1px solid var(--border-color); padding: 20px; clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px); backdrop-filter: blur(5px); box-shadow: inset 0 0 20px rgba(0, 229, 255, 0.05); }
-        .logo { font-size: 3rem; font-weight: 700; color: var(--neon-cyan); text-shadow: 0 0 10px var(--neon-cyan); letter-spacing: 5px; margin-bottom: 10px; text-align: center; }
+        .sci-fi-panel { background: var(--panel-bg); border: 1px solid var(--border-color); padding: 20px; clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px); backdrop-filter: blur(8px); box-shadow: inset 0 0 25px rgba(0, 229, 255, 0.05); }
+        .logo { font-size: 3.5rem; font-weight: 700; color: var(--neon-cyan); text-shadow: 0 0 15px var(--neon-cyan); letter-spacing: 6px; text-align: center; margin-bottom: 5px; }
 
         .nav-menu ul { list-style: none; }
-        .nav-menu li { padding: 15px; cursor: pointer; display: flex; align-items: center; gap: 15px; font-size: 1.1rem; font-weight: 600; color: var(--text-main); transition: all 0.3s; border-left: 2px solid transparent; }
+        .nav-menu li { padding: 14px; cursor: pointer; display: flex; align-items: center; gap: 15px; font-size: 1.1rem; font-weight: 600; color: var(--text-main); transition: all 0.3s; border-left: 2px solid transparent; }
         .nav-menu li:hover, .nav-menu li.active { color: var(--neon-cyan); background: linear-gradient(90deg, rgba(0,229,255,0.1) 0%, transparent 100%); border-left: 2px solid var(--neon-cyan); text-shadow: 0 0 8px var(--neon-cyan); }
         
+        .activity-log p { font-size: 0.75rem; font-family: monospace; line-height: 1.5; color: #618fa8; margin-bottom: 6px; word-break: break-all;}
         .resource-item { margin-bottom: 15px; }
-        .resource-header { display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 5px; font-weight: 600;}
-        .progress-bar { width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; }
-        .progress-fill { height: 100%; background: var(--neon-cyan); box-shadow: 0 0 10px var(--neon-cyan); transition: width 0.5s ease; }
+        .resource-header { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 5px; font-weight: 600; }
+        .progress-bar { width: 100%; height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--neon-cyan); box-shadow: 0 0 10px var(--neon-cyan); transition: width 0.4s ease; }
 
         /* =========================================
-           2. الهاتف (Center Console)
+           2. هيكل الكونسول والهاتف المدمج
            ========================================= */
         .center-console { display: none; flex-grow: 1; justify-content: center; align-items: center; pointer-events: auto; z-index: 50; }
-        .phone-container { width: 380px; height: 680px; background: rgba(5, 5, 15, 0.85); border: 2px solid var(--neon-cyan); border-radius: 50px; position: relative; box-shadow: 0 0 40px rgba(0, 229, 255, 0.3), inset 0 0 20px rgba(0, 229, 255, 0.2); backdrop-filter: blur(15px); }
+        .phone-container { width: 385px; height: 700px; background: rgba(3, 4, 12, 0.9); border: 2px solid var(--neon-cyan); border-radius: 45px; position: relative; box-shadow: 0 0 50px rgba(0, 229, 255, 0.25), inset 0 0 25px rgba(0, 229, 255, 0.15); backdrop-filter: blur(20px); }
         .phone { width: 100%; height: 100%; position: relative; overflow: hidden; border-radius: inherit; }
 
-        input, textarea, .terminal-box, #chatMessageGrid, #coreAiChatGrid, select { -webkit-user-select: text; user-select: text; }
-        .dynamic-island { width: 110px; height: 28px; background: #000; border-radius: 20px; position: absolute; top: 11px; left: 50%; transform: translateX(-50%); z-index: 100; display: flex; justify-content: center; align-items: center; font-size: 0.65rem; color: var(--neon-green); pointer-events: none; border: 1px solid #333; }
+        input, textarea, .terminal-box, #chatContainer, #coreAiChatGrid, select { -webkit-user-select: text; user-select: text; }
+        .dynamic-island { width: 120px; height: 28px; background: #000; border-radius: 20px; position: absolute; top: 11px; left: 50%; transform: translateX(-50%); z-index: 100; display: flex; justify-content: center; align-items: center; font-size: 0.65rem; color: var(--neon-green); pointer-events: none; border: 1px solid rgba(255,255,255,0.1); font-weight: bold; letter-spacing: 1px;}
         
-        /* شاشة القفل */
-        .lock-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 95; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 30px; transition: transform 0.5s cubic-bezier(0.1, 0.9, 0.2, 1); background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); }
-        .lock-date { font-size: 0.85rem; color: #fff; margin-bottom: 25px; }
-        .lock-blur-box { background: rgba(0, 0, 0, 0.85); border: 1px solid rgba(0, 229, 255, 0.3); border-radius: 20px; padding: 20px; width: 100%; display: flex; flex-direction: column; align-items: center; }
+        /* شاشة القفل والاتصال */
+        .lock-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 95; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 30px; transition: transform 0.6s cubic-bezier(0.1, 0.9, 0.2, 1); background: rgba(1, 3, 8, 0.95); }
+        .lock-date { font-size: 0.9rem; color: #fff; margin-bottom: 25px; letter-spacing: 1px; font-weight: 500;}
+        .lock-blur-box { background: rgba(5, 10, 25, 0.8); border: 1px solid rgba(0, 229, 255, 0.3); border-radius: 24px; padding: 25px; width: 100%; display: flex; flex-direction: column; align-items: center; box-shadow: 0 0 30px rgba(0,229,255,0.1); }
 
-        /* الشاشة الرئيسية للهاتف */
-        .phone-screen { width: 100%; height: 100%; display: flex; flex-direction: column; padding: 50px 14px 20px 14px; position: relative; z-index: 5; }
-        .status-bar { display: flex; justify-content: space-between; font-size: 0.7rem; color: white; z-index: 40; margin-bottom: 25px; }
-        .home-screen { position: relative; z-index: 10; flex-grow: 1; display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: max-content; gap: 20px 12px; overflow-y: auto; align-content: start;}
+        /* شاشة الهاتف الداخلية الرئيسية */
+        .phone-screen { width: 100%; height: 100%; display: flex; flex-direction: column; padding: 52px 16px 24px 16px; position: relative; z-index: 5; background: radial-gradient(circle at center, rgba(10,25,50,0.2) 0%, transparent 80%); }
+        .status-bar { display: flex; justify-content: space-between; font-size: 0.75rem; color: #fff; z-index: 40; margin-bottom: 25px; font-weight: 600;}
+        .home-screen { position: relative; z-index: 10; flex-grow: 1; display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: max-content; gap: 22px 14px; overflow-y: auto; align-content: start; }
         
-        /* أيقونات التطبيقات */
-        .app-item { position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; }
-        .app-icon { width: 55px; height: 55px; border-radius: 15px; display: flex; justify-content: center; align-items: center; font-size: 1.6rem; border: 1px solid rgba(255, 255, 255, 0.2); }
-        .app-name { font-size: 0.65rem; color: #ffffff; text-align: center; font-weight: bold; }
-        .delete-app-btn { position: absolute; top: -4px; right: -4px; width: 20px; height: 20px; background: var(--neon-magenta); color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 0.55rem; z-index: 20; cursor: pointer; }
+        /* واجهة الأيقونات */
+        .app-item { position: relative; display: flex; flex-direction: column; align-items: center; gap: 7px; cursor: pointer; }
+        .app-icon { width: 56px; height: 56px; border-radius: 16px; display: flex; justify-content: center; align-items: center; font-size: 1.5rem; border: 1px solid rgba(255, 255, 255, 0.15); transition: transform 0.2s, box-shadow 0.2s; background: rgba(255,255,255,0.03); }
+        .app-item:hover .app-icon { transform: scale(1.08); box-shadow: 0 0 12px rgba(0, 229, 255, 0.3); }
+        .app-name { font-size: 0.68rem; color: #ffffff; text-align: center; font-weight: 600; letter-spacing: 0.5px; }
+        .delete-app-btn { position: absolute; top: -5px; right: -5px; width: 22px; height: 22px; background: var(--neon-magenta); color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 0.6rem; z-index: 20; cursor: pointer; box-shadow: 0 0 8px var(--neon-magenta); }
 
-        /* نوافذ التطبيقات الداخلية */
-        .window-instance { position: absolute; width: 100%; height: 100%; top: 0; left: 0; background: rgba(0, 0, 0, 0.95); z-index: 80; display: flex; flex-direction: column; overflow: hidden; padding-top: 40px; transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.1, 0.9, 0.2, 1); }
+        /* النوافذ المنسدلة للأسفل */
+        .window-instance { position: absolute; width: 100%; height: 100%; top: 0; left: 0; background: #040814; z-index: 80; display: flex; flex-direction: column; overflow: hidden; padding-top: 40px; transform: translateY(100%); transition: transform 0.45s cubic-bezier(0.1, 0.9, 0.2, 1); }
         .window-instance.open { transform: translateY(0); }
-        .window-header-bar { background: #0d0d18; padding: 12px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(0,229,255,0.3); }
-        .window-title { font-size: 0.75rem; color: var(--neon-cyan); font-weight: bold; font-family: monospace; }
-        .win-btn { padding: 5px 14px; border-radius: 6px; border: none; background: var(--neon-magenta); color: white; font-size: 0.65rem; font-weight: bold; cursor: pointer; }   
+        .window-header-bar { background: #090e1a; padding: 14px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
+        .window-title { font-size: 0.8rem; color: var(--neon-cyan); font-weight: bold; font-family: monospace; letter-spacing: 1px; }
+        .win-btn { padding: 6px 16px; border-radius: 6px; border: none; background: var(--neon-magenta); color: white; font-size: 0.7rem; font-weight: bold; cursor: pointer; box-shadow: 0 0 10px rgba(255,51,102,0.3); }   
         .window-body { flex-grow: 1; width: 100%; height: 100%; overflow: auto; display: flex; flex-direction: column; }
         
-        /* عناصر الـ CMD */
-        .cmd-body { padding: 12px; display: flex; flex-direction: column; gap: 10px; height: 100%; }
-        .terminal-box { flex-grow: 1; background: #000; border-radius: 6px; padding: 10px; font-family: monospace; font-size: 0.7rem; color: var(--neon-green); overflow-y: auto; border: 1px solid rgba(255,255,255,0.1); }
-        .cmd-inputs { background: #070714; border: 1px solid var(--border-color); padding: 10px; border-radius: 8px; display: flex; flex-direction: column; gap: 8px; }
-        .cmd-line { display: flex; align-items: center; gap: 6px; }
-        .cmd-label { font-family: monospace; font-size: 0.7rem; color: var(--neon-cyan); }
-        .cmd-input { flex-grow: 1; background: transparent; border: none; color: #fff; font-family: monospace; font-size: 0.75rem; outline: none; border-bottom: 1px solid #333; padding-bottom: 2px;}
-        .cmd-select { width: 100%; background: #000; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; padding: 6px; color: var(--neon-cyan); font-size: 0.7rem; outline: none; font-family: monospace; }
-        .cmd-text { width: 100%; height: 120px; background: #000; border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; color: var(--neon-green); font-family: monospace; font-size: 0.7rem; padding: 6px; resize: none; outline: none; }
-        .action-btn { width: 100%; padding: 12px; background: linear-gradient(135deg, var(--neon-cyan), #4facfe); border: none; border-radius: 6px; color: #000; font-weight: bold; font-size: 0.75rem; cursor: pointer; }
-        
-        /* نافذة التأكيد (Deploy Choice) */
-        .choice-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 200; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; padding: 20px; }
+        /* محتويات الـ CMD */
+        .cmd-body { padding: 14px; display: flex; flex-direction: column; gap: 12px; height: 100%; }
+        .terminal-box { flex-grow: 1; background: #000; border-radius: 8px; padding: 12px; font-family: monospace; font-size: 0.75rem; color: var(--neon-green); overflow-y: auto; border: 1px solid rgba(255,255,255,0.05); line-height: 1.4; }
+        .cmd-inputs { background: #060b18; border: 1px solid var(--border-color); padding: 12px; border-radius: 10px; display: flex; flex-direction: column; gap: 8px; }
+        .cmd-line { display: flex; align-items: center; gap: 8px; }
+        .cmd-label { font-family: monospace; font-size: 0.75rem; color: var(--neon-cyan); }
+        .cmd-input { flex-grow: 1; background: transparent; border: none; color: #fff; font-family: monospace; font-size: 0.8rem; outline: none; border-bottom: 1px solid #1a2942; padding-bottom: 2px; }
+        .cmd-select { width: 100%; background: #000; border: 1px solid rgba(255,255,255,0.15); border-radius: 5px; padding: 6px; color: var(--neon-cyan); font-size: 0.75rem; outline: none; font-family: monospace; }
+        .cmd-text { width: 100%; height: 100px; background: #000; border: 1px solid rgba(255,255,255,0.1); border-radius: 5px; color: var(--neon-green); font-family: monospace; font-size: 0.75rem; padding: 8px; resize: none; outline: none; }
+        .action-btn { width: 100%; padding: 12px; background: linear-gradient(135deg, var(--neon-cyan), #11ffbd); border: none; border-radius: 6px; color: #000; font-weight: bold; font-size: 0.8rem; cursor: pointer; transition: opacity 0.2s; text-transform: uppercase; letter-spacing: 0.5px;}
+        .action-btn:hover { opacity: 0.9; }
+
+        /* تراكب التثبيت */
+        .choice-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(1,3,8,0.9); z-index: 200; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; padding: 25px; }
         .choice-overlay.active { opacity: 1; pointer-events: auto; }
-        .choice-box { background: #070714; border: 2px solid var(--neon-cyan); border-radius: 20px; padding: 24px; width: 100%; text-align: center; display: flex; flex-direction: column; gap: 14px; }
+        .choice-box { background: #060c1f; border: 2px solid var(--neon-cyan); border-radius: 24px; padding: 25px; width: 100%; text-align: center; display: flex; flex-direction: column; gap: 15px; box-shadow: 0 0 35px rgba(0,229,255,0.2); }
     </style>
 </head>
 <body>
@@ -117,42 +122,42 @@
             </div>
             
             <div class="sci-fi-panel activity-log">
-                <div style="font-weight: 600; margin-bottom: 15px;">ACTIVITY LOG</div>
-                <p><span>> SYSTEM BOOT</span> <span style="color: #00ff66;">OK</span></p>
-                <p><span>> DATABASE LINK</span> <span style="color: #00ff66;">OK</span></p>
-                <p><span>> A0Z ENGINE</span> <span style="color: var(--neon-cyan);">ONLINE</span></p>
+                <div style="font-weight: 600; margin-bottom: 12px; font-size: 0.9rem; letter-spacing: 1px; color: var(--neon-cyan);">CORE ACTIVITY LOG</div>
+                <div id="liveActivityLogger" style="height: 140px; overflow-y: auto;">
+                    <p style="color:var(--neon-green)">[SYSTEM] OS Quantum boot linked.</p>
+                </div>
             </div>
         </div>
 
         <div class="center-console" id="center-console">
             <div class="phone-container">
                 <div class="phone">
-                    <div class="dynamic-island" id="island">A0Z CORE</div>
+                    <div class="dynamic-island" id="island">A0Z QUANTUM</div>
                     
                     <div class="choice-overlay" id="destinationChoiceOverlay">
                         <div class="choice-box">
-                            <h3 style="color: var(--neon-cyan); font-size: 0.95rem;">تثبيت التطبيق 🛸</h3>
-                            <p style="font-size: 0.7rem; color: #ccc;">هل تريد تثبيت هذا التطبيق داخل نظامك؟</p>
-                            <button class="action-btn" onclick="confirmDeployDestination()">تثبيت (INJECT) 📱</button>
-                            <button class="win-btn" style="background: #333; padding: 10px;" onclick="hideDeployChoiceBox()">إلغاء</button>
+                            <h3 style="color: var(--neon-cyan); font-size: 1rem; letter-spacing: 0.5px;">INJECT APPLICATION?</h3>
+                            <p style="font-size: 0.75rem; color: #9bbccf;">Compile and push bytecode into your secured Firebase repository?</p>
+                            <button class="action-btn" onclick="confirmDeployDestination()">CONFIRM INJECTION 📱</button>
+                            <button class="win-btn" style="background: #202538; padding: 10px;" onclick="hideDeployChoiceBox()">ABORT</button>
                         </div>
                     </div>
 
                     <div class="lock-screen" id="lockScreen">
-                        <div class="lock-date" id="lockDate"></div>
+                        <div class="lock-date" id="lockDate">Loading Matrix...</div>
                         <div class="lock-blur-box">
-                            <h4 style="color: var(--neon-cyan); margin-bottom: 15px; font-size: 0.85rem;">A0Z LOGIN</h4>
-                            <input type="email" id="loginUser" style="width:100%; padding:10px; background:#000; border:1px solid var(--border-color); border-radius:6px; color:#fff; text-align:center; outline:none; margin-bottom:10px;" placeholder="Email">
-                            <input type="password" id="loginPass" style="width:100%; padding:10px; background:#000; border:1px solid var(--border-color); border-radius:6px; color:#fff; text-align:center; outline:none; margin-bottom:15px;" placeholder="Password">
-                            <button class="action-btn" style="color:#000;" onclick="unlockWithOfficialEmail()">ENTER SYSTEM</button>
-                            <div id="lockScreenFeedback" style="color: var(--neon-magenta); font-size: 0.7rem; margin-top:10px;"></div>
+                            <h4 style="color: var(--neon-cyan); margin-bottom: 15px; font-size: 0.9rem; letter-spacing: 1px;">A0Z NODE ACCESS</h4>
+                            <input type="email" id="loginUser" style="width:100%; padding:11px; background:#000; border:1px solid var(--border-color); border-radius:6px; color:#fff; text-align:center; outline:none; margin-bottom:10px; font-size: 0.8rem;" placeholder="Node Identifier (Email)">
+                            <input type="password" id="loginPass" style="width:100%; padding:11px; background:#000; border:1px solid var(--border-color); border-radius:6px; color:#fff; text-align:center; outline:none; margin-bottom:15px; font-size: 0.8rem;" placeholder="Security Phrase">
+                            <button class="action-btn" style="color:#000;" onclick="unlockWithOfficialEmail()">AUTHENTICATE</button>
+                            <div id="lockScreenFeedback" style="color: var(--neon-magenta); font-size: 0.75rem; margin-top:12px; font-family:monospace;"></div>
                         </div>
                     </div>
 
                     <div class="phone-screen" id="phoneScreen">
                         <div class="status-bar">
                             <div id="liveClock">00:00</div>
-                            <div>A0Z NET <i class="fa-solid fa-wifi"></i></div>
+                            <div style="color: var(--neon-cyan);">Q-NET <i class="fa-solid fa-satellite-dish"></i></div>
                         </div>
                         <div class="home-screen" id="homeScreen">
                             </div>
@@ -160,62 +165,80 @@
 
                     <div class="window-instance" id="win_cmd_system">
                         <div class="window-header-bar">
-                            <div class="window-title">⚡ A0Z:\CMD</div>
+                            <div class="window-title">⚡ Core:\System32\Quantum_cmd</div>
                             <button class="win-btn" onclick="closeAppWindow('cmd_system')">X</button>
                         </div>
                         <div class="window-body">
                             <div class="cmd-body">
                                 <div class="terminal-box" id="systemTerminal">
-                                    <div>A0Z Terminal v2.0 Ready.</div>
+                                    <div>A0Z Core Engine Terminal [Version 2.6.0]</div>
+                                    <div style="color:#888">Type 'help' to unlock system directives.</div><br>
                                 </div>
                                 <div class="cmd-inputs">
                                     <div class="cmd-line">
-                                        <span class="cmd-label">cmd ></span>
-                                        <input type="text" id="cmdLineInput" class="cmd-input" placeholder="Execute test command..." onkeypress="if(event.key==='Enter') executeTerminalCmd()">
+                                        <span class="cmd-label">A0Z_OS ></span>
+                                        <input type="text" id="cmdLineInput" class="cmd-input" placeholder="Execute node command..." onkeypress="if(event.key==='Enter') executeTerminalCmd()">
                                     </div>
-                                    <div class="cmd-line" style="margin-top: 10px;">
-                                        <span class="cmd-label">app=</span>
+                                    <div class="cmd-line" style="margin-top: 8px;">
+                                        <span class="cmd-label">target=</span>
                                         <select id="appSelector" class="cmd-select" onchange="loadSelectedAppCode()">
-                                            <option value="new">-- New App --</option>
+                                            <option value="new">-- Construct New Custom Node --</option>
                                         </select>
                                     </div>
-                                    <input type="text" id="appNameInput" class="cmd-input" placeholder="App Name (e.g. My Calc)" style="margin-top: 5px;">
-                                    <textarea id="appCodeInput" class="cmd-text" placeholder="document.body.innerHTML = '<h1>Hello World</h1>';" style="margin-top: 5px;"></textarea>
+                                    <input type="text" id="appNameInput" class="cmd-input" placeholder="Application Title" style="margin-top: 4px;">
+                                    <textarea id="appCodeInput" class="cmd-text" placeholder="// Write functional execution script here...&#10;function init(root) { root.innerHTML = '<h3>App Active</h3>'; }" style="margin-top: 4px;"></textarea>
                                 </div>
-                                <button class="action-btn" onclick="openDeployChoiceBox()">DEPLOY & INJECT 🚀</button>
+                                <button class="action-btn" onclick="openDeployChoiceBox()">COMPILE & DEPLOY NODE 🚀</button>
                             </div>
                         </div>
                     </div>
 
                     <div class="window-instance" id="win_global_chat">
                         <div class="window-header-bar">
-                            <div class="window-title">💬 Zulu Global Chat</div>
+                            <div class="window-title">💬 Zulu Encrypted Channels</div>
                             <button class="win-btn" onclick="closeAppWindow('global_chat')">X</button>
                         </div>
-                        <div class="window-body" id="chatContainer" style="background: #05050f;">
+                        <div class="window-body" id="chatContainer" style="background: #02040a;">
                             </div>
                     </div>
 
                     <div class="window-instance" id="win_official_ai_bot">
                         <div class="window-header-bar">
-                            <div class="window-title">🤖 A0Z Core AI</div>
+                            <div class="window-title">🤖 Neural Core AI</div>
                             <button class="win-btn" onclick="closeAppWindow('official_ai_bot')">X</button>
                         </div>
-                        <div class="window-body" style="background:#020208; display:flex; flex-direction:column;">
+                        <div class="window-body" style="background:#010308; display:flex; flex-direction:column;">
                             <div id="coreAiChatGrid" style="flex-grow:1; overflow-y:auto; padding:15px; display:flex; flex-direction:column; gap:10px; font-size:0.75rem;"></div>
-                            <div style="padding:10px; display:flex; gap:6px; border-top:1px solid #222;">
-                                <input id="coreAiInput" type="text" placeholder="Ask AI..." style="flex-grow:1; background:#000; border:1px solid #333; padding:10px; color:white; border-radius: 5px;">
-                                <button id="coreAiSendBtn" style="background:var(--neon-cyan); color:#000; border:none; padding:0 15px; cursor:pointer; border-radius: 5px; font-weight: bold;">Send</button>
+                            <div style="padding:10px; display:flex; gap:6px; border-top:1px solid #121f38;">
+                                <input id="coreAiInput" type="text" placeholder="Inquire quantum matrix..." style="flex-grow:1; background:#000; border:1px solid #1a2c4c; padding:10px; color:white; border-radius: 6px; outline:none;">
+                                <button id="coreAiSendBtn" style="background:var(--neon-cyan); color:#000; border:none; padding:0 15px; cursor:pointer; border-radius: 6px; font-weight: bold;">ASK</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="window-instance" id="win_vision_ai_scanner">
+                        <div class="window-header-bar">
+                            <div class="window-title">👁️ AI Vision Objects Scanner</div>
+                            <button class="win-btn" onclick="stopVisionAiScanner()">X</button>
+                        </div>
+                        <div class="window-body" style="background:#000; display:flex; flex-direction:column; align-items:center; justify-content:center; pading:10px;">
+                            <div style="position:relative; width:100%; height:80%; background:#111; display:flex; justify-content:center; align-items:center;">
+                                <video id="visionVideo" autoplay playsinline muted style="width:100%; height:100%; object-fit:cover; position:absolute;"></video>
+                                <canvas id="visionCanvas" style="width:100%; height:100%; position:absolute; left:0; top:0; z-index:10; pointer-events:none;"></canvas>
+                                <div id="visionStatus" style="z-index:12; color:var(--neon-cyan); font-family:monospace; font-size:0.75rem; background:rgba(0,0,0,0.8); padding:8px 15px; border-radius:5px; border:1px solid var(--border-color);">Initializing AI Model Hub...</div>
+                            </div>
+                            <div style="width:100%; padding:10px; display:flex; gap:5px;">
+                                <button class="action-btn" onclick="startVisionAiScanner()">ACTIVATE FEED</button>
                             </div>
                         </div>
                     </div>
 
                     <div class="window-instance" id="win_custom_runtime" style="z-index: 85;">
                         <div class="window-header-bar">
-                            <div class="window-title" id="customWinTitle">🛸 Custom App</div>
+                            <div class="window-title" id="customWinTitle">🛸 Node Sandbox Runtime</div>
                             <button class="win-btn" onclick="closeAppWindow('custom_runtime')">X</button>
                         </div>
-                        <div class="window-body" id="customContainer" style="background:#111; color:#fff;"></div>
+                        <div class="window-body" id="customContainer" style="background:#0b0f19;"></div>
                     </div>
 
                 </div>
@@ -224,18 +247,18 @@
 
         <div class="panel-container">
             <div class="sci-fi-panel">
-                <div style="font-weight: 600; margin-bottom: 10px;">SYSTEM RESOURCES</div>
+                <div style="font-weight: 600; margin-bottom: 12px; letter-spacing: 1px; font-size:0.9rem; color:var(--neon-cyan);">QUANTUM HARDWARE</div>
                 <div class="resource-item">
-                    <div class="resource-header"><span>MEMORY</span> <span id="mem-val">72%</span></div>
-                    <div class="progress-bar"><div class="progress-fill" id="mem-bar" style="width: 72%;"></div></div>
+                    <div class="resource-header"><span>MEMORY SPECTRUM</span> <span id="mem-val">65%</span></div>
+                    <div class="progress-bar"><div class="progress-fill" id="mem-bar" style="width: 65%;"></div></div>
                 </div>
                 <div class="resource-item">
-                    <div class="resource-header"><span>CPU</span> <span id="cpu-val">34%</span></div>
-                    <div class="progress-bar"><div class="progress-fill" id="cpu-bar" style="width: 34%;"></div></div>
+                    <div class="resource-header"><span>CORE CPU LOAD</span> <span id="cpu-val">22%</span></div>
+                    <div class="progress-bar"><div class="progress-fill" id="cpu-bar" style="width: 22%;"></div></div>
                 </div>
                 <div class="resource-item">
-                    <div class="resource-header"><span>NET</span> <span id="net-val">68%</span></div>
-                    <div class="progress-bar"><div class="progress-fill" id="net-bar" style="width: 68%;"></div></div>
+                    <div class="resource-header"><span>Q-NET SYNC RATE</span> <span id="net-val">91%</span></div>
+                    <div class="progress-bar"><div class="progress-fill" id="net-bar" style="width: 91%;"></div></div>
                 </div>
             </div>
         </div>
@@ -245,7 +268,18 @@
 
     <script>
         /* ====================================================================
-           1. إعداد الفايربيس (Firebase Config & Init)
+           1. نظام توثيق التحركات الجانبي التلقائي (Activity Logger)
+           ==================================================================== */
+        function logCoreEvent(message, color = "var(--text-main)") {
+            const logger = document.getElementById('liveActivityLogger');
+            if(logger) {
+                logger.innerHTML += `<p style="color:${color}">> ${message}</p>`;
+                logger.scrollTop = logger.scrollHeight;
+            }
+        }
+
+        /* ====================================================================
+           2. تهيئة الاتصال بـ Firebase
            ==================================================================== */
         const firebaseConfig = {
             apiKey: "AIzaSyA7Pu0DJOWmdoDYUUVP1J9aqhxh4f3wyfA",
@@ -263,69 +297,111 @@
         let currentUserUID = null; 
         let currentUserEmail = ""; 
         let globalAppsData = {};
+        let objectDetectorModel = null;
+        let visionStream = null;
 
         /* ====================================================================
-           2. دوال الواجهة الأساسية (Navigation & Windows)
+           3. التوجيه وتنشيط الهاتف والنوافذ (Navigation Control)
            ==================================================================== */
         function handleNav(menuId) {
             document.querySelectorAll('.nav-menu li').forEach(li => li.classList.remove('active'));
             document.getElementById('nav-' + menuId).classList.add('active');
             
             const centerConsole = document.getElementById('center-console');
+            logCoreEvent(`Navigation changed to node: ${menuId.toUpperCase()}`, "var(--neon-cyan)");
             
             if (menuId === 'home') {
-                centerConsole.style.display = 'none'; // إظهار 3D فقط
+                centerConsole.style.display = 'none'; 
             } else {
-                centerConsole.style.display = 'flex'; // إظهار الهاتف
+                centerConsole.style.display = 'flex'; 
                 if (currentUserUID) {
-                    // إغلاق كل النوافذ أولاً
                     closeAppWindow('cmd_system'); closeAppWindow('global_chat'); 
-                    closeAppWindow('official_ai_bot'); closeAppWindow('custom_runtime');
+                    closeAppWindow('official_ai_bot'); closeAppWindow('custom_runtime'); closeAppWindow('vision_ai_scanner');
                     
-                    // فتح النافذة المطلوبة
                     if (menuId === 'terminal') openAppWindow('cmd_system');
                     if (menuId === 'network') { openAppWindow('global_chat'); renderChatInterface(); }
                 }
             }
         }
 
-        function openAppWindow(id) { document.getElementById(`win_${id}`).classList.add('open'); }
-        function closeAppWindow(id) { document.getElementById(`win_${id}`).classList.remove('open'); }
+        function openAppWindow(id) { 
+            document.getElementById(`win_${id}`).classList.add('open'); 
+            logCoreEvent(`Launched window interface: ${id.toUpperCase()}`, "var(--neon-green)");
+        }
+        function closeAppWindow(id) { 
+            document.getElementById(`win_${id}`).classList.remove('open'); 
+            logCoreEvent(`Terminated window interface: ${id.toUpperCase()}`, "var(--neon-magenta)");
+        }
 
         /* ====================================================================
-           3. تسجيل الدخول (Login & Auth)
+           4. نظام الحماية وتسجيل الدخول (Firebase Auth Protocol)
            ==================================================================== */
         function unlockWithOfficialEmail() {
             const email = document.getElementById('loginUser').value.trim();
             const pass = document.getElementById('loginPass').value;
             const feedback = document.getElementById('lockScreenFeedback');
             
-            if(!email || !pass) { feedback.innerText = "Please enter both Email and Password!"; return; }
-            feedback.innerText = "Connecting to A0Z Core... ⏳";
+            if(!email || !pass) { feedback.innerText = "Null entries detected. Access denied."; return; }
+            feedback.innerText = "Decrypting token key... ⏳";
 
             auth.signInWithEmailAndPassword(email, pass).then((u) => {
-                // ملاحظة: أزلت شرط (emailVerified) مؤقتاً لتسهيل دخولك لتجربة الكود، يمكنك إعادته لاحقاً
                 currentUserUID = u.user.uid; 
                 currentUserEmail = email.split('@')[0];
                 
                 document.getElementById('lockScreen').style.transform = "translateY(-100%)";
                 database.ref(`presence/${currentUserUID}`).set({ username: currentUserEmail, online: true });
                 
+                logCoreEvent(`Authenticated node session: @${currentUserEmail}`, "var(--neon-green)");
+                
                 listenToUserApps(); 
                 setupOfficialAiEngine();
+                preloadCocoSsdModel(); // تحميل فوري لنموذج تنسورفلو في الخلفية
                 
-                // فتح النافذة المناسبة بناءً على القائمة الجانبية
                 const activeNav = document.querySelector('.nav-menu li.active').id;
                 if(activeNav === 'nav-terminal') openAppWindow('cmd_system');
                 if(activeNav === 'nav-network') { openAppWindow('global_chat'); renderChatInterface(); }
             }).catch((err) => { 
-                feedback.innerText = `Error: ${err.message}`; 
+                feedback.innerText = `Token Reject: ${err.message}`; 
+                logCoreEvent(`Authentication failed: ${err.message}`, "var(--neon-magenta)");
             });
         }
 
         /* ====================================================================
-           4. إدارة التطبيقات (Apps Management & CMD Deployment)
+           5. نظام الـ Terminal وتفسير الأوامر (Advanced Terminal Engine)
            ==================================================================== */
+        function executeTerminalCmd() {
+            const input = document.getElementById("cmdLineInput");
+            const terminal = document.getElementById("systemTerminal");
+            const cmd = input.value.trim().toLowerCase();
+            if (cmd === "") return;
+
+            terminal.innerHTML += `<div style='color:#fff; margin-top:5px;'>A0Z_OS > ${input.value}</div>`;
+            logCoreEvent(`Terminal command execution: '${cmd}'`);
+
+            if(cmd === 'help') {
+                terminal.innerHTML += `
+                    <div style='color:var(--neon-cyan)'>Available System Protocols:<br>
+                    - help : Displays this interface.<br>
+                    - sysinfo : Pull architecture metrics.<br>
+                    - status : Check Firebase connection integrity.<br>
+                    - matrix : Deploy virtual system matrix stream.<br>
+                    - clear : Clear terminal grid trace.</div>`;
+            } else if (cmd === 'sysinfo') {
+                terminal.innerHTML += `<div style='color:#fff'>Platform: A0Z Core Architecture v2.6<br>Runtime: Quantum V8 Engine<br>Sub-layer: TensorFlow Neural Core active.</div>`;
+            } else if (cmd === 'status') {
+                terminal.innerHTML += `<div style='color:var(--neon-green)'>Firebase Link Status: CONNECTED<br>User token UID: ${currentUserUID}</div>`;
+            } else if (cmd === 'matrix') {
+                terminal.innerHTML += `<div style='color:var(--neon-green)'>01010011 01011001 01010011 01010100 01000101 01001101_OK</div>`;
+            } else if (cmd === 'clear') {
+                terminal.innerHTML = `<div>A0Z Terminal Flushed.</div>`;
+            } else {
+                terminal.innerHTML += `<div style='color:var(--neon-magenta)'>[ERROR] Command '${cmd}' unrecognized by system core.</div>`;
+            }
+
+            input.value = ""; 
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
         function listenToUserApps() { 
             if(!currentUserUID) return;
             database.ref('custom_apps/' + currentUserUID).on('value', (s) => { 
@@ -339,47 +415,40 @@
             const hs = document.getElementById('homeScreen'); 
             hs.innerHTML = '';
             
-            // التطبيقات الأساسية الثابتة
             const systemApps = [
-                { id: 'cmd_system', icon: '&gt;_', name: 'CMD', bg: '#000', color: 'var(--neon-green)' },
-                { id: 'global_chat', icon: '💬', name: 'Z-Chat', bg: 'linear-gradient(135deg, #ffcc00, #ff3366)', color: '#fff' },
-                { id: 'official_ai_bot', icon: '🤖', name: 'AI Core', bg: 'rgba(4, 15, 30, 0.9)', color: '#fff' }
+                { id: 'cmd_system', icon: '&gt;_', name: 'Terminal', bg: '#000', color: 'var(--neon-green)' },
+                { id: 'global_chat', icon: '<i class="fa-solid fa-comments"></i>', name: 'Zulu Chat', bg: 'linear-gradient(135deg, #ffcc00, #ff3366)', color: '#fff' },
+                { id: 'official_ai_bot', icon: '<i class="fa-solid fa-brain"></i>', name: 'AI Core', bg: 'rgba(5, 12, 35, 0.9)', color: 'var(--neon-cyan)' },
+                { id: 'vision_ai_scanner', icon: '<i class="fa-solid fa-eye"></i>', name: 'AI Vision', bg: '#03140a', color: 'var(--neon-green)' }
             ];
             
             systemApps.forEach(a => {
                 const item = document.createElement('div'); item.className = 'app-item';
-                item.onclick = () => { openAppWindow(a.id); if(a.id === 'global_chat') renderChatInterface(); };
+                item.onclick = () => { 
+                    if(a.id === 'vision_ai_scanner') startVisionAiScanner();
+                    else openAppWindow(a.id); 
+                    if(a.id === 'global_chat') renderChatInterface(); 
+                };
                 item.innerHTML = `<div class="app-icon" style="background:${a.bg}; color:${a.color};">${a.icon}</div><div class="app-name">${a.name}</div>`;
                 hs.appendChild(item);
             });
 
-            // التطبيقات المخصصة المحملة من فايربيس
             Object.keys(globalAppsData).forEach((k) => {
                 const app = globalAppsData[k];
                 const item = document.createElement('div'); item.className = 'app-item';
-                item.onclick = (e) => { if(e.target.classList.contains('delete-app-btn')) return; launchCustomApp(k); };
+                item.onclick = (e) => { if(e.target.classList.contains('delete-app-btn') || e.target.closest('.delete-app-btn')) return; launchCustomApp(k); };
                 item.innerHTML = `
                     <div class="delete-app-btn" onclick="deleteCustomApp('${k}', '${app.name}')"><i class="fa-solid fa-xmark"></i></div>
-                    <div class="app-icon" style="background: rgba(0, 229, 255, 0.2); border-color: var(--neon-cyan);">🛸</div>
+                    <div class="app-icon" style="background: rgba(0, 229, 255, 0.1); border-color: var(--neon-cyan); color:var(--neon-cyan); font-size:1.2rem;"><i class="fa-solid fa-cubes"></i></div>
                     <div class="app-name">${app.name}</div>
                 `;
                 hs.appendChild(item);
             });
         }
 
-        // --- دوال نافذة التأكيد (Deploy Buttons Fix) ---
-        function openDeployChoiceBox() {
-            document.getElementById('destinationChoiceOverlay').classList.add('active');
-        }
-        
-        function hideDeployChoiceBox() {
-            document.getElementById('destinationChoiceOverlay').classList.remove('active');
-        }
-
-        function confirmDeployDestination() {
-            hideDeployChoiceBox(); // إخفاء النافذة
-            addNewAppFromPanel();  // تنفيذ الرفع
-        }
+        function openDeployChoiceBox() { document.getElementById('destinationChoiceOverlay').classList.add('active'); }
+        function hideDeployChoiceBox() { document.getElementById('destinationChoiceOverlay').classList.remove('active'); }
+        function confirmDeployDestination() { hideDeployChoiceBox(); addNewAppFromPanel(); }
 
         function addNewAppFromPanel() {
             if (!currentUserUID) return;
@@ -389,21 +458,17 @@
             const terminal = document.getElementById("systemTerminal");
             
             if (!name || !code) {
-                terminal.innerHTML += `<div style='color:var(--neon-magenta);'>[ERROR] App Name & Code required!</div>`;
-                terminal.scrollTop = terminal.scrollHeight;
+                terminal.innerHTML += `<div style='color:var(--neon-magenta);'>[ERROR] Integrity Fault: Title & Payload empty!</div>`;
                 return;
             }
 
             const appId = (sel === 'new') ? 'app_' + Date.now() : sel;
             
             database.ref(`custom_apps/${currentUserUID}/${appId}`).set({
-                name: name,
-                code: code,
-                timestamp: Date.now()
+                name: name, code: code, timestamp: Date.now()
             }).then(() => {
-                terminal.innerHTML += `<div style='color:var(--neon-green);'>[SUCCESS] '${name}' deployed to network!</div>`;
-                terminal.scrollTop = terminal.scrollHeight;
-                
+                terminal.innerHTML += `<div style='color:var(--neon-green);'>[SUCCESS] Node compiled and injected into cluster.</div>`;
+                logCoreEvent(`Injected app payload: ${name}`, "var(--neon-green)");
                 document.getElementById('appNameInput').value = "";
                 document.getElementById('appCodeInput').value = "";
                 document.getElementById('appSelector').value = "new";
@@ -411,14 +476,15 @@
         }
 
         function deleteCustomApp(appId, appName) {
-            if(confirm(`Delete App: ${appName}?`)) {
+            if(confirm(`Purge Application: ${appName}?`)) {
                 database.ref(`custom_apps/${currentUserUID}/${appId}`).remove();
+                logCoreEvent(`Purged app from cloud database: ${appName}`, "var(--neon-magenta)");
             }
         }
 
         function updateAppSelectorOptions() {
             const selector = document.getElementById('appSelector'); 
-            selector.innerHTML = '<option value="new">-- New App --</option>';
+            selector.innerHTML = '<option value="new">-- Construct New Custom Node --</option>';
             Object.keys(globalAppsData).forEach((k) => {
                 const opt = document.createElement('option'); opt.value = k; opt.innerText = globalAppsData[k].name; selector.appendChild(opt);
             });
@@ -432,47 +498,103 @@
 
         function launchCustomApp(key) {
             const app = globalAppsData[key]; if (!app) return;
-            document.getElementById('customWinTitle').innerText = `🛸 ${app.name}`;
+            document.getElementById('customWinTitle').innerText = `🛸 Runtime: ${app.name}`;
             const container = document.getElementById('customContainer');
             
-            // تنفيذ الكود داخل iframe ليكون معزولاً وآمناً
             container.innerHTML = `<iframe sandbox="allow-scripts allow-same-origin" style="width:100%;height:100%;border:none;background:transparent;" srcdoc="
-                <!DOCTYPE html><html><body style='color:#fff; font-family:sans-serif;'>
+                <!DOCTYPE html><html><body style='color:#fff; font-family:sans-serif; padding:15px;'>
                 <div id='root'></div><script>
                 try { 
                     const appFunc = new Function('return (' + ${JSON.stringify(app.code)} + ')')(); 
                     appFunc(document.getElementById('root')); 
-                } catch(e){ document.body.innerHTML = '<div style=\\'color:red; padding:20px;\\'>Code Error:<br>' + e.message + '</div>'; }
+                } catch(e){ document.body.innerHTML = '<div style=\\'color:red;\\'>Runtime Exception:<br>' + e.message + '</div>'; }
                 <\/script></body></html>"></iframe>`;
             openAppWindow('custom_runtime');
         }
 
-        function executeTerminalCmd() {
-            const input = document.getElementById("cmdLineInput");
-            const terminal = document.getElementById("systemTerminal");
-            const val = input.value.trim();
-            if (val !== "") {
-                terminal.innerHTML += `<div style='color:#fff;'>$ ${val}</div><div style='color:var(--neon-green);'>Command parsed.</div>`;
-                input.value = ""; terminal.scrollTop = terminal.scrollHeight;
+        /* ====================================================================
+           7. تشغيل الذكاء الاصطناعي البصري (TensorFlow + COCO-SSD Camera Scanner)
+           ==================================================================== */
+        async function preloadCocoSsdModel() {
+            try {
+                objectDetectorModel = await cocoSsd.load();
+                document.getElementById('visionStatus').innerText = "AI Vision Subsystem Loaded. Feed Ready.";
+                logCoreEvent("COCO-SSD TensorFlow Model initialized.", "var(--neon-green)");
+            } catch (e) {
+                document.getElementById('visionStatus').innerText = "Model configuration failed.";
             }
         }
 
-        /* ====================================================================
-           5. الشات والذكاء الاصطناعي (Chat & AI)
-           ==================================================================== */
+        async function startVisionAiScanner() {
+            openAppWindow('vision_ai_scanner');
+            const video = document.getElementById('visionVideo');
+            
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                try {
+                    visionStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false });
+                    video.srcObject = visionStream;
+                    document.getElementById('visionStatus').innerText = "Analyzing Live Flux Matrix...";
+                    logCoreEvent("Camera peripheral streaming active.");
+                    
+                    video.onloadedmetadata = () => {
+                        runVisionObjectDetectionLoop();
+                    };
+                } catch (err) {
+                    document.getElementById('visionStatus').innerText = "Camera permission missing.";
+                }
+            }
+        }
+
+        async function runVisionObjectDetectionLoop() {
+            const video = document.getElementById('visionVideo');
+            const canvas = document.getElementById('visionCanvas');
+            if(!canvas || !video || !visionStream) return;
+            
+            const ctx = canvas.getContext('2d');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+
+            if(objectDetectorModel && video.readyState === 4) {
+                const predictions = await objectDetectorModel.detect(video);
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                predictions.forEach(p => {
+                    ctx.strokeStyle = "#00e5ff";
+                    ctx.lineWidth = 3;
+                    ctx.strokeRect(p.bbox[0], p.bbox[1], p.bbox[2], p.bbox[3]);
+                    
+                    ctx.fillStyle = "#00e5ff";
+                    ctx.font = "16px monospace";
+                    ctx.fillText(`${p.class.toUpperCase()} [${Math.round(p.score * 100)}%]`, p.bbox[0], p.bbox[1] > 20 ? p.bbox[1] - 8 : 20);
+                });
+            }
+
+            if(document.getElementById('win_vision_ai_scanner').classList.contains('open')) {
+                requestAnimationFrame(runVisionObjectDetectionLoop);
+            }
+        }
+
+        function stopVisionAiScanner() {
+            closeAppWindow('vision_ai_scanner');
+            if(visionStream) {
+                visionStream.getTracks().forEach(track => track.stop());
+                visionStream = null;
+            }
+            logCoreEvent("AI Vision stream offline.", "var(--neon-magenta)");
+        }
+
         function renderChatInterface() {
             const chatContainer = document.getElementById('chatContainer');
             chatContainer.innerHTML = `
                 <div id="zuluChatMessages" style="flex-grow:1; overflow-y:auto; padding:15px; font-size:0.75rem; color:#fff; display:flex; flex-direction:column; gap:8px;">
-                    <div style="color:var(--neon-cyan); text-align:center;">Connecting to Zulu Server... ⏳</div>
+                    <div style="color:var(--neon-cyan); text-align:center;">Handshaking with global gateway... ⏳</div>
                 </div>
                 <div style="padding:10px; background:#000; display:flex; gap:5px; border-top:1px solid var(--border-color);">
-                    <input type="text" id="zuluMsgInput" style="flex-grow:1; padding:10px; border-radius:5px; background:#111; color:#fff; border:1px solid #333; outline:none;" placeholder="Type a message..." onkeypress="if(event.key==='Enter') sendZuluMessage()">
-                    <button class="action-btn" style="width:auto; padding:0 20px;" onclick="sendZuluMessage()">Send</button>
+                    <input type="text" id="zuluMsgInput" style="flex-grow:1; padding:10px; border-radius:5px; background:#090e1a; color:#fff; border:1px solid #1a2c4c; outline:none;" placeholder="Transmit packet..." onkeypress="if(event.key==='Enter') sendZuluMessage()">
+                    <button class="action-btn" style="width:auto; padding:0 20px;" onclick="sendZuluMessage()">SEND</button>
                 </div>
             `;
             
-            // استماع للرسائل
             database.ref('global_chat').limitToLast(30).on('value', (snapshot) => {
                 const msgsBox = document.getElementById('zuluChatMessages');
                 if(!msgsBox) return;
@@ -481,9 +603,9 @@
                     const data = child.val();
                     const isMe = data.sender === currentUserEmail;
                     msgsBox.innerHTML += `
-                        <div style="align-self: ${isMe ? 'flex-end' : 'flex-start'}; background: ${isMe ? 'var(--neon-magenta)' : '#1a1a2e'}; padding:10px 14px; border-radius:12px; max-width:85%; border: 1px solid rgba(255,255,255,0.1);">
-                            <div style="font-size:0.6rem; color: ${isMe ? '#fff' : 'var(--neon-cyan)'}; margin-bottom:4px; font-weight:bold;">@${data.sender}</div>
-                            <div style="word-wrap: break-word;">${data.text}</div>
+                        <div style="align-self: ${isMe ? 'flex-end' : 'flex-start'}; background: ${isMe ? 'var(--neon-magenta)' : '#0a1224'}; padding:10px 14px; border-radius:12px; max-width:85%; border: 1px solid rgba(0,229,255,0.15);">
+                            <div style="font-size:0.6rem; color: var(--neon-cyan); margin-bottom:4px; font-weight:bold;">@${data.sender}</div>
+                            <div style="word-wrap: break-word; font-family:monospace; font-size:0.7rem;">${data.text}</div>
                         </div>
                     `;
                 });
@@ -497,9 +619,7 @@
             if(!text || !currentUserUID) return;
             
             database.ref('global_chat').push({
-                sender: currentUserEmail,
-                text: text,
-                timestamp: Date.now()
+                sender: currentUserEmail, text: text, timestamp: Date.now()
             });
             input.value = '';
         }
@@ -511,66 +631,64 @@
             
             btn.onclick = async () => {
                 const text = input.value.trim(); if(!text) return;
-                grid.innerHTML += `<div style="align-self:flex-end; background:var(--neon-cyan); color:#000; padding:10px; border-radius:10px; font-weight:bold;">${text}</div>`;
+                grid.innerHTML += `<div style="align-self:flex-end; background:var(--neon-cyan); color:#000; padding:10px; border-radius:10px; font-weight:bold; font-family:monospace;">${text}</div>`;
                 input.value = '';
                 grid.scrollTop = grid.scrollHeight;
+                logCoreEvent("Transmitted payload to Neural Core AI.");
                 
                 try {
-                    // استخدام واجهة Pollinations كبديل سريع للذكاء الاصطناعي
                     const res = await fetch(`https://text.pollinations.ai/${encodeURIComponent(text)}`);
                     const reply = await res.text();
-                    grid.innerHTML += `<div style="align-self:flex-start; background:rgba(255,255,255,0.1); padding:10px; border-radius:10px; border:1px solid #333;">${reply}</div>`;
+                    grid.innerHTML += `<div style="align-self:flex-start; background:rgba(255,255,255,0.05); padding:10px; border-radius:10px; border:1px solid #1c2e4a; font-family:monospace;">${reply}</div>`;
                     grid.scrollTop = grid.scrollHeight;
                 } catch(e) {
-                    grid.innerHTML += `<div style="align-self:flex-start; color:red;">Connection Error.</div>`;
+                    grid.innerHTML += `<div style="align-self:flex-start; color:red;">Matrix Pipeline Disrupted.</div>`;
                 }
             };
         }
 
         /* ====================================================================
-           6. تحديثات الوقت والرسوميات (Three.js & Clock)
+           9. محرك الرسوميات التفاعلي والعدادات التناظرية الموقوتة
            ==================================================================== */
         setInterval(() => {
             const now = new Date(); 
-            const t = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
-            document.getElementById('liveClock').innerText = t;
+            document.getElementById('liveClock').innerText = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+            if(document.getElementById('lockDate')) document.getElementById('lockDate').innerText = now.toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long' });
             
-            const dateOptions = { weekday: 'long', day: 'numeric', month: 'long' };
-            const dateStr = now.toLocaleDateString('en-US', dateOptions);
-            if(document.getElementById('lockDate')) document.getElementById('lockDate').innerText = dateStr;
-            
-            document.getElementById('cpu-val').innerText = Math.floor(Math.random() * 40 + 20) + '%';
-            document.getElementById('mem-val').innerText = Math.floor(Math.random() * 20 + 60) + '%';
-            document.getElementById('cpu-bar').style.width = document.getElementById('cpu-val').innerText;
-            document.getElementById('mem-bar').style.width = document.getElementById('mem-val').innerText;
+            // قراءات ترددية عشوائية مدروسة لمحاكاة نشاط خادم محلي حقيقي
+            const c = Math.floor(Math.random() * 25 + 15), m = Math.floor(Math.random() * 15 + 60);
+            document.getElementById('cpu-val').innerText = c + '%';
+            document.getElementById('mem-val').innerText = m + '%';
+            document.getElementById('cpu-bar').style.width = c + '%';
+            document.getElementById('mem-bar').style.width = m + '%';
         }, 2000);
 
-        // إعداد Three.js للخلفية
+        // بناء وتنشيط مشهد الـ Three.js المتقدم
         const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.getElementById('canvas-container').appendChild(renderer.domElement);
 
-        const pointLight = new THREE.PointLight(0x00e5ff, 2, 100);
-        pointLight.position.set(0, 0, 5);
+        const pointLight = new THREE.PointLight(0x00e5ff, 2.5, 120);
+        pointLight.position.set(2, 3, 6);
         scene.add(pointLight);
 
-        const geometry = new THREE.IcosahedronGeometry(2, 1);
-        const material = new THREE.MeshBasicMaterial({ color: 0x00e5ff, wireframe: true, transparent: true, opacity: 0.15 });
-        const placeholderMesh = new THREE.Mesh(geometry, material);
-        scene.add(placeholderMesh);
+        const geometry = new THREE.IcosahedronGeometry(2.2, 1);
+        const material = new THREE.MeshBasicMaterial({ color: 0x00e5ff, wireframe: true, transparent: true, opacity: 0.18 });
+        const coreMesh = new THREE.Mesh(geometry, material);
+        scene.add(coreMesh);
 
         const particlesGeometry = new THREE.BufferGeometry();
-        const particlesCount = 800;
+        const particlesCount = 900;
         const posArray = new Float32Array(particlesCount * 3);
-        for(let i = 0; i < particlesCount * 3; i++) posArray[i] = (Math.random() - 0.5) * 15; 
+        for(let i = 0; i < particlesCount * 3; i++) posArray[i] = (Math.random() - 0.5) * 16; 
         particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-        const particlesMaterial = new THREE.PointsMaterial({ size: 0.02, color: 0x00e5ff, transparent: true, opacity: 0.4 });
+        const particlesMaterial = new THREE.PointsMaterial({ size: 0.025, color: 0x11ffbd, transparent: true, opacity: 0.5 });
         const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
         scene.add(particlesMesh);
 
-        camera.position.z = 6;
+        camera.position.z = 6.5;
         let mouseX = 0, mouseY = 0;
         document.addEventListener('mousemove', (e) => { 
             mouseX = (e.clientX / window.innerWidth) * 2 - 1; 
@@ -579,10 +697,10 @@
 
         function animate3D() {
             requestAnimationFrame(animate3D);
-            placeholderMesh.rotation.x += 0.002; placeholderMesh.rotation.y += 0.005;
-            placeholderMesh.position.x += (mouseX * 0.5 - placeholderMesh.position.x) * 0.05;
-            placeholderMesh.position.y += (mouseY * 0.5 - placeholderMesh.position.y) * 0.05;
-            particlesMesh.rotation.y += 0.001;
+            coreMesh.rotation.x += 0.003; coreMesh.rotation.y += 0.006;
+            coreMesh.position.x += (mouseX * 0.8 - coreMesh.position.x) * 0.06;
+            coreMesh.position.y += (mouseY * 0.8 - coreMesh.position.y) * 0.06;
+            particlesMesh.rotation.y += 0.0015;
             renderer.render(scene, camera);
         }
         animate3D();
