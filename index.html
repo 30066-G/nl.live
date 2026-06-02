@@ -20,8 +20,8 @@
             --neon-magenta: #ff3366;
             --neon-green: #11ffbd;
             --dark-bg: #020611;
-            --panel-bg: rgba(4, 15, 30, 0.65);
-            --border-color: rgba(0, 229, 255, 0.25);
+            --panel-bg: rgba(4, 15, 30, 0.75);
+            --border-color: rgba(0, 229, 255, 0.3);
             --text-main: #a0c4d8;
         }
 
@@ -31,45 +31,126 @@
         #canvas-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
         body::after {
             content: ""; position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 229, 255, 0.03) 50%);
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 229, 255, 0.02) 50%);
             background-size: 100% 4px; z-index: 100; pointer-events: none;
         }
         
-        /* =========================================
-           تعديل: جعل الـ GIF خلفية كاملة تغطي الشاشة وخلف كل شيء
-           ========================================= */
+        /* الخلفية الممتدة للعنكبوت السيبراني */
         .cyber-full-bg {
-            position: fixed;    /* يثبت الـ GIF في الشاشة حتى لو تحركت القوائم */
+            position: fixed;
             top: 0;
             left: 0;
-            width: 100vw;       /* تغطية كامل عرض المتصفح */
-            height: 100vh;      /* تغطية كامل طول المتصفح */
-            object-fit: cover;  /* الحفاظ على أبعاد العنكبوت بذكاء دون تمطيط */
-            z-index: -1;        /* إرسال الـ GIF لآخر طبقة بالخلف ليصبح تحت كل أزرار ومحتويات الموقع */
-            pointer-events: none; /* يمنع الـ GIF من حظر الماوس لتتمكن من الضغط على الأزرار فوقه */
-            opacity: 0.45;       /* موازنة الشفافية لكي تظهر النصوص بوضوح فوقه */
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+            z-index: -1;
+            pointer-events: none;
+            opacity: 0.45;
             mix-blend-mode: lighten; 
             filter: brightness(0.8) contrast(1.2) drop-shadow(0 0 20px rgba(0, 229, 255, 0.3));
         }
 
+        /* الطبقة الأساسية للـ UI */
         .ui-layer { position: relative; z-index: 10; width: 100%; height: 100%; display: flex; justify-content: space-between; padding: 30px; pointer-events: none; }
-        .panel-container { pointer-events: auto; display: flex; flex-direction: column; gap: 20px; width: 280px; }
+        .panel-container { pointer-events: auto; display: flex; flex-direction: column; gap: 25px; width: 310px; }
 
-        .sci-fi-panel { background: var(--panel-bg); border: 1px solid var(--border-color); padding: 20px; clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px); backdrop-filter: blur(8px); box-shadow: inset 0 0 25px rgba(0, 229, 255, 0.05); }
-        .logo { font-size: 3.5rem; font-weight: 700; color: var(--neon-cyan); text-shadow: 0 0 15px var(--neon-cyan); letter-spacing: 6px; text-align: center; margin-bottom: 5px; }
+        /* تطوير تصميم اللوحات السيبرانية لتصبح متكاملة وتفاعلية */
+        .sci-fi-panel { 
+            position: relative;
+            background: var(--panel-bg); 
+            border: 1px solid var(--border-color); 
+            padding: 22px; 
+            clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px); 
+            backdrop-filter: blur(12px); 
+            box-shadow: inset 0 0 30px rgba(0, 229, 255, 0.08), 0 10px 30px rgba(0,0,0,0.5);
+            transition: border-color 0.4s, box-shadow 0.4s;
+        }
+        .sci-fi-panel:hover {
+            border-color: rgba(0, 229, 255, 0.6);
+            box-shadow: inset 0 0 40px rgba(0, 229, 255, 0.15), 0 0 25px rgba(0, 229, 255, 0.1);
+        }
 
+        /* إضافة مؤشر ليد وامض في زوايا اللوحات */
+        .sci-fi-panel::before {
+            content: '';
+            position: absolute;
+            top: 5px;
+            right: 15px;
+            width: 4px;
+            height: 4px;
+            background-color: var(--neon-green);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--neon-green);
+            animation: panelLedBlink 2s infinite ease-in-out;
+        }
+
+        @keyframes panelLedBlink {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; filter: brightness(1.3); }
+        }
+
+        .logo { font-size: 3.8rem; font-weight: 700; color: var(--neon-cyan); text-shadow: 0 0 20px var(--neon-cyan); letter-spacing: 8px; text-align: center; margin-bottom: 5px; font-family: 'Rajdhani', sans-serif; }
+
+        /* جعل القائمة الجانبية تفاعلية بالكامل */
         .nav-menu ul { list-style: none; }
-        .nav-menu li { padding: 14px; cursor: pointer; display: flex; align-items: center; gap: 15px; font-size: 1.1rem; font-weight: 600; color: var(--text-main); transition: all 0.3s; border-left: 2px solid transparent; }
-        .nav-menu li:hover, .nav-menu li.active { color: var(--neon-cyan); background: linear-gradient(90deg, rgba(0,229,255,0.1) 0%, transparent 100%); border-left: 2px solid var(--neon-cyan); text-shadow: 0 0 8px var(--neon-cyan); }
+        .nav-menu li { 
+            position: relative;
+            padding: 16px 20px; 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            gap: 18px; 
+            font-size: 1.15rem; 
+            font-weight: 600; 
+            color: var(--text-main); 
+            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); 
+            border-left: 3px solid transparent;
+            margin-bottom: 5px;
+            overflow: hidden;
+        }
+        .nav-menu li i { transition: transform 0.3s ease; }
+        .nav-menu li:hover i { transform: scale(1.2) rotate(-5deg); color: var(--neon-cyan); }
         
-        .activity-log p { font-size: 0.75rem; font-family: monospace; line-height: 1.5; color: #618fa8; margin-bottom: 6px; word-break: break-all;}
-        .resource-item { margin-bottom: 15px; }
-        .resource-header { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 5px; font-weight: 600; }
-        .progress-bar { width: 100%; height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden; }
-        .progress-fill { height: 100%; background: var(--neon-cyan); box-shadow: 0 0 10px var(--neon-cyan); transition: width 0.4s ease; }
+        .nav-menu li::after {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; width: 0; height: 100%;
+            background: linear-gradient(90deg, rgba(0,229,255,0.15) 0%, transparent 100%);
+            transition: width 0.3s ease;
+            z-index: -1;
+        }
+        .nav-menu li:hover::after { width: 100%; }
+
+        .nav-menu li:hover, .nav-menu li.active { 
+            color: #fff; 
+            border-left: 3px solid var(--neon-cyan); 
+            text-shadow: 0 0 10px var(--neon-cyan); 
+        }
+        .nav-menu li.active {
+            background: linear-gradient(90deg, rgba(0,229,255,0.12) 0%, transparent 100%);
+            border-left-color: var(--neon-green);
+            text-shadow: 0 0 10px var(--neon-green);
+        }
+        
+        /* سجل العمليات التفاعلي التلقائي السلس */
+        .activity-log p { font-size: 0.78rem; font-family: monospace; line-height: 1.6; color: #618fa8; margin-bottom: 8px; word-break: break-all; border-bottom: 1px solid rgba(255,255,255,0.03); padding-bottom: 4px;}
+        
+        /* تخصيص الـ Scrollbar الجانبي بشكل مستقبلي */
+        #liveActivityLogger::-webkit-scrollbar { width: 4px; }
+        #liveActivityLogger::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
+        #liveActivityLogger::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 2px; }
+
+        /* تطوير تصميم أشرطة العتاد والموارد */
+        .resource-item { margin-bottom: 18px; }
+        .resource-header { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 7px; font-weight: 600; letter-spacing: 1px; }
+        .progress-bar { width: 100%; height: 8px; background: rgba(0, 0, 0, 0.4); border-radius: 4px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); position: relative;}
+        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--neon-cyan), var(--neon-green)); box-shadow: 0 0 12px var(--neon-cyan); transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        
+        /* تغيير اللون التلقائي عند الضغط العالي */
+        .high-load { background: linear-gradient(90deg, var(--neon-magenta), #ff5588) !important; box-shadow: 0 0 12px var(--neon-magenta) !important; }
 
         /* =========================================
-           2. هيكل الكونسول والهاتف المدمج
+           هيكل الكونسول وهاتف النظام المدمج
            ========================================= */
         .center-console { display: none; flex-grow: 1; justify-content: center; align-items: center; pointer-events: auto; z-index: 50; }
         .phone-container { width: 385px; height: 700px; background: rgba(3, 4, 12, 0.9); border: 2px solid var(--neon-cyan); border-radius: 45px; position: relative; box-shadow: 0 0 50px rgba(0, 229, 255, 0.25), inset 0 0 25px rgba(0, 229, 255, 0.15); backdrop-filter: blur(20px); }
@@ -650,16 +731,27 @@
         }
 
         /* ====================================================================
-           9. محرك الرسوميات التفاعلي والعدادات
+           9. محرك الرسوميات التفاعلي والعدادات التناغمیة المحدثة
            ==================================================================== */
         setInterval(() => {
             const now = new Date(); 
             document.getElementById('liveClock').innerText = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
             if(document.getElementById('lockDate')) document.getElementById('lockDate').innerText = now.toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long' });
             
-            const c = Math.floor(Math.random() * 25 + 15), m = Math.floor(Math.random() * 15 + 60);
+            // توليد قيم استهلاك عشوائية واقعية
+            const c = Math.floor(Math.random() * 35 + 15), m = Math.floor(Math.random() * 20 + 55);
             document.getElementById('cpu-val').innerText = c + '%'; document.getElementById('mem-val').innerText = m + '%';
-            document.getElementById('cpu-bar').style.width = c + '%'; document.getElementById('mem-bar').style.width = m + '%';
+            
+            const cpuBar = document.getElementById('cpu-bar');
+            const memBar = document.getElementById('mem-bar');
+            
+            cpuBar.style.width = c + '%'; 
+            memBar.style.width = m + '%';
+
+            // تلوين الأشرطة بشكل ديناميكي تفاعلي إذا تجاوز الحمل المسموح
+            if(c > 40) { cpuBar.classList.add('high-load'); } else { cpuBar.classList.remove('high-load'); }
+            if(m > 70) { memBar.classList.add('high-load'); } else { memBar.classList.remove('high-load'); }
+
         }, 2000);
 
         const scene = new THREE.Scene();
