@@ -7,7 +7,7 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
@@ -281,6 +281,7 @@
     <div id="canvas-container"></div>
 
     <img src="gif.gif" alt="A0Z Cyber Spider Background" class="cyber-full-bg">
+        <div id="particles-js"></div>
 <div id="quantumHud">
     <div class="hud-core">
         <div class="pulse-ring"></div>
@@ -931,6 +932,22 @@ function logCoreEvent(message, color = "var(--text-main)") {
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight);
         });
+        particlesJS("particles-js", {
+    particles: {
+        number: { value:27, density:{ enable:true, value_area:1800 } },
+        color: { value:"#ffffff" },
+        shape: { type:"circle" },
+        opacity: { value:0.7, random:true },
+        size: { value:1.5, random:true },
+        line_linked: { enable:false },
+        move: { enable:true, speed:0.5, random:true, straight:false, out_mode:"out" }
+    },
+    interactivity: {
+        detect_on:"canvas",
+        events:{ onhover:{ enable:false }, onclick:{ enable:false } }
+    },
+    retina_detect:true
+});
     </script>
 </body>
 </html>
