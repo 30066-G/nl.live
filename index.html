@@ -49,6 +49,12 @@
             mix-blend-mode: lighten; 
             filter: brightness(0.8) contrast(1.2) drop-shadow(0 0 20px rgba(0, 229, 255, 0.3));
         }
+        #particles-stars {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+}
 #quantumHud{
     color:#fff;
     font-size:.8rem;
@@ -229,7 +235,53 @@
         .center-console { display: none; flex-grow: 1; justify-content: center; align-items: center; pointer-events: auto; z-index: 50; }
         .phone-container { width: 385px; height: 700px; background: rgba(3, 4, 12, 0.9); border: 2px solid var(--neon-cyan); border-radius: 45px; position: relative; box-shadow: 0 0 50px rgba(0, 229, 255, 0.25), inset 0 0 25px rgba(0, 229, 255, 0.15); backdrop-filter: blur(20px); }
         .phone { width: 100%; height: 100%; position: relative; overflow: hidden; border-radius: inherit; }
+.phone-screen{
+    position:relative;
+}
 
+.phone-dock{
+    position:absolute;
+    bottom:15px;
+    left:50%;
+    transform:translateX(-50%);
+
+    width:90%;
+    height:70px;
+
+    display:flex;
+    justify-content:space-around;
+    align-items:center;
+
+    background:rgba(255,255,255,.05);
+    backdrop-filter:blur(20px);
+
+    border:1px solid rgba(0,229,255,.25);
+    border-radius:24px;
+
+    z-index:50;
+}
+
+.dock-app{
+    width:50px;
+    height:50px;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    border-radius:14px;
+
+    color:var(--neon-cyan);
+    font-size:1.3rem;
+
+    cursor:pointer;
+    transition:.25s;
+}
+
+.dock-app:hover{
+    transform:translateY(-3px) scale(1.08);
+    box-shadow:0 0 15px rgba(0,229,255,.4);
+}
         input, textarea, .terminal-box, #chatContainer, #coreAiChatGrid, select { -webkit-user-select: text; user-select: text; }
         .dynamic-island { width: 120px; height: 28px; background: #000; border-radius: 20px; position: absolute; top: 11px; left: 50%; transform: translateX(-50%); z-index: 100; display: flex; justify-content: center; align-items: center; font-size: 0.65rem; color: var(--neon-green); pointer-events: none; border: 1px solid rgba(255,255,255,0.1); font-weight: bold; letter-spacing: 1px;}
         
@@ -340,15 +392,38 @@
                         </div>
                     </div>
 
-                    <div class="phone-screen" id="phoneScreen">
-                        <div class="status-bar">
-                            <div id="liveClock">00:00</div>
-                            <div style="color: var(--neon-cyan);">Q-NET <i class="fa-solid fa-satellite-dish"></i></div>
-                        </div>
-                        <div class="home-screen" id="homeScreen">
-                            </div>
-                    </div>
+<div class="phone-screen" id="phoneScreen">
 
+    <div class="status-bar">
+        <div id="liveClock">00:00</div>
+        <div style="color: var(--neon-cyan);">
+            Q-NET
+            <i class="fa-solid fa-satellite-dish"></i>
+        </div>
+    </div>
+
+    <div class="home-screen" id="homeScreen">
+    </div>
+
+    <div class="phone-dock">
+        <div class="dock-app" onclick="openAppWindow('cmd_system')">
+            <i class="fa-solid fa-terminal"></i>
+        </div>
+
+        <div class="dock-app" onclick="openAppWindow('official_ai_bot')">
+            <i class="fa-solid fa-brain"></i>
+        </div>
+
+        <div class="dock-app" onclick="openAppWindow('global_chat')">
+            <i class="fa-solid fa-comments"></i>
+        </div>
+
+        <div class="dock-app" onclick="startVisionAiScanner()">
+            <i class="fa-solid fa-eye"></i>
+        </div>
+    </div>
+
+</div>
                     <div class="window-instance" id="win_cmd_system">
                         <div class="window-header-bar">
                             <div class="window-title">⚡ Core:\System32\Quantum_cmd</div>
@@ -358,8 +433,8 @@
                             <div class="cmd-body">
                                 <div class="terminal-box" id="systemTerminal">
                                     <div>A0Z Core Engine Terminal [Version 2.6.0]</div>
-                                    <div style="color:#888">Type 'help' to unlock system directives.</div><br>
-                                midnight</div>
+<div style="color:#888">Type 'help' to unlock system directives.</div>
+<br>
                                 <div class="cmd-inputs">
                                     <div class="cmd-line">
                                         <span class="cmd-label">A0Z_OS ></span>
@@ -934,7 +1009,7 @@ function logCoreEvent(message, color = "var(--text-main)") {
         });
         particlesJS("particles-js", {
     particles: {
-        number: { value:27, density:{ enable:true, value_area:1800 } },
+        number: { value:14, density:{ enable:true, value_area:1800 } },
         color: { value:"#ffffff" },
         shape: { type:"circle" },
         opacity: { value:0.7, random:true },
