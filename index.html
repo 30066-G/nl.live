@@ -49,7 +49,81 @@
             mix-blend-mode: lighten; 
             filter: brightness(0.8) contrast(1.2) drop-shadow(0 0 20px rgba(0, 229, 255, 0.3));
         }
+#quantumHud{
+    color:#fff;
+    font-size:.8rem;
+    transition:.3s;
+    position:fixed;
+    bottom:30px;
+    right:30px;
+    z-index:9999;
+    display:flex;
+    align-items:center;
+    gap:15px;
+    pointer-events:none;
+}
 
+.hud-core{
+    position:relative;
+    width:70px;
+    height:70px;
+}
+
+.orb{
+    width:18px;
+    height:18px;
+    background:#00e5ff;
+    border-radius:50%;
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    box-shadow:0 0 25px #00e5ff;
+}
+
+.pulse-ring{
+    position:absolute;
+    width:70px;
+    height:70px;
+    border:2px solid rgba(0,229,255,.7);
+    border-radius:50%;
+    animation:pulse 2s infinite;
+}
+
+.ring2{
+    animation-delay:1s;
+}
+
+@keyframes pulse{
+    0%{
+        transform:scale(.6);
+        opacity:1;
+    }
+    100%{
+        transform:scale(1.6);
+        opacity:0;
+    }
+}
+
+.hud-panel{
+    background:rgba(0,10,20,.75);
+    border:1px solid rgba(0,229,255,.4);
+    padding:10px 15px;
+    border-radius:12px;
+    backdrop-filter:blur(10px);
+}
+
+.hud-title{
+    color:#00e5ff;
+    font-size:.75rem;
+    font-weight:bold;
+    letter-spacing:2px;
+}
+
+#hudMessage{
+    color:#fff;
+    font-size:.8rem;
+}
         /* الطبقة الأساسية للـ UI */
         .ui-layer { position: relative; z-index: 10; width: 100%; height: 100%; display: flex; justify-content: space-between; padding: 30px; pointer-events: none; }
         .panel-container { pointer-events: auto; display: flex; flex-direction: column; gap: 25px; width: 310px; }
@@ -207,7 +281,18 @@
     <div id="canvas-container"></div>
 
     <img src="gif.gif" alt="A0Z Cyber Spider Background" class="cyber-full-bg">
+<div id="quantumHud">
+    <div class="hud-core">
+        <div class="pulse-ring"></div>
+        <div class="pulse-ring ring2"></div>
+        <div class="orb"></div>
+    </div>
 
+    <div class="hud-panel">
+        <div class="hud-title">QUANTUM CORE</div>
+        <div id="hudMessage">SYSTEM READY</div>
+    </div>
+</div>
     <div class="ui-layer">
         
         <div class="panel-container">
@@ -367,17 +452,81 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
     <script>
+    const hudMessages = [
+    "SYSTEM READY",
+    "QUANTUM LINK ACTIVE",
+    "AI CORE ONLINE",
+    "NETWORK SYNCHRONIZED",
+    "VISION MODULE READY",
+    "SECURE CHANNEL ESTABLISHED"
+];
+
+let hudIndex = 0;
+
+function updateHud(message, color = "#00e5ff") {
+    const msg = document.getElementById("hudMessage");
+
+    if (!msg) return;
+
+    msg.style.opacity = "0";
+
+    setTimeout(() => {
+        msg.textContent = message;
+        msg.style.color = color;
+        msg.style.opacity = "1";
+    }, 250);
+}
+
+setInterval(() => {
+    hudIndex++;
+
+    if (hudIndex >= hudMessages.length) {
+        hudIndex = 0;
+    }
+
+    updateHud(hudMessages[hudIndex]);
+}, 4000);
+const orb = document.querySelector(".orb");
+
+setInterval(() => {
+    if (!orb) return;
+
+    orb.animate(
+        [
+            {
+                transform: "translate(-50%,-50%) scale(1)"
+            },
+            {
+                transform: "translate(-50%,-50%) scale(1.4)"
+            },
+            {
+                transform: "translate(-50%,-50%) scale(1)"
+            }
+        ],
+        {
+            duration: 1200,
+            easing: "ease-in-out"
+        }
+    );
+}, 1500);
         /* ====================================================================
            1. نظام توثيق التحركات الجانبي التلقائي (Activity Logger)
            ==================================================================== */
-        function logCoreEvent(message, color = "var(--text-main)") {
-            const logger = document.getElementById('liveActivityLogger');
-            if(logger) {
-                logger.innerHTML += `<p style="color:${color}">> ${message}</p>`;
-                logger.scrollTop = logger.scrollHeight;
-            }
-        }
+function logCoreEvent(message, color = "var(--text-main)") {
 
+    const logger = document.getElementById("liveActivityLogger");
+
+    if(logger){
+        logger.innerHTML += `<p style="color:${color}">> ${message}</p>`;
+        logger.scrollTop = logger.scrollHeight;
+    }
+
+    const hud = document.getElementById("hudMessage");
+
+    if(hud){
+        hud.textContent = message;
+    }
+}
         /* ====================================================================
            2. تهيئة الاتصال بـ Firebase
            ==================================================================== */
