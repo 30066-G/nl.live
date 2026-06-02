@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AOZ Quantum OS - Fully Loaded Masterpiece</title>
+    <title>AOZ Quantum OS</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -26,13 +26,48 @@
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Rajdhani', sans-serif; user-select: none; }
-        body { background-color: var(--dark-bg); color: var(--text-main); height: 100vh; overflow: hidden; display: flex; }
+        body { background-color: var(--dark-bg); color: var(--text-main); height: 100vh; overflow: hidden; display: flex; position: relative; }
         
         #canvas-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
         body::after {
             content: ""; position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 229, 255, 0.03) 50%);
             background-size: 100% 4px; z-index: 100; pointer-events: none;
+        }
+
+        /* =========================================
+           تثبيت وتوسيط صورة العنكبوت السيبراني في المنتصف تماماً خلف الواجهات
+           ========================================= */
+        .cyber-spider-center-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2; /* فوق شاشة الـ 3D وتحت الهاتف واللوحات الجانبية */
+            pointer-events: none; /* لضمان عدم حجب الضغطات */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            max-width: 550px;
+            padding: 20px;
+        }
+        .cyber-spider-img {
+            width: 100%;
+            height: auto;
+            filter: drop-shadow(0 0 20px rgba(0, 229, 255, 0.5));
+            animation: spiderFloat 4s infinite alternate ease-in-out;
+            opacity: 0.85;
+        }
+        @keyframes spiderFloat {
+            0% {
+                transform: translateY(0px) scale(1);
+                filter: drop-shadow(0 0 15px rgba(0, 229, 255, 0.4));
+            }
+            100% {
+                transform: translateY(-15px) scale(1.03);
+                filter: drop-shadow(0 0 35px rgba(0, 229, 255, 0.8));
+            }
         }
 
         .ui-layer { position: relative; z-index: 10; width: 100%; height: 100%; display: flex; justify-content: space-between; padding: 30px; pointer-events: none; }
@@ -108,6 +143,10 @@
 
     <div id="canvas-container"></div>
 
+    <div class="cyber-spider-center-container">
+        <img src="image.png.jpg" alt="A0Z Cyber Spider" class="cyber-spider-img">
+    </div>
+
     <div class="ui-layer">
         
         <div class="panel-container">
@@ -173,7 +212,7 @@
                                 <div class="terminal-box" id="systemTerminal">
                                     <div>A0Z Core Engine Terminal [Version 2.6.0]</div>
                                     <div style="color:#888">Type 'help' to unlock system directives.</div><br>
-                                </div>
+                                midnight</div>
                                 <div class="cmd-inputs">
                                     <div class="cmd-line">
                                         <span class="cmd-label">A0Z_OS ></span>
@@ -221,7 +260,7 @@
                             <div class="window-title">👁️ AI Vision Objects Scanner</div>
                             <button class="win-btn" onclick="stopVisionAiScanner()">X</button>
                         </div>
-                        <div class="window-body" style="background:#000; display:flex; flex-direction:column; align-items:center; justify-content:center; pading:10px;">
+                        <div class="window-body" style="background:#000; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:10px;">
                             <div style="position:relative; width:100%; height:80%; background:#111; display:flex; justify-content:center; align-items:center;">
                                 <video id="visionVideo" autoplay playsinline muted style="width:100%; height:100%; object-fit:cover; position:absolute;"></video>
                                 <canvas id="visionCanvas" style="width:100%; height:100%; position:absolute; left:0; top:0; z-index:10; pointer-events:none;"></canvas>
@@ -355,7 +394,7 @@
                 
                 listenToUserApps(); 
                 setupOfficialAiEngine();
-                preloadCocoSsdModel(); // تحميل فوري لنموذج تنسورفلو في الخلفية
+                preloadCocoSsdModel(); 
                 
                 const activeNav = document.querySelector('.nav-menu li.active').id;
                 if(activeNav === 'nav-terminal') openAppWindow('cmd_system');
@@ -367,7 +406,7 @@
         }
 
         /* ====================================================================
-           5. نظام الـ Terminal وتفسير الأوامر (Advanced Terminal Engine)
+           5. نظام الـ Terminal وتفسير الأوامر
            ==================================================================== */
         function executeTerminalCmd() {
             const input = document.getElementById("cmdLineInput");
@@ -402,6 +441,9 @@
             terminal.scrollTop = terminal.scrollHeight;
         }
 
+        /* ====================================================================
+           6. إدارة وبناء التطبيقات المخصصة المحفوظة سحابياً
+           ==================================================================== */
         function listenToUserApps() { 
             if(!currentUserUID) return;
             database.ref('custom_apps/' + currentUserUID).on('value', (s) => { 
@@ -513,7 +555,7 @@
         }
 
         /* ====================================================================
-           7. تشغيل الذكاء الاصطناعي البصري (TensorFlow + COCO-SSD Camera Scanner)
+           7. تشغيل الذكاء الاصطناعي البصري (TensorFlow + Camera)
            ==================================================================== */
         async function preloadCocoSsdModel() {
             try {
@@ -536,9 +578,7 @@
                     document.getElementById('visionStatus').innerText = "Analyzing Live Flux Matrix...";
                     logCoreEvent("Camera peripheral streaming active.");
                     
-                    video.onloadedmetadata = () => {
-                        runVisionObjectDetectionLoop();
-                    };
+                    video.onloadedmetadata = () => { runVisionObjectDetectionLoop(); };
                 } catch (err) {
                     document.getElementById('visionStatus').innerText = "Camera permission missing.";
                 }
@@ -559,16 +599,12 @@
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 
                 predictions.forEach(p => {
-                    ctx.strokeStyle = "#00e5ff";
-                    ctx.lineWidth = 3;
+                    ctx.strokeStyle = "#00e5ff"; ctx.lineWidth = 3;
                     ctx.strokeRect(p.bbox[0], p.bbox[1], p.bbox[2], p.bbox[3]);
-                    
-                    ctx.fillStyle = "#00e5ff";
-                    ctx.font = "16px monospace";
+                    ctx.fillStyle = "#00e5ff"; ctx.font = "16px monospace";
                     ctx.fillText(`${p.class.toUpperCase()} [${Math.round(p.score * 100)}%]`, p.bbox[0], p.bbox[1] > 20 ? p.bbox[1] - 8 : 20);
                 });
             }
-
             if(document.getElementById('win_vision_ai_scanner').classList.contains('open')) {
                 requestAnimationFrame(runVisionObjectDetectionLoop);
             }
@@ -576,13 +612,13 @@
 
         function stopVisionAiScanner() {
             closeAppWindow('vision_ai_scanner');
-            if(visionStream) {
-                visionStream.getTracks().forEach(track => track.stop());
-                visionStream = null;
-            }
+            if(visionStream) { visionStream.getTracks().forEach(track => track.stop()); visionStream = null; }
             logCoreEvent("AI Vision stream offline.", "var(--neon-magenta)");
         }
 
+        /* ====================================================================
+           8. غرف المحادثة والذكاء الاصطناعي النصي
+           ==================================================================== */
         function renderChatInterface() {
             const chatContainer = document.getElementById('chatContainer');
             chatContainer.innerHTML = `
@@ -596,12 +632,9 @@
             `;
             
             database.ref('global_chat').limitToLast(30).on('value', (snapshot) => {
-                const msgsBox = document.getElementById('zuluChatMessages');
-                if(!msgsBox) return;
-                msgsBox.innerHTML = '';
+                const msgsBox = document.getElementById('zuluChatMessages'); if(!msgsBox) return; msgsBox.innerHTML = '';
                 snapshot.forEach((child) => {
-                    const data = child.val();
-                    const isMe = data.sender === currentUserEmail;
+                    const data = child.val(); const isMe = data.sender === currentUserEmail;
                     msgsBox.innerHTML += `
                         <div style="align-self: ${isMe ? 'flex-end' : 'flex-start'}; background: ${isMe ? 'var(--neon-magenta)' : '#0a1224'}; padding:10px 14px; border-radius:12px; max-width:85%; border: 1px solid rgba(0,229,255,0.15);">
                             <div style="font-size:0.6rem; color: var(--neon-cyan); margin-bottom:4px; font-weight:bold;">@${data.sender}</div>
@@ -614,31 +647,20 @@
         }
 
         window.sendZuluMessage = function() {
-            const input = document.getElementById('zuluMsgInput');
-            const text = input.value.trim();
-            if(!text || !currentUserUID) return;
-            
-            database.ref('global_chat').push({
-                sender: currentUserEmail, text: text, timestamp: Date.now()
-            });
+            const input = document.getElementById('zuluMsgInput'); const text = input.value.trim(); if(!text || !currentUserUID) return;
+            database.ref('global_chat').push({ sender: currentUserEmail, text: text, timestamp: Date.now() });
             input.value = '';
         }
 
         function setupOfficialAiEngine() {
-            const input = document.getElementById('coreAiInput');
-            const btn = document.getElementById('coreAiSendBtn');
-            const grid = document.getElementById('coreAiChatGrid');
-            
+            const input = document.getElementById('coreAiInput'); const btn = document.getElementById('coreAiSendBtn'); const grid = document.getElementById('coreAiChatGrid');
             btn.onclick = async () => {
                 const text = input.value.trim(); if(!text) return;
                 grid.innerHTML += `<div style="align-self:flex-end; background:var(--neon-cyan); color:#000; padding:10px; border-radius:10px; font-weight:bold; font-family:monospace;">${text}</div>`;
-                input.value = '';
-                grid.scrollTop = grid.scrollHeight;
-                logCoreEvent("Transmitted payload to Neural Core AI.");
+                input.value = ''; grid.scrollTop = grid.scrollHeight;
                 
                 try {
-                    const res = await fetch(`https://text.pollinations.ai/${encodeURIComponent(text)}`);
-                    const reply = await res.text();
+                    const res = await fetch(`https://text.pollinations.ai/${encodeURIComponent(text)}`); const reply = await res.text();
                     grid.innerHTML += `<div style="align-self:flex-start; background:rgba(255,255,255,0.05); padding:10px; border-radius:10px; border:1px solid #1c2e4a; font-family:monospace;">${reply}</div>`;
                     grid.scrollTop = grid.scrollHeight;
                 } catch(e) {
@@ -648,67 +670,45 @@
         }
 
         /* ====================================================================
-           9. محرك الرسوميات التفاعلي والعدادات التناظرية الموقوتة
+           9. محرك الرسوميات التفاعلي والعدادات
            ==================================================================== */
         setInterval(() => {
             const now = new Date(); 
             document.getElementById('liveClock').innerText = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
             if(document.getElementById('lockDate')) document.getElementById('lockDate').innerText = now.toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long' });
             
-            // قراءات ترددية عشوائية مدروسة لمحاكاة نشاط خادم محلي حقيقي
             const c = Math.floor(Math.random() * 25 + 15), m = Math.floor(Math.random() * 15 + 60);
-            document.getElementById('cpu-val').innerText = c + '%';
-            document.getElementById('mem-val').innerText = m + '%';
-            document.getElementById('cpu-bar').style.width = c + '%';
-            document.getElementById('mem-bar').style.width = m + '%';
+            document.getElementById('cpu-val').innerText = c + '%'; document.getElementById('mem-val').innerText = m + '%';
+            document.getElementById('cpu-bar').style.width = c + '%'; document.getElementById('mem-bar').style.width = m + '%';
         }, 2000);
 
-        // بناء وتنشيط مشهد الـ Three.js المتقدم
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.getElementById('canvas-container').appendChild(renderer.domElement);
 
-        const pointLight = new THREE.PointLight(0x00e5ff, 2.5, 120);
-        pointLight.position.set(2, 3, 6);
-        scene.add(pointLight);
+        const pointLight = new THREE.PointLight(0x00e5ff, 2.5, 120); pointLight.position.set(2, 3, 6); scene.add(pointLight);
 
-        const geometry = new THREE.IcosahedronGeometry(2.2, 1);
-        const material = new THREE.MeshBasicMaterial({ color: 0x00e5ff, wireframe: true, transparent: true, opacity: 0.18 });
-        const coreMesh = new THREE.Mesh(geometry, material);
-        scene.add(coreMesh);
-
-        const particlesGeometry = new THREE.BufferGeometry();
-        const particlesCount = 900;
-        const posArray = new Float32Array(particlesCount * 3);
+        const particlesGeometry = new THREE.BufferGeometry(); const particlesCount = 900; const posArray = new Float32Array(particlesCount * 3);
         for(let i = 0; i < particlesCount * 3; i++) posArray[i] = (Math.random() - 0.5) * 16; 
         particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-        const particlesMaterial = new THREE.PointsMaterial({ size: 0.025, color: 0x11ffbd, transparent: true, opacity: 0.5 });
-        const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
-        scene.add(particlesMesh);
+        const particlesMaterial = new THREE.PointsMaterial({ size: 0.025, color: 0x00e5ff, transparent: true, opacity: 0.35 });
+        const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial); scene.add(particlesMesh);
 
-        camera.position.z = 6.5;
-        let mouseX = 0, mouseY = 0;
-        document.addEventListener('mousemove', (e) => { 
-            mouseX = (e.clientX / window.innerWidth) * 2 - 1; 
-            mouseY = -(e.clientY / window.innerHeight) * 2 + 1; 
-        });
+        camera.position.z = 6.5; let mouseX = 0, mouseY = 0;
+        document.addEventListener('mousemove', (e) => { mouseX = (e.clientX / window.innerWidth) * 2 - 1; mouseY = -(e.clientY / window.innerHeight) * 2 + 1; });
 
         function animate3D() {
             requestAnimationFrame(animate3D);
-            coreMesh.rotation.x += 0.003; coreMesh.rotation.y += 0.006;
-            coreMesh.position.x += (mouseX * 0.8 - coreMesh.position.x) * 0.06;
-            coreMesh.position.y += (mouseY * 0.8 - coreMesh.position.y) * 0.06;
-            particlesMesh.rotation.y += 0.0015;
+            particlesMesh.rotation.y += 0.0012;
+            particlesMesh.position.x += (mouseX * 0.4 - particlesMesh.position.x) * 0.05;
             renderer.render(scene, camera);
         }
         animate3D();
 
         window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
+            camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight);
         });
     </script>
 </body>
