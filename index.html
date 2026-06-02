@@ -35,45 +35,22 @@
             background-size: 100% 4px; z-index: 100; pointer-events: none;
         }
         
-       .cyber-spider-center-container {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 2; 
-    pointer-events: none; 
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    max-width: 480px;
-}
-
-.cyber-spider-img {
-    width: 100%;
-    height: auto;
-    mix-blend-mode: lighten; 
-    filter: drop-shadow(0 0 15px rgba(0, 229, 255, 0.6));
-    
-    /* تشغيل حركة التنفس المستمر + حركة رعشة الأرجل الميكانيكية المفاجئة */
-    animation: spiderBreathe 5s infinite ease-in-out, robotLegsTwitch 3s infinite steps(1) alternate;
-}
-
-/* 1. حركة تنفس وضخ طاقة نيون هادئة */
-@keyframes spiderBreathe {
-    0%, 100% { transform: scale(1); filter: drop-shadow(0 0 15px rgba(0, 229, 255, 0.5)); }
-    50% { transform: scale(1.02); filter: drop-shadow(0 0 30px rgba(0, 229, 255, 0.8)) brightness(1.2); }
-}
-
-/* 2. خدعة تحريك الأرجل: التواءات سريعة جداً وخاطفة تحاكي حركة الحشرات الروبوتية */
-@keyframes robotLegsTwitch {
-    0%, 85%, 100% { transform: skew(0deg) rotate(0deg); }
-    86% { transform: skew(2deg, 1deg) rotate(0.5deg); }    /* تحرك خاطف يمين */
-    88% { transform: skew(-2deg, -1deg) rotate(-0.5deg); } /* تحرك خاطف يسار */
-    90% { transform: skew(1deg, -2deg) scaleY(0.99); }     /* انضغاط للأرجل */
-    92% { transform: skew(0deg) rotate(0deg); }            /* عودة للثبات */
-}
-
+        /* =========================================
+           تعديل: جعل الـ GIF خلفية كاملة تغطي الشاشة وخلف كل شيء
+           ========================================= */
+        .cyber-full-bg {
+            position: fixed;    /* يثبت الـ GIF في الشاشة حتى لو تحركت القوائم */
+            top: 0;
+            left: 0;
+            width: 100vw;       /* تغطية كامل عرض المتصفح */
+            height: 100vh;      /* تغطية كامل طول المتصفح */
+            object-fit: cover;  /* الحفاظ على أبعاد العنكبوت بذكاء دون تمطيط */
+            z-index: -1;        /* إرسال الـ GIF لآخر طبقة بالخلف ليصبح تحت كل أزرار ومحتويات الموقع */
+            pointer-events: none; /* يمنع الـ GIF من حظر الماوس لتتمكن من الضغط على الأزرار فوقه */
+            opacity: 0.45;       /* موازنة الشفافية لكي تظهر النصوص بوضوح فوقه */
+            mix-blend-mode: lighten; 
+            filter: brightness(0.8) contrast(1.2) drop-shadow(0 0 20px rgba(0, 229, 255, 0.3));
+        }
 
         .ui-layer { position: relative; z-index: 10; width: 100%; height: 100%; display: flex; justify-content: space-between; padding: 30px; pointer-events: none; }
         .panel-container { pointer-events: auto; display: flex; flex-direction: column; gap: 20px; width: 280px; }
@@ -148,9 +125,7 @@
 
     <div id="canvas-container"></div>
 
-    <div class="cyber-spider-center-container">
-        <img src="gif.gif" alt="A0Z Cyber Spider" class="cyber-spider-img">
-    </div>
+    <img src="gif.gif" alt="A0Z Cyber Spider Background" class="cyber-full-bg">
 
     <div class="ui-layer">
         
