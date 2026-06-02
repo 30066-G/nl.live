@@ -422,6 +422,9 @@
             <i class="fa-solid fa-eye"></i>
         </div>
     </div>
+        <div class="dock-app" onclick="openAppWindow('web_browser')">
+            <i class="fa-solid fa-globe"></i>
+        </div>
 
 </div>
                     <div class="window-instance" id="win_cmd_system">
@@ -482,6 +485,26 @@
                             <div class="window-title">👁️ AI Vision Objects Scanner</div>
                             <button class="win-btn" onclick="stopVisionAiScanner()">X</button>
                         </div>
+
+<div class="window-instance" id="win_web_browser">
+    <div class="window-header-bar">
+        <div class="window-title">🌐 Quantum Browser</div>
+        <button class="win-btn" onclick="closeAppWindow('web_browser')">X</button>
+    </div>
+    
+    <div class="window-body" style="background:#000; display:flex; flex-direction:column;">
+        <div style="display:flex; padding:8px; background:#090e1a; border-bottom:1px solid var(--border-color); gap:5px; align-items: center;">
+            <button id="vpnToggleBtn" style="padding:5px 10px; background: transparent; border: 1px solid var(--neon-magenta); color: var(--neon-magenta); border-radius: 4px; cursor: pointer; font-family: monospace; font-weight: bold; transition: 0.3s; box-shadow: none;" onclick="toggleQuantumVPN()">VPN: OFF ⚠️</button>
+            
+            <input type="text" id="browserUrl" style="flex-grow:1; background:#000; color:#fff; border:1px solid rgba(0,229,255,0.3); padding:5px; border-radius:4px; font-family:monospace; outline:none;" placeholder="Enter URL (e.g., google.com)..." onkeypress="if(event.key==='Enter') loadBrowserUrl()">
+            
+            <button class="action-btn" style="width:auto; padding:5px 15px;" onclick="loadBrowserUrl()">GO</button>
+        </div>
+        
+        <iframe id="browserFrame" style="flex-grow:1; width:100%; border:none; background:#fff;" sandbox="allow-scripts allow-same-origin allow-forms"></iframe>
+    </div>
+</div>
+
                         <div class="window-body" style="background:#000; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:10px;">
                             <div style="position:relative; width:100%; height:80%; background:#111; display:flex; justify-content:center; align-items:center;">
                                 <video id="visionVideo" autoplay playsinline muted style="width:100%; height:100%; object-fit:cover; position:absolute;"></video>
@@ -505,6 +528,26 @@
                 </div>
             </div>
         </div>
+<div class="window-instance" id="win_crypto_mgr">
+    <div class="window-header-bar">
+        <div class="window-title">🛡️ Crypto Manager</div>
+        <button class="win-btn" onclick="closeAppWindow('crypto_mgr')">X</button>
+    </div>
+    <div class="window-body" style="padding:20px; text-align:center;">
+        <div id="vaultContent" style="color:var(--neon-cyan); font-family:monospace; margin-bottom:20px;">VAULT LOCKED</div>
+        <button class="action-btn" onclick="document.getElementById('vaultContent').innerText = 'KEY: 0x8F2A9C3B5E1D4F6A'">GENERATE KEY</button>
+    </div>
+</div>
+
+<div class="window-instance" id="win_data_stream">
+    <div class="window-header-bar">
+        <div class="window-title">📊 Data Stream</div>
+        <button class="win-btn" onclick="closeAppWindow('data_stream')">X</button>
+    </div>
+    <div class="window-body" style="background:#000;">
+        <canvas id="streamCanvas" style="width:100%; height:100%;"></canvas>
+    </div>
+</div>
 
         <div class="panel-container">
             <div class="sci-fi-panel">
@@ -743,12 +786,16 @@ function logCoreEvent(message, color = "var(--text-main)") {
             const hs = document.getElementById('homeScreen'); 
             hs.innerHTML = '';
             
-            const systemApps = [
-                { id: 'cmd_system', icon: '&gt;_', name: 'Terminal', bg: '#000', color: 'var(--neon-green)' },
-                { id: 'global_chat', icon: '<i class="fa-solid fa-comments"></i>', name: 'Zulu Chat', bg: 'linear-gradient(135deg, #ffcc00, #ff3366)', color: '#fff' },
-                { id: 'official_ai_bot', icon: '<i class="fa-solid fa-brain"></i>', name: 'AI Core', bg: 'rgba(5, 12, 35, 0.9)', color: 'var(--neon-cyan)' },
-                { id: 'vision_ai_scanner', icon: '<i class="fa-solid fa-eye"></i>', name: 'AI Vision', bg: '#03140a', color: 'var(--neon-green)' }
-            ];
+const systemApps = [
+    { id: 'cmd_system', icon: '&gt;_', name: 'Terminal', bg: '#000', color: 'var(--neon-green)' },
+    { id: 'global_chat', icon: '<i class="fa-solid fa-comments"></i>', name: 'Zulu Chat', bg: 'linear-gradient(135deg, #ffcc00, #ff3366)', color: '#fff' },
+    { id: 'official_ai_bot', icon: '<i class="fa-solid fa-brain"></i>', name: 'AI Core', bg: 'rgba(5, 12, 35, 0.9)', color: 'var(--neon-cyan)' },
+    { id: 'vision_ai_scanner', icon: '<i class="fa-solid fa-eye"></i>', name: 'AI Vision', bg: '#03140a', color: 'var(--neon-green)' },
+    { id: 'crypto_mgr', icon: '<i class="fa-solid fa-shield-halved"></i>', name: 'Crypto Mgr', bg: '#1a1f35', color: 'var(--neon-cyan)' },
+    { id: 'data_stream', icon: '<i class="fa-solid fa-chart-line"></i>', name: 'Data Stream', bg: '#1a1f35', color: 'var(--neon-green)' },
+    { id: 'web_browser', icon: '<i class="fa-solid fa-globe"></i>', name: 'Browser', bg: '#1a1f35', color: 'var(--neon-cyan)' }
+];
+
             
             systemApps.forEach(a => {
                 const item = document.createElement('div'); item.className = 'app-item';
@@ -954,6 +1001,28 @@ function logCoreEvent(message, color = "var(--text-main)") {
                 }
             };
         }
+function drawStream() {
+    const canvas = document.getElementById('streamCanvas');
+    if (!canvas || !document.getElementById('win_data_stream').classList.contains('open')) return;
+    const ctx = canvas.getContext('2d');
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+
+    ctx.strokeStyle = '#11ffbd';
+    ctx.beginPath();
+    for (let i = 0; i < canvas.width; i++) {
+        ctx.lineTo(i, canvas.height / 2 + Math.sin(i * 0.05 + Date.now() * 0.01) * 50);
+    }
+    ctx.stroke();
+    requestAnimationFrame(drawStream);
+}
+
+// تعديل دالة openAppWindow لتفعيل الرسم عند فتح التطبيق
+const originalOpen = openAppWindow;
+openAppWindow = function(id) {
+    originalOpen(id);
+    if(id === 'data_stream') drawStream();
+};
 
         /* ====================================================================
            9. محرك الرسوميات التفاعلي والعدادات التناغمیة المحدثة
@@ -978,6 +1047,61 @@ function logCoreEvent(message, color = "var(--text-main)") {
             if(m > 70) { memBar.classList.add('high-load'); } else { memBar.classList.remove('high-load'); }
 
         }, 2000);
+        /* ====================================================================
+           10. المتصفح الكمومي وزر الـ VPN التفاعلي
+           ==================================================================== */
+        let isVpnActive = false; // المتغير الذي يحفظ حالة الـ VPN
+
+        function toggleQuantumVPN() {
+            isVpnActive = !isVpnActive;
+            const btn = document.getElementById('vpnToggleBtn');
+            
+            if (isVpnActive) {
+                // تفعيل الشكل السيبراني الآمن (أخضر)
+                btn.innerText = "VPN: ON 🛡️";
+                btn.style.background = "var(--neon-green)";
+                btn.style.color = "#000";
+                btn.style.borderColor = "var(--neon-green)";
+                btn.style.boxShadow = "0 0 12px var(--neon-green)";
+                
+                logCoreEvent("Quantum Tunnel Activated. Traffic encrypted.", "var(--neon-green)");
+                updateHud("VPN TUNNEL ACTIVE", "var(--neon-green)");
+            } else {
+                // العودة للشكل غير الآمن (وردي)
+                btn.innerText = "VPN: OFF ⚠️";
+                btn.style.background = "transparent";
+                btn.style.color = "var(--neon-magenta)";
+                btn.style.borderColor = "var(--neon-magenta)";
+                btn.style.boxShadow = "none";
+                
+                logCoreEvent("Quantum Tunnel Deactivated. Connection vulnerable.", "var(--neon-magenta)");
+                updateHud("VPN DISCONNECTED", "var(--neon-magenta)");
+            }
+        }
+
+        function loadBrowserUrl() {
+            let url = document.getElementById('browserUrl').value.trim();
+            if (!url) return;
+            
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                url = 'https://' + url;
+            }
+
+            const frame = document.getElementById('browserFrame');
+            
+            // تحقق من حالة الـ VPN لتقرير مسار الاتصال
+            if (isVpnActive) {
+                // VPN يعمل: استخدام البروكسي لتخطي الحماية
+                logCoreEvent(`Routing through secure VPN node to: ${url}`, "var(--neon-green)");
+                const proxyApi = 'https://api.allorigins.win/raw?url=';
+                frame.src = proxyApi + encodeURIComponent(url);
+            } else {
+                // VPN مطفأ: اتصال مباشر (لإظهار الحظر)
+                logCoreEvent(`Direct insecure connection to: ${url}`, "var(--neon-magenta)");
+                frame.src = url;
+            }
+        }
+
 
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -1009,7 +1133,7 @@ function logCoreEvent(message, color = "var(--text-main)") {
         });
         particlesJS("particles-js", {
     particles: {
-        number: { value:14, density:{ enable:true, value_area:1800 } },
+        number: { value:27, density:{ enable:true, value_area:1800 } },
         color: { value:"#ffffff" },
         shape: { type:"circle" },
         opacity: { value:0.7, random:true },
