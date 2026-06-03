@@ -28,7 +28,6 @@
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Rajdhani', sans-serif; user-select: none; }
-        /* تغيير الـ overflow للسماح بالتمرير على الهواتف إذا لزم الأمر */
         body { background-color: var(--dark-bg); color: var(--text-main); height: 100vh; overflow-x: hidden; overflow-y: auto; display: flex; flex-direction: column; position: relative; }
         
         #canvas-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
@@ -44,7 +43,6 @@
             filter: brightness(0.8) contrast(1.2) drop-shadow(0 0 20px rgba(0, 229, 255, 0.3));
         }
         
-        /* إصلاح معرف تأثيرات الخلفية */
         #particles-js { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
         
         #quantumHud {
@@ -63,7 +61,6 @@
         .hud-title { color:#00e5ff; font-size:.7rem; font-weight:bold; letter-spacing:2px; }
         #hudMessage { color:#fff; font-size:.75rem; }
 
-        /* تعديل طبقة الواجهة الأساسية لدعم التجاوب */
         .ui-layer { 
             position: relative; z-index: 10; width: 100%; min-height: 100vh; 
             display: flex; justify-content: space-between; padding: 20px; 
@@ -113,8 +110,8 @@
         .progress-fill { height: 100%; background: linear-gradient(90deg, var(--neon-cyan), var(--neon-green)); box-shadow: 0 0 12px var(--neon-cyan); transition: width 0.5s ease; }
         .high-load { background: linear-gradient(90deg, var(--neon-magenta), #ff5588) !important; box-shadow: 0 0 12px var(--neon-magenta) !important; }
 
-        /* الكونسول المركزي وتجاوب شاشة الهاتف */
-        .center-console { display: none; flex-grow: 1; justify-content: center; align-items: center; pointer-events: auto; z-index: 50; padding: 10px; }
+        /* تم إصلاح الحاوية المركزية لتبقى ظاهرة دائماً */
+        .center-console { display: flex; flex-grow: 1; justify-content: center; align-items: center; pointer-events: auto; z-index: 50; padding: 10px; }
         .phone-container { width: 100%; max-width: 385px; height: 80vh; max-height: 700px; min-height: 550px; background: rgba(3, 4, 12, 0.9); border: 2px solid var(--neon-cyan); border-radius: 40px; position: relative; box-shadow: 0 0 40px rgba(0, 229, 255, 0.2), inset 0 0 20px rgba(0, 229, 255, 0.15); backdrop-filter: blur(20px); }
         .phone { width: 100%; height: 100%; position: relative; overflow: hidden; border-radius: inherit; }
         
@@ -160,7 +157,6 @@
         .choice-overlay.active { opacity: 1; pointer-events: auto; }
         .choice-box { background: #060c1f; border: 2px solid var(--neon-cyan); border-radius: 20px; padding: 20px; width: 100%; text-align: center; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 0 35px rgba(0,229,255,0.2); }
 
-        /* Media Queries لجعل التصميم متجاوب بالكامل على الهواتف */
         @media (max-width: 992px) {
             .ui-layer { flex-direction: column; justify-content: flex-start; gap: 20px; padding-bottom: 50px; }
             .panel-container { width: 100%; max-width: 500px; align-self: center; }
@@ -178,7 +174,9 @@
 <body>
 
     <div id="canvas-container"></div>
-    <div id="particles-js"></div> <div id="quantumHud">
+    <div id="particles-js"></div> 
+    
+    <div id="quantumHud">
         <div class="hud-core">
             <div class="pulse-ring"></div>
             <div class="pulse-ring ring2"></div>
@@ -229,8 +227,8 @@
                         <div class="lock-date" id="lockDate">Loading Matrix...</div>
                         <div class="lock-blur-box">
                             <h4 style="color: var(--neon-cyan); margin-bottom: 15px; font-size: 0.9rem; letter-spacing: 1px;">A0Z NODE ACCESS</h4>
-                            <input type="email" id="loginUser" style="width:100%; padding:10px; background:#000; border:1px solid var(--border-color); border-radius:6px; color:#fff; text-align:center; outline:none; margin-bottom:10px; font-size: 0.8rem;" placeholder="Node Identifier (Email)">
-                            <input type="password" id="loginPass" style="width:100%; padding:10px; background:#000; border:1px solid var(--border-color); border-radius:6px; color:#fff; text-align:center; outline:none; margin-bottom:15px; font-size: 0.8rem;" placeholder="Security Phrase">
+                            <input type="email" id="loginUser" style="width:100%; padding:10px; background:#000; border:1px solid var(--border-color); border-radius:6px; color:#fff; text-align:center; outline:none; margin-bottom:10px; font-size: 0.8rem;" placeholder="Node Email [Try: admin]">
+                            <input type="password" id="loginPass" style="width:100%; padding:10px; background:#000; border:1px solid var(--border-color); border-radius:6px; color:#fff; text-align:center; outline:none; margin-bottom:15px; font-size: 0.8rem;" placeholder="Phrase [Try: admin]">
                             <button class="action-btn" style="color:#000;" onclick="unlockWithOfficialEmail()">AUTHENTICATE</button>
                             <div id="lockScreenFeedback" style="color: var(--neon-magenta); font-size: 0.75rem; margin-top:12px; font-family:monospace;"></div>
                         </div>
@@ -409,7 +407,6 @@
             if(hud) { hud.textContent = message; }
         }
 
-        // إعداد Firebase (بناءً على طلبك السابق)
         const firebaseConfig = {
             apiKey: "AIzaSyA7Pu0DJOWmdoDYUUVP1J9aqhxh4f3wyfA",
             authDomain: "a0zai-56c3a.firebaseapp.com",
@@ -425,26 +422,28 @@
         let currentUserUID = null; let currentUserEmail = ""; let globalAppsData = {};
         let objectDetectorModel = null; let visionStream = null;
 
-        // نظام التنقل
+        // تم إصلاح التنقل لعدم إخفاء النظام أبداً لتفادي تعطل التطبيقات
         function handleNav(menuId) {
             document.querySelectorAll('.nav-menu li').forEach(li => li.classList.remove('active'));
             document.getElementById('nav-' + menuId).classList.add('active');
             const centerConsole = document.getElementById('center-console');
             logCoreEvent(`Navigation changed to node: ${menuId.toUpperCase()}`, "var(--neon-cyan)");
             
-            if (menuId === 'home') { centerConsole.style.display = 'none'; } 
-            else { 
-                centerConsole.style.display = 'flex'; 
-                if (currentUserUID) {
-                    ['cmd_system', 'global_chat', 'official_ai_bot', 'custom_runtime', 'vision_ai_scanner'].forEach(closeAppWindow);
-                    if (menuId === 'terminal') openAppWindow('cmd_system');
-                    if (menuId === 'network') { openAppWindow('global_chat'); renderChatInterface(); }
-                }
+            centerConsole.style.display = 'flex'; 
+            if (currentUserUID) {
+                ['cmd_system', 'global_chat', 'official_ai_bot', 'custom_runtime', 'vision_ai_scanner'].forEach(closeAppWindow);
+                if (menuId === 'terminal') openAppWindow('cmd_system');
+                if (menuId === 'network') { openAppWindow('global_chat'); renderChatInterface(); }
             }
         }
 
         // النوافذ
         function openAppWindow(id) { 
+            // تأكد من تسجيل الدخول قبل فتح أي تطبيق
+            if(!currentUserUID) {
+                logCoreEvent(`[ERROR] Auth required to open ${id}`, "var(--neon-magenta)");
+                return;
+            }
             document.getElementById(`win_${id}`).classList.add('open'); 
             logCoreEvent(`Launched window: ${id.toUpperCase()}`, "var(--neon-green)");
             if(id === 'data_stream') drawStream();
@@ -454,14 +453,23 @@
             logCoreEvent(`Terminated window: ${id.toUpperCase()}`, "var(--neon-magenta)");
         }
 
-        // تسجيل الدخول Auth
+        // تم إضافة Bypass (admin/admin) للمطورين لتخطي حظر Firebase محلياً وتفعيل التطبيقات
         function unlockWithOfficialEmail() {
             const email = document.getElementById('loginUser').value.trim();
             const pass = document.getElementById('loginPass').value;
             const feedback = document.getElementById('lockScreenFeedback');
             if(!email || !pass) { feedback.innerText = "Null entries. Access denied."; return; }
-            feedback.innerText = "Decrypting token... ⏳";
+            
+            if(email === "admin" && pass === "admin") {
+                currentUserUID = "dev_admin_001"; currentUserEmail = "Admin";
+                document.getElementById('lockScreen').style.transform = "translateY(-100%)";
+                logCoreEvent(`Developer Mode Activated`, "var(--neon-green)");
+                renderHomeScreen();
+                setupOfficialAiEngine(); preloadCocoSsdModel();
+                return;
+            }
 
+            feedback.innerText = "Decrypting token... ⏳";
             auth.signInWithEmailAndPassword(email, pass).then((u) => {
                 currentUserUID = u.user.uid; currentUserEmail = email.split('@')[0];
                 document.getElementById('lockScreen').style.transform = "translateY(-100%)";
@@ -532,7 +540,10 @@
         function confirmDeployDestination() { hideDeployChoiceBox(); addNewAppFromPanel(); }
         
         function addNewAppFromPanel() {
-            if (!currentUserUID) return;
+            if (!currentUserUID || currentUserUID === "dev_admin_001") {
+                alert("Cannot push code to Firebase in Developer Bypass mode.");
+                return;
+            }
             const sel = document.getElementById('appSelector').value; const name = document.getElementById('appNameInput').value.trim(); const code = document.getElementById('appCodeInput').value.trim();
             if (!name || !code) return;
             const appId = (sel === 'new') ? 'app_' + Date.now() : sel;
@@ -608,6 +619,10 @@
                     <button class="action-btn" style="width:auto; padding:0 20px;" onclick="sendZuluMessage()">SEND</button>
                 </div>
             `;
+            if (currentUserUID === "dev_admin_001") {
+                document.getElementById('zuluChatMessages').innerHTML = `<div style="color:var(--neon-magenta); text-align:center;">Firebase chat disabled in Developer Mode.</div>`;
+                return;
+            }
             database.ref('global_chat').limitToLast(30).on('value', (snapshot) => {
                 const msgsBox = document.getElementById('zuluChatMessages'); if(!msgsBox) return; msgsBox.innerHTML = '';
                 snapshot.forEach((child) => {
@@ -617,7 +632,7 @@
                 msgsBox.scrollTop = msgsBox.scrollHeight;
             });
         }
-        window.sendZuluMessage = function() { const input = document.getElementById('zuluMsgInput'); const text = input.value.trim(); if(!text || !currentUserUID) return; database.ref('global_chat').push({ sender: currentUserEmail, text: text, timestamp: Date.now() }); input.value = ''; }
+        window.sendZuluMessage = function() { const input = document.getElementById('zuluMsgInput'); const text = input.value.trim(); if(!text || !currentUserUID || currentUserUID === "dev_admin_001") return; database.ref('global_chat').push({ sender: currentUserEmail, text: text, timestamp: Date.now() }); input.value = ''; }
 
         function setupOfficialAiEngine() {
             const input = document.getElementById('coreAiInput'); const btn = document.getElementById('coreAiSendBtn'); const grid = document.getElementById('coreAiChatGrid');
@@ -676,23 +691,57 @@
             else { frame.src = url; }
         }
 
-        // Three.js محرك الرسوميات الثلاثي
+        // --- إضافة الكرة الثلاثية الأبعاد السيبرانية بدلاً من تأثير الجزيئات ---
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.getElementById('canvas-container').appendChild(renderer.domElement);
         const pointLight = new THREE.PointLight(0x00e5ff, 2.5, 120); pointLight.position.set(2, 3, 6); scene.add(pointLight);
-        const particlesGeometry = new THREE.BufferGeometry(); const particlesCount = 900; const posArray = new Float32Array(particlesCount * 3);
-        for(let i = 0; i < particlesCount * 3; i++) posArray[i] = (Math.random() - 0.5) * 16; 
-        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-        const particlesMaterial = new THREE.PointsMaterial({ size: 0.025, color: 0x00e5ff, transparent: true, opacity: 0.35 });
-        const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial); scene.add(particlesMesh);
-        camera.position.z = 6.5; let mouseX = 0, mouseY = 0;
-        document.addEventListener('mousemove', (e) => { mouseX = (e.clientX / window.innerWidth) * 2 - 1; mouseY = -(e.clientY / window.innerHeight) * 2 + 1; });
-        function animate3D() { requestAnimationFrame(animate3D); particlesMesh.rotation.y += 0.0012; particlesMesh.position.x += (mouseX * 0.4 - particlesMesh.position.x) * 0.05; renderer.render(scene, camera); }
+        
+        // بناء الكرة السلكية
+        const sphereGeometry = new THREE.SphereGeometry(12, 32, 16);
+        const sphereMaterial = new THREE.MeshBasicMaterial({ color: 0x00e5ff, wireframe: true, transparent: true, opacity: 0.15 });
+        const cyberSphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+        scene.add(cyberSphere);
+
+        // بناء حلقة محيطة لمزيد من التأثير السيبراني
+        const ringGeometry = new THREE.RingGeometry(14, 14.2, 64);
+        const ringMaterial = new THREE.MeshBasicMaterial({ color: 0x11ffbd, side: THREE.DoubleSide, transparent: true, opacity: 0.3 });
+        const cyberRing = new THREE.Mesh(ringGeometry, ringMaterial);
+        cyberRing.rotation.x = Math.PI / 2;
+        scene.add(cyberRing);
+
+        camera.position.z = 25; 
+        
+        let mouseX = 0, mouseY = 0;
+        document.addEventListener('mousemove', (e) => { 
+            mouseX = (e.clientX / window.innerWidth) * 2 - 1; 
+            mouseY = -(e.clientY / window.innerHeight) * 2 + 1; 
+        });
+        
+        function animate3D() { 
+            requestAnimationFrame(animate3D); 
+            // دوران مستمر للكرة والحلقة
+            cyberSphere.rotation.x += 0.002; 
+            cyberSphere.rotation.y += 0.005; 
+            cyberRing.rotation.z -= 0.005;
+            
+            // تفاعل الكرة مع حركة الماوس لتبدو وكأنها تطفو
+            cyberSphere.position.x += (mouseX * 2 - cyberSphere.position.x) * 0.05;
+            cyberSphere.position.y += (mouseY * 2 - cyberSphere.position.y) * 0.05;
+            cyberRing.position.x = cyberSphere.position.x;
+            cyberRing.position.y = cyberSphere.position.y;
+
+            renderer.render(scene, camera); 
+        }
         animate3D();
-        window.addEventListener('resize', () => { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); });
+        
+        window.addEventListener('resize', () => { 
+            camera.aspect = window.innerWidth / window.innerHeight; 
+            camera.updateProjectionMatrix(); 
+            renderer.setSize(window.innerWidth, window.innerHeight); 
+        });
 
         // Particles.js 
         particlesJS("particles-js", {
