@@ -7,12 +7,14 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     
     <style>
         :root {
@@ -26,326 +28,168 @@
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Rajdhani', sans-serif; user-select: none; }
-        body { background-color: var(--dark-bg); color: var(--text-main); height: 100vh; overflow: hidden; display: flex; position: relative; }
+        /* تغيير الـ overflow للسماح بالتمرير على الهواتف إذا لزم الأمر */
+        body { background-color: var(--dark-bg); color: var(--text-main); height: 100vh; overflow-x: hidden; overflow-y: auto; display: flex; flex-direction: column; position: relative; }
         
-        #canvas-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+        #canvas-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
         body::after {
-            content: ""; position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;
+            content: ""; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 229, 255, 0.02) 50%);
             background-size: 100% 4px; z-index: 100; pointer-events: none;
         }
         
-        /* الخلفية الممتدة للعنكبوت السيبراني */
         .cyber-full-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            object-fit: cover;
-            z-index: -1;
-            pointer-events: none;
-            opacity: 0.45;
-            mix-blend-mode: lighten; 
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; object-fit: cover;
+            z-index: -1; pointer-events: none; opacity: 0.45; mix-blend-mode: lighten; 
             filter: brightness(0.8) contrast(1.2) drop-shadow(0 0 20px rgba(0, 229, 255, 0.3));
         }
-        #particles-stars {
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-}
-#quantumHud{
-    color:#fff;
-    font-size:.8rem;
-    transition:.3s;
-    position:fixed;
-    bottom:30px;
-    right:30px;
-    z-index:9999;
-    display:flex;
-    align-items:center;
-    gap:15px;
-    pointer-events:none;
-}
+        
+        /* إصلاح معرف تأثيرات الخلفية */
+        #particles-js { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+        
+        #quantumHud {
+            color:#fff; font-size:.8rem; transition:.3s; position:fixed; bottom:20px; right:20px;
+            z-index:9999; display:flex; align-items:center; gap:15px; pointer-events:none;
+        }
 
-.hud-core{
-    position:relative;
-    width:70px;
-    height:70px;
-}
+        .hud-core { position:relative; width:50px; height:50px; }
+        .orb { width:12px; height:12px; background:#00e5ff; border-radius:50%; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); box-shadow:0 0 20px #00e5ff; }
+        .pulse-ring { position:absolute; width:50px; height:50px; border:2px solid rgba(0,229,255,.7); border-radius:50%; animation:pulse 2s infinite; }
+        .ring2 { animation-delay:1s; }
 
-.orb{
-    width:18px;
-    height:18px;
-    background:#00e5ff;
-    border-radius:50%;
-    position:absolute;
-    top:50%;
-    left:50%;
-    transform:translate(-50%,-50%);
-    box-shadow:0 0 25px #00e5ff;
-}
+        @keyframes pulse { 0% { transform:scale(.6); opacity:1; } 100% { transform:scale(1.6); opacity:0; } }
 
-.pulse-ring{
-    position:absolute;
-    width:70px;
-    height:70px;
-    border:2px solid rgba(0,229,255,.7);
-    border-radius:50%;
-    animation:pulse 2s infinite;
-}
+        .hud-panel { background:rgba(0,10,20,.75); border:1px solid rgba(0,229,255,.4); padding:8px 12px; border-radius:12px; backdrop-filter:blur(10px); }
+        .hud-title { color:#00e5ff; font-size:.7rem; font-weight:bold; letter-spacing:2px; }
+        #hudMessage { color:#fff; font-size:.75rem; }
 
-.ring2{
-    animation-delay:1s;
-}
+        /* تعديل طبقة الواجهة الأساسية لدعم التجاوب */
+        .ui-layer { 
+            position: relative; z-index: 10; width: 100%; min-height: 100vh; 
+            display: flex; justify-content: space-between; padding: 20px; 
+            pointer-events: none; align-items: center; 
+        }
+        
+        .panel-container { pointer-events: auto; display: flex; flex-direction: column; gap: 20px; width: 300px; z-index: 60; }
 
-@keyframes pulse{
-    0%{
-        transform:scale(.6);
-        opacity:1;
-    }
-    100%{
-        transform:scale(1.6);
-        opacity:0;
-    }
-}
-
-.hud-panel{
-    background:rgba(0,10,20,.75);
-    border:1px solid rgba(0,229,255,.4);
-    padding:10px 15px;
-    border-radius:12px;
-    backdrop-filter:blur(10px);
-}
-
-.hud-title{
-    color:#00e5ff;
-    font-size:.75rem;
-    font-weight:bold;
-    letter-spacing:2px;
-}
-
-#hudMessage{
-    color:#fff;
-    font-size:.8rem;
-}
-        /* الطبقة الأساسية للـ UI */
-        .ui-layer { position: relative; z-index: 10; width: 100%; height: 100%; display: flex; justify-content: space-between; padding: 30px; pointer-events: none; }
-        .panel-container { pointer-events: auto; display: flex; flex-direction: column; gap: 25px; width: 310px; }
-
-        /* تطوير تصميم اللوحات السيبرانية لتصبح متكاملة وتفاعلية */
         .sci-fi-panel { 
-            position: relative;
-            background: var(--panel-bg); 
-            border: 1px solid var(--border-color); 
-            padding: 22px; 
-            clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px); 
-            backdrop-filter: blur(12px); 
-            box-shadow: inset 0 0 30px rgba(0, 229, 255, 0.08), 0 10px 30px rgba(0,0,0,0.5);
+            position: relative; background: var(--panel-bg); border: 1px solid var(--border-color); 
+            padding: 20px; clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px); 
+            backdrop-filter: blur(12px); box-shadow: inset 0 0 30px rgba(0, 229, 255, 0.08), 0 10px 30px rgba(0,0,0,0.5);
             transition: border-color 0.4s, box-shadow 0.4s;
         }
-        .sci-fi-panel:hover {
-            border-color: rgba(0, 229, 255, 0.6);
-            box-shadow: inset 0 0 40px rgba(0, 229, 255, 0.15), 0 0 25px rgba(0, 229, 255, 0.1);
-        }
-
-        /* إضافة مؤشر ليد وامض في زوايا اللوحات */
+        .sci-fi-panel:hover { border-color: rgba(0, 229, 255, 0.6); box-shadow: inset 0 0 40px rgba(0, 229, 255, 0.15), 0 0 25px rgba(0, 229, 255, 0.1); }
+        
         .sci-fi-panel::before {
-            content: '';
-            position: absolute;
-            top: 5px;
-            right: 15px;
-            width: 4px;
-            height: 4px;
-            background-color: var(--neon-green);
-            border-radius: 50%;
-            box-shadow: 0 0 8px var(--neon-green);
+            content: ''; position: absolute; top: 5px; right: 15px; width: 4px; height: 4px;
+            background-color: var(--neon-green); border-radius: 50%; box-shadow: 0 0 8px var(--neon-green);
             animation: panelLedBlink 2s infinite ease-in-out;
         }
+        @keyframes panelLedBlink { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; filter: brightness(1.3); } }
 
-        @keyframes panelLedBlink {
-            0%, 100% { opacity: 0.3; }
-            50% { opacity: 1; filter: brightness(1.3); }
-        }
+        .logo { font-size: 3rem; font-weight: 700; color: var(--neon-cyan); text-shadow: 0 0 20px var(--neon-cyan); letter-spacing: 6px; text-align: center; margin-bottom: 5px; }
 
-        .logo { font-size: 3.8rem; font-weight: 700; color: var(--neon-cyan); text-shadow: 0 0 20px var(--neon-cyan); letter-spacing: 8px; text-align: center; margin-bottom: 5px; font-family: 'Rajdhani', sans-serif; }
-
-        /* جعل القائمة الجانبية تفاعلية بالكامل */
         .nav-menu ul { list-style: none; }
         .nav-menu li { 
-            position: relative;
-            padding: 16px 20px; 
-            cursor: pointer; 
-            display: flex; 
-            align-items: center; 
-            gap: 18px; 
-            font-size: 1.15rem; 
-            font-weight: 600; 
-            color: var(--text-main); 
-            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); 
-            border-left: 3px solid transparent;
-            margin-bottom: 5px;
-            overflow: hidden;
+            position: relative; padding: 14px 16px; cursor: pointer; display: flex; align-items: center; gap: 15px; 
+            font-size: 1.05rem; font-weight: 600; color: var(--text-main); transition: all 0.3s ease; 
+            border-left: 3px solid transparent; margin-bottom: 5px; overflow: hidden;
         }
         .nav-menu li i { transition: transform 0.3s ease; }
         .nav-menu li:hover i { transform: scale(1.2) rotate(-5deg); color: var(--neon-cyan); }
-        
-        .nav-menu li::after {
-            content: '';
-            position: absolute;
-            left: 0; top: 0; width: 0; height: 100%;
-            background: linear-gradient(90deg, rgba(0,229,255,0.15) 0%, transparent 100%);
-            transition: width 0.3s ease;
-            z-index: -1;
-        }
+        .nav-menu li::after { content: ''; position: absolute; left: 0; top: 0; width: 0; height: 100%; background: linear-gradient(90deg, rgba(0,229,255,0.15) 0%, transparent 100%); transition: width 0.3s ease; z-index: -1; }
         .nav-menu li:hover::after { width: 100%; }
-
-        .nav-menu li:hover, .nav-menu li.active { 
-            color: #fff; 
-            border-left: 3px solid var(--neon-cyan); 
-            text-shadow: 0 0 10px var(--neon-cyan); 
-        }
-        .nav-menu li.active {
-            background: linear-gradient(90deg, rgba(0,229,255,0.12) 0%, transparent 100%);
-            border-left-color: var(--neon-green);
-            text-shadow: 0 0 10px var(--neon-green);
-        }
+        .nav-menu li:hover, .nav-menu li.active { color: #fff; border-left: 3px solid var(--neon-cyan); text-shadow: 0 0 10px var(--neon-cyan); }
+        .nav-menu li.active { background: linear-gradient(90deg, rgba(0,229,255,0.12) 0%, transparent 100%); border-left-color: var(--neon-green); text-shadow: 0 0 10px var(--neon-green); }
         
-        /* سجل العمليات التفاعلي التلقائي السلس */
-        .activity-log p { font-size: 0.78rem; font-family: monospace; line-height: 1.6; color: #618fa8; margin-bottom: 8px; word-break: break-all; border-bottom: 1px solid rgba(255,255,255,0.03); padding-bottom: 4px;}
-        
-        /* تخصيص الـ Scrollbar الجانبي بشكل مستقبلي */
+        .activity-log p { font-size: 0.75rem; font-family: monospace; line-height: 1.5; color: #618fa8; margin-bottom: 6px; word-break: break-all; border-bottom: 1px solid rgba(255,255,255,0.03); padding-bottom: 4px;}
         #liveActivityLogger::-webkit-scrollbar { width: 4px; }
         #liveActivityLogger::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
         #liveActivityLogger::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 2px; }
 
-        /* تطوير تصميم أشرطة العتاد والموارد */
-        .resource-item { margin-bottom: 18px; }
-        .resource-header { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 7px; font-weight: 600; letter-spacing: 1px; }
-        .progress-bar { width: 100%; height: 8px; background: rgba(0, 0, 0, 0.4); border-radius: 4px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); position: relative;}
-        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--neon-cyan), var(--neon-green)); box-shadow: 0 0 12px var(--neon-cyan); transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
-        
-        /* تغيير اللون التلقائي عند الضغط العالي */
+        .resource-item { margin-bottom: 15px; }
+        .resource-header { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 5px; font-weight: 600; letter-spacing: 1px; }
+        .progress-bar { width: 100%; height: 6px; background: rgba(0, 0, 0, 0.4); border-radius: 3px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--neon-cyan), var(--neon-green)); box-shadow: 0 0 12px var(--neon-cyan); transition: width 0.5s ease; }
         .high-load { background: linear-gradient(90deg, var(--neon-magenta), #ff5588) !important; box-shadow: 0 0 12px var(--neon-magenta) !important; }
 
-        /* =========================================
-           هيكل الكونسول وهاتف النظام المدمج
-           ========================================= */
-        .center-console { display: none; flex-grow: 1; justify-content: center; align-items: center; pointer-events: auto; z-index: 50; }
-        .phone-container { width: 385px; height: 700px; background: rgba(3, 4, 12, 0.9); border: 2px solid var(--neon-cyan); border-radius: 45px; position: relative; box-shadow: 0 0 50px rgba(0, 229, 255, 0.25), inset 0 0 25px rgba(0, 229, 255, 0.15); backdrop-filter: blur(20px); }
+        /* الكونسول المركزي وتجاوب شاشة الهاتف */
+        .center-console { display: none; flex-grow: 1; justify-content: center; align-items: center; pointer-events: auto; z-index: 50; padding: 10px; }
+        .phone-container { width: 100%; max-width: 385px; height: 80vh; max-height: 700px; min-height: 550px; background: rgba(3, 4, 12, 0.9); border: 2px solid var(--neon-cyan); border-radius: 40px; position: relative; box-shadow: 0 0 40px rgba(0, 229, 255, 0.2), inset 0 0 20px rgba(0, 229, 255, 0.15); backdrop-filter: blur(20px); }
         .phone { width: 100%; height: 100%; position: relative; overflow: hidden; border-radius: inherit; }
-.phone-screen{
-    position:relative;
-}
-
-.phone-dock{
-    position:absolute;
-    bottom:15px;
-    left:50%;
-    transform:translateX(-50%);
-
-    width:90%;
-    height:70px;
-
-    display:flex;
-    justify-content:space-around;
-    align-items:center;
-
-    background:rgba(255,255,255,.05);
-    backdrop-filter:blur(20px);
-
-    border:1px solid rgba(0,229,255,.25);
-    border-radius:24px;
-
-    z-index:50;
-}
-
-.dock-app{
-    width:50px;
-    height:50px;
-
-    display:flex;
-    justify-content:center;
-    align-items:center;
-
-    border-radius:14px;
-
-    color:var(--neon-cyan);
-    font-size:1.3rem;
-
-    cursor:pointer;
-    transition:.25s;
-}
-
-.dock-app:hover{
-    transform:translateY(-3px) scale(1.08);
-    box-shadow:0 0 15px rgba(0,229,255,.4);
-}
+        
+        .phone-dock { position:absolute; bottom:15px; left:50%; transform:translateX(-50%); width:92%; height:65px; display:flex; justify-content:space-around; align-items:center; background:rgba(255,255,255,.05); backdrop-filter:blur(20px); border:1px solid rgba(0,229,255,.25); border-radius:20px; z-index:50; }
+        .dock-app { width:45px; height:45px; display:flex; justify-content:center; align-items:center; border-radius:12px; color:var(--neon-cyan); font-size:1.2rem; cursor:pointer; transition:.25s; }
+        .dock-app:hover { transform:translateY(-3px) scale(1.1); box-shadow:0 0 15px rgba(0,229,255,.4); background: rgba(255,255,255,0.05); }
+        
         input, textarea, .terminal-box, #chatContainer, #coreAiChatGrid, select { -webkit-user-select: text; user-select: text; }
-        .dynamic-island { width: 120px; height: 28px; background: #000; border-radius: 20px; position: absolute; top: 11px; left: 50%; transform: translateX(-50%); z-index: 100; display: flex; justify-content: center; align-items: center; font-size: 0.65rem; color: var(--neon-green); pointer-events: none; border: 1px solid rgba(255,255,255,0.1); font-weight: bold; letter-spacing: 1px;}
+        .dynamic-island { width: 100px; height: 24px; background: #000; border-radius: 12px; position: absolute; top: 10px; left: 50%; transform: translateX(-50%); z-index: 100; display: flex; justify-content: center; align-items: center; font-size: 0.6rem; color: var(--neon-green); pointer-events: none; border: 1px solid rgba(255,255,255,0.1); font-weight: bold; letter-spacing: 1px;}
         
-        /* شاشة القفل والاتصال */
-        .lock-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 95; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 30px; transition: transform 0.6s cubic-bezier(0.1, 0.9, 0.2, 1); background: rgba(1, 3, 8, 0.95); }
+        .lock-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 95; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 25px; transition: transform 0.6s cubic-bezier(0.1, 0.9, 0.2, 1); background: rgba(1, 3, 8, 0.95); }
         .lock-date { font-size: 0.9rem; color: #fff; margin-bottom: 25px; letter-spacing: 1px; font-weight: 500;}
-        .lock-blur-box { background: rgba(5, 10, 25, 0.8); border: 1px solid rgba(0, 229, 255, 0.3); border-radius: 24px; padding: 25px; width: 100%; display: flex; flex-direction: column; align-items: center; box-shadow: 0 0 30px rgba(0,229,255,0.1); }
+        .lock-blur-box { background: rgba(5, 10, 25, 0.8); border: 1px solid rgba(0, 229, 255, 0.3); border-radius: 20px; padding: 20px; width: 100%; display: flex; flex-direction: column; align-items: center; box-shadow: 0 0 30px rgba(0,229,255,0.1); }
 
-        /* شاشة الهاتف الداخلية الرئيسية */
-        .phone-screen { width: 100%; height: 100%; display: flex; flex-direction: column; padding: 52px 16px 24px 16px; position: relative; z-index: 5; background: radial-gradient(circle at center, rgba(10,25,50,0.2) 0%, transparent 80%); }
-        .status-bar { display: flex; justify-content: space-between; font-size: 0.75rem; color: #fff; z-index: 40; margin-bottom: 25px; font-weight: 600;}
-        .home-screen { position: relative; z-index: 10; flex-grow: 1; display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: max-content; gap: 22px 14px; overflow-y: auto; align-content: start; }
+        .phone-screen { width: 100%; height: 100%; display: flex; flex-direction: column; padding: 45px 15px 85px 15px; position: relative; z-index: 5; background: radial-gradient(circle at center, rgba(10,25,50,0.2) 0%, transparent 80%); }
+        .status-bar { display: flex; justify-content: space-between; font-size: 0.75rem; color: #fff; z-index: 40; margin-bottom: 20px; font-weight: 600;}
+        .home-screen { position: relative; z-index: 10; flex-grow: 1; display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: max-content; gap: 20px 10px; overflow-y: auto; align-content: start; }
         
-        /* واجهة الأيقونات */
-        .app-item { position: relative; display: flex; flex-direction: column; align-items: center; gap: 7px; cursor: pointer; }
-        .app-icon { width: 56px; height: 56px; border-radius: 16px; display: flex; justify-content: center; align-items: center; font-size: 1.5rem; border: 1px solid rgba(255, 255, 255, 0.15); transition: transform 0.2s, box-shadow 0.2s; background: rgba(255,255,255,0.03); }
-        .app-item:hover .app-icon { transform: scale(1.08); box-shadow: 0 0 12px rgba(0, 229, 255, 0.3); }
-        .app-name { font-size: 0.68rem; color: #ffffff; text-align: center; font-weight: 600; letter-spacing: 0.5px; }
-        .delete-app-btn { position: absolute; top: -5px; right: -5px; width: 22px; height: 22px; background: var(--neon-magenta); color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 0.6rem; z-index: 20; cursor: pointer; box-shadow: 0 0 8px var(--neon-magenta); }
+        .app-item { position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; }
+        .app-icon { width: 50px; height: 50px; border-radius: 14px; display: flex; justify-content: center; align-items: center; font-size: 1.4rem; border: 1px solid rgba(255, 255, 255, 0.15); transition: transform 0.2s, box-shadow 0.2s; background: rgba(255,255,255,0.03); }
+        .app-item:hover .app-icon { transform: scale(1.05); box-shadow: 0 0 10px rgba(0, 229, 255, 0.3); }
+        .app-name { font-size: 0.65rem; color: #ffffff; text-align: center; font-weight: 600; letter-spacing: 0.5px; }
+        .delete-app-btn { position: absolute; top: -5px; right: -5px; width: 20px; height: 20px; background: var(--neon-magenta); color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 0.6rem; z-index: 20; cursor: pointer; box-shadow: 0 0 8px var(--neon-magenta); }
 
-        /* النوافذ المنسدلة للأسفل */
-        .window-instance { position: absolute; width: 100%; height: 100%; top: 0; left: 0; background: #040814; z-index: 80; display: flex; flex-direction: column; overflow: hidden; padding-top: 40px; transform: translateY(100%); transition: transform 0.45s cubic-bezier(0.1, 0.9, 0.2, 1); }
+        .window-instance { position: absolute; width: 100%; height: 100%; top: 0; left: 0; background: #040814; z-index: 80; display: flex; flex-direction: column; overflow: hidden; padding-top: 35px; transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.1, 0.9, 0.2, 1); }
         .window-instance.open { transform: translateY(0); }
-        .window-header-bar { background: #090e1a; padding: 14px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
-        .window-title { font-size: 0.8rem; color: var(--neon-cyan); font-weight: bold; font-family: monospace; letter-spacing: 1px; }
-        .win-btn { padding: 6px 16px; border-radius: 6px; border: none; background: var(--neon-magenta); color: white; font-size: 0.7rem; font-weight: bold; cursor: pointer; box-shadow: 0 0 10px rgba(255,51,102,0.3); }   
+        .window-header-bar { background: #090e1a; padding: 12px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
+        .window-title { font-size: 0.75rem; color: var(--neon-cyan); font-weight: bold; font-family: monospace; letter-spacing: 1px; }
+        .win-btn { padding: 5px 12px; border-radius: 4px; border: none; background: var(--neon-magenta); color: white; font-size: 0.7rem; font-weight: bold; cursor: pointer; box-shadow: 0 0 8px rgba(255,51,102,0.3); }   
         .window-body { flex-grow: 1; width: 100%; height: 100%; overflow: auto; display: flex; flex-direction: column; }
         
-        /* محتويات الـ CMD */
-        .cmd-body { padding: 14px; display: flex; flex-direction: column; gap: 12px; height: 100%; }
-        .terminal-box { flex-grow: 1; background: #000; border-radius: 8px; padding: 12px; font-family: monospace; font-size: 0.75rem; color: var(--neon-green); overflow-y: auto; border: 1px solid rgba(255,255,255,0.05); line-height: 1.4; }
-        .cmd-inputs { background: #060b18; border: 1px solid var(--border-color); padding: 12px; border-radius: 10px; display: flex; flex-direction: column; gap: 8px; }
-        .cmd-line { display: flex; align-items: center; gap: 8px; }
-        .cmd-label { font-family: monospace; font-size: 0.75rem; color: var(--neon-cyan); }
-        .cmd-input { flex-grow: 1; background: transparent; border: none; color: #fff; font-family: monospace; font-size: 0.8rem; outline: none; border-bottom: 1px solid #1a2942; padding-bottom: 2px; }
-        .cmd-select { width: 100%; background: #000; border: 1px solid rgba(255,255,255,0.15); border-radius: 5px; padding: 6px; color: var(--neon-cyan); font-size: 0.75rem; outline: none; font-family: monospace; }
-        .cmd-text { width: 100%; height: 100px; background: #000; border: 1px solid rgba(255,255,255,0.1); border-radius: 5px; color: var(--neon-green); font-family: monospace; font-size: 0.75rem; padding: 8px; resize: none; outline: none; }
-        .action-btn { width: 100%; padding: 12px; background: linear-gradient(135deg, var(--neon-cyan), #11ffbd); border: none; border-radius: 6px; color: #000; font-weight: bold; font-size: 0.8rem; cursor: pointer; transition: opacity 0.2s; text-transform: uppercase; letter-spacing: 0.5px;}
-        .action-btn:hover { opacity: 0.9; }
-
-        /* تراكب التثبيت */
-        .choice-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(1,3,8,0.9); z-index: 200; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; padding: 25px; }
+        .cmd-body { padding: 12px; display: flex; flex-direction: column; gap: 10px; height: 100%; }
+        .terminal-box { flex-grow: 1; background: #000; border-radius: 6px; padding: 10px; font-family: monospace; font-size: 0.75rem; color: var(--neon-green); overflow-y: auto; border: 1px solid rgba(255,255,255,0.05); line-height: 1.4; }
+        .cmd-inputs { background: #060b18; border: 1px solid var(--border-color); padding: 10px; border-radius: 8px; display: flex; flex-direction: column; gap: 6px; }
+        .cmd-line { display: flex; align-items: center; gap: 6px; }
+        .cmd-label { font-family: monospace; font-size: 0.7rem; color: var(--neon-cyan); }
+        .cmd-input { flex-grow: 1; background: transparent; border: none; color: #fff; font-family: monospace; font-size: 0.75rem; outline: none; border-bottom: 1px solid #1a2942; padding-bottom: 2px; }
+        .cmd-select { width: 100%; background: #000; border: 1px solid rgba(255,255,255,0.15); border-radius: 4px; padding: 5px; color: var(--neon-cyan); font-size: 0.75rem; outline: none; font-family: monospace; }
+        .cmd-text { width: 100%; height: 80px; background: #000; border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; color: var(--neon-green); font-family: monospace; font-size: 0.75rem; padding: 6px; resize: none; outline: none; }
+        .action-btn { width: 100%; padding: 10px; background: linear-gradient(135deg, var(--neon-cyan), #11ffbd); border: none; border-radius: 6px; color: #000; font-weight: bold; font-size: 0.75rem; cursor: pointer; transition: opacity 0.2s; text-transform: uppercase; letter-spacing: 0.5px;}
+        
+        .choice-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(1,3,8,0.9); z-index: 200; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; padding: 20px; }
         .choice-overlay.active { opacity: 1; pointer-events: auto; }
-        .choice-box { background: #060c1f; border: 2px solid var(--neon-cyan); border-radius: 24px; padding: 25px; width: 100%; text-align: center; display: flex; flex-direction: column; gap: 15px; box-shadow: 0 0 35px rgba(0,229,255,0.2); }
+        .choice-box { background: #060c1f; border: 2px solid var(--neon-cyan); border-radius: 20px; padding: 20px; width: 100%; text-align: center; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 0 35px rgba(0,229,255,0.2); }
+
+        /* Media Queries لجعل التصميم متجاوب بالكامل على الهواتف */
+        @media (max-width: 992px) {
+            .ui-layer { flex-direction: column; justify-content: flex-start; gap: 20px; padding-bottom: 50px; }
+            .panel-container { width: 100%; max-width: 500px; align-self: center; }
+            .center-console { width: 100%; margin-top: 10px; }
+            .phone-container { height: 75vh; }
+        }
+        @media (max-width: 480px) {
+            .phone-container { border-radius: 25px; height: 80vh; min-height: unset; }
+            .app-icon { width: 45px; height: 45px; font-size: 1.2rem; }
+            .dock-app { width: 40px; height: 40px; font-size: 1.1rem; }
+            .sci-fi-panel { padding: 15px; }
+        }
     </style>
 </head>
 <body>
 
     <div id="canvas-container"></div>
-
-    <img src="gif.gif" alt="A0Z Cyber Spider Background" class="cyber-full-bg">
-        <div id="particles-js"></div>
-<div id="quantumHud">
-    <div class="hud-core">
-        <div class="pulse-ring"></div>
-        <div class="pulse-ring ring2"></div>
-        <div class="orb"></div>
+    <div id="particles-js"></div> <div id="quantumHud">
+        <div class="hud-core">
+            <div class="pulse-ring"></div>
+            <div class="pulse-ring ring2"></div>
+            <div class="orb"></div>
+        </div>
+        <div class="hud-panel">
+            <div class="hud-title">QUANTUM CORE</div>
+            <div id="hudMessage">SYSTEM READY</div>
+        </div>
     </div>
 
-    <div class="hud-panel">
-        <div class="hud-title">QUANTUM CORE</div>
-        <div id="hudMessage">SYSTEM READY</div>
-    </div>
-</div>
     <div class="ui-layer">
         
         <div class="panel-container">
@@ -361,7 +205,7 @@
             
             <div class="sci-fi-panel activity-log">
                 <div style="font-weight: 600; margin-bottom: 12px; font-size: 0.9rem; letter-spacing: 1px; color: var(--neon-cyan);">CORE ACTIVITY LOG</div>
-                <div id="liveActivityLogger" style="height: 140px; overflow-y: auto;">
+                <div id="liveActivityLogger" style="height: 120px; overflow-y: auto;">
                     <p style="color:var(--neon-green)">[SYSTEM] OS Quantum boot linked.</p>
                 </div>
             </div>
@@ -374,8 +218,8 @@
                     
                     <div class="choice-overlay" id="destinationChoiceOverlay">
                         <div class="choice-box">
-                            <h3 style="color: var(--neon-cyan); font-size: 1rem; letter-spacing: 0.5px;">INJECT APPLICATION?</h3>
-                            <p style="font-size: 0.75rem; color: #9bbccf;">Compile and push bytecode into your secured Firebase repository?</p>
+                            <h3 style="color: var(--neon-cyan); font-size: 0.9rem; letter-spacing: 0.5px;">INJECT APPLICATION?</h3>
+                            <p style="font-size: 0.75rem; color: #9bbccf;">Compile and push bytecode to your secured Firebase?</p>
                             <button class="action-btn" onclick="confirmDeployDestination()">CONFIRM INJECTION 📱</button>
                             <button class="win-btn" style="background: #202538; padding: 10px;" onclick="hideDeployChoiceBox()">ABORT</button>
                         </div>
@@ -385,74 +229,56 @@
                         <div class="lock-date" id="lockDate">Loading Matrix...</div>
                         <div class="lock-blur-box">
                             <h4 style="color: var(--neon-cyan); margin-bottom: 15px; font-size: 0.9rem; letter-spacing: 1px;">A0Z NODE ACCESS</h4>
-                            <input type="email" id="loginUser" style="width:100%; padding:11px; background:#000; border:1px solid var(--border-color); border-radius:6px; color:#fff; text-align:center; outline:none; margin-bottom:10px; font-size: 0.8rem;" placeholder="Node Identifier (Email)">
-                            <input type="password" id="loginPass" style="width:100%; padding:11px; background:#000; border:1px solid var(--border-color); border-radius:6px; color:#fff; text-align:center; outline:none; margin-bottom:15px; font-size: 0.8rem;" placeholder="Security Phrase">
+                            <input type="email" id="loginUser" style="width:100%; padding:10px; background:#000; border:1px solid var(--border-color); border-radius:6px; color:#fff; text-align:center; outline:none; margin-bottom:10px; font-size: 0.8rem;" placeholder="Node Identifier (Email)">
+                            <input type="password" id="loginPass" style="width:100%; padding:10px; background:#000; border:1px solid var(--border-color); border-radius:6px; color:#fff; text-align:center; outline:none; margin-bottom:15px; font-size: 0.8rem;" placeholder="Security Phrase">
                             <button class="action-btn" style="color:#000;" onclick="unlockWithOfficialEmail()">AUTHENTICATE</button>
                             <div id="lockScreenFeedback" style="color: var(--neon-magenta); font-size: 0.75rem; margin-top:12px; font-family:monospace;"></div>
                         </div>
                     </div>
 
-<div class="phone-screen" id="phoneScreen">
+                    <div class="phone-screen" id="phoneScreen">
+                        <div class="status-bar">
+                            <div id="liveClock">00:00</div>
+                            <div style="color: var(--neon-cyan);">Q-NET <i class="fa-solid fa-satellite-dish"></i></div>
+                        </div>
 
-    <div class="status-bar">
-        <div id="liveClock">00:00</div>
-        <div style="color: var(--neon-cyan);">
-            Q-NET
-            <i class="fa-solid fa-satellite-dish"></i>
-        </div>
-    </div>
+                        <div class="home-screen" id="homeScreen"></div>
 
-    <div class="home-screen" id="homeScreen">
-    </div>
-
-    <div class="phone-dock">
-        <div class="dock-app" onclick="openAppWindow('cmd_system')">
-            <i class="fa-solid fa-terminal"></i>
-        </div>
-
-        <div class="dock-app" onclick="openAppWindow('official_ai_bot')">
-            <i class="fa-solid fa-brain"></i>
-        </div>
-
-        <div class="dock-app" onclick="openAppWindow('global_chat')">
-            <i class="fa-solid fa-comments"></i>
-        </div>
-
-        <div class="dock-app" onclick="startVisionAiScanner()">
-            <i class="fa-solid fa-eye"></i>
-        </div>
-    </div>
-        <div class="dock-app" onclick="openAppWindow('web_browser')">
-            <i class="fa-solid fa-globe"></i>
-        </div>
-
-</div>
+                        <div class="phone-dock">
+                            <div class="dock-app" onclick="openAppWindow('cmd_system')"><i class="fa-solid fa-terminal"></i></div>
+                            <div class="dock-app" onclick="openAppWindow('official_ai_bot')"><i class="fa-solid fa-brain"></i></div>
+                            <div class="dock-app" onclick="openAppWindow('global_chat')"><i class="fa-solid fa-comments"></i></div>
+                            <div class="dock-app" onclick="startVisionAiScanner()"><i class="fa-solid fa-eye"></i></div>
+                            <div class="dock-app" onclick="openAppWindow('web_browser')"><i class="fa-solid fa-globe"></i></div>
+                        </div>
+                    </div>
+                    
                     <div class="window-instance" id="win_cmd_system">
                         <div class="window-header-bar">
-                            <div class="window-title">⚡ Core:\System32\Quantum_cmd</div>
+                            <div class="window-title">⚡ Core:\System32\Quantum</div>
                             <button class="win-btn" onclick="closeAppWindow('cmd_system')">X</button>
                         </div>
                         <div class="window-body">
                             <div class="cmd-body">
                                 <div class="terminal-box" id="systemTerminal">
                                     <div>A0Z Core Engine Terminal [Version 2.6.0]</div>
-<div style="color:#888">Type 'help' to unlock system directives.</div>
-<br>
+                                    <div style="color:#888">Type 'help' to unlock system directives.</div><br>
+                                </div>
                                 <div class="cmd-inputs">
                                     <div class="cmd-line">
                                         <span class="cmd-label">A0Z_OS ></span>
-                                        <input type="text" id="cmdLineInput" class="cmd-input" placeholder="Execute node command..." onkeypress="if(event.key==='Enter') executeTerminalCmd()">
+                                        <input type="text" id="cmdLineInput" class="cmd-input" placeholder="Execute command..." onkeypress="if(event.key==='Enter') executeTerminalCmd()">
                                     </div>
-                                    <div class="cmd-line" style="margin-top: 8px;">
+                                    <div class="cmd-line" style="margin-top: 5px;">
                                         <span class="cmd-label">target=</span>
                                         <select id="appSelector" class="cmd-select" onchange="loadSelectedAppCode()">
-                                            <option value="new">-- Construct New Custom Node --</option>
+                                            <option value="new">-- Construct New Node --</option>
                                         </select>
                                     </div>
                                     <input type="text" id="appNameInput" class="cmd-input" placeholder="Application Title" style="margin-top: 4px;">
-                                    <textarea id="appCodeInput" class="cmd-text" placeholder="// Write functional execution script here...&#10;function init(root) { root.innerHTML = '<h3>App Active</h3>'; }" style="margin-top: 4px;"></textarea>
+                                    <textarea id="appCodeInput" class="cmd-text" placeholder="function init(root) { root.innerHTML = '<h3>Active</h3>'; }" style="margin-top: 4px;"></textarea>
                                 </div>
-                                <button class="action-btn" onclick="openDeployChoiceBox()">COMPILE & DEPLOY NODE 🚀</button>
+                                <button class="action-btn" onclick="openDeployChoiceBox()">COMPILE & DEPLOY 🚀</button>
                             </div>
                         </div>
                     </div>
@@ -462,8 +288,7 @@
                             <div class="window-title">💬 Zulu Encrypted Channels</div>
                             <button class="win-btn" onclick="closeAppWindow('global_chat')">X</button>
                         </div>
-                        <div class="window-body" id="chatContainer" style="background: #02040a;">
-                            </div>
+                        <div class="window-body" id="chatContainer" style="background: #02040a; display: flex; flex-direction: column;"></div>
                     </div>
 
                     <div class="window-instance" id="win_official_ai_bot">
@@ -482,44 +307,60 @@
 
                     <div class="window-instance" id="win_vision_ai_scanner">
                         <div class="window-header-bar">
-                            <div class="window-title">👁️ AI Vision Objects Scanner</div>
+                            <div class="window-title">👁️ AI Vision Scanner</div>
                             <button class="win-btn" onclick="stopVisionAiScanner()">X</button>
                         </div>
-
-<div class="window-instance" id="win_web_browser">
-    <div class="window-header-bar">
-        <div class="window-title">🌐 Quantum Browser</div>
-        <button class="win-btn" onclick="closeAppWindow('web_browser')">X</button>
-    </div>
-    
-    <div class="window-body" style="background:#000; display:flex; flex-direction:column;">
-        <div style="display:flex; padding:8px; background:#090e1a; border-bottom:1px solid var(--border-color); gap:5px; align-items: center;">
-            <button id="vpnToggleBtn" style="padding:5px 10px; background: transparent; border: 1px solid var(--neon-magenta); color: var(--neon-magenta); border-radius: 4px; cursor: pointer; font-family: monospace; font-weight: bold; transition: 0.3s; box-shadow: none;" onclick="toggleQuantumVPN()">VPN: OFF ⚠️</button>
-            
-            <input type="text" id="browserUrl" style="flex-grow:1; background:#000; color:#fff; border:1px solid rgba(0,229,255,0.3); padding:5px; border-radius:4px; font-family:monospace; outline:none;" placeholder="Enter URL (e.g., google.com)..." onkeypress="if(event.key==='Enter') loadBrowserUrl()">
-            
-            <button class="action-btn" style="width:auto; padding:5px 15px;" onclick="loadBrowserUrl()">GO</button>
-        </div>
-        
-        <iframe id="browserFrame" style="flex-grow:1; width:100%; border:none; background:#fff;" sandbox="allow-scripts allow-same-origin allow-forms"></iframe>
-    </div>
-</div>
-
                         <div class="window-body" style="background:#000; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:10px;">
-                            <div style="position:relative; width:100%; height:80%; background:#111; display:flex; justify-content:center; align-items:center;">
+                            <div style="position:relative; width:100%; height:80%; background:#111; display:flex; justify-content:center; align-items:center; border-radius: 8px; overflow: hidden;">
                                 <video id="visionVideo" autoplay playsinline muted style="width:100%; height:100%; object-fit:cover; position:absolute;"></video>
                                 <canvas id="visionCanvas" style="width:100%; height:100%; position:absolute; left:0; top:0; z-index:10; pointer-events:none;"></canvas>
-                                <div id="visionStatus" style="z-index:12; color:var(--neon-cyan); font-family:monospace; font-size:0.75rem; background:rgba(0,0,0,0.8); padding:8px 15px; border-radius:5px; border:1px solid var(--border-color);">Initializing AI Model Hub...</div>
+                                <div id="visionStatus" style="z-index:12; color:var(--neon-cyan); font-family:monospace; font-size:0.75rem; background:rgba(0,0,0,0.8); padding:8px 15px; border-radius:5px; border:1px solid var(--border-color);">Initializing AI Hub...</div>
                             </div>
-                            <div style="width:100%; padding:10px; display:flex; gap:5px;">
+                            <div style="width:100%; padding:10px; display:flex; gap:5px; margin-top: auto;">
                                 <button class="action-btn" onclick="startVisionAiScanner()">ACTIVATE FEED</button>
                             </div>
                         </div>
                     </div>
 
+                    <div class="window-instance" id="win_web_browser">
+                        <div class="window-header-bar">
+                            <div class="window-title">🌐 Quantum Browser</div>
+                            <button class="win-btn" onclick="closeAppWindow('web_browser')">X</button>
+                        </div>
+                        <div class="window-body" style="background:#000; display:flex; flex-direction:column;">
+                            <div style="display:flex; padding:8px; background:#090e1a; border-bottom:1px solid var(--border-color); gap:5px; align-items: center;">
+                                <button id="vpnToggleBtn" style="padding:5px; background: transparent; border: 1px solid var(--neon-magenta); color: var(--neon-magenta); border-radius: 4px; cursor: pointer; font-family: monospace; font-size: 0.65rem; font-weight: bold; transition: 0.3s;" onclick="toggleQuantumVPN()">VPN: OFF</button>
+                                <input type="text" id="browserUrl" style="flex-grow:1; background:#000; color:#fff; border:1px solid rgba(0,229,255,0.3); padding:6px; border-radius:4px; font-family:monospace; outline:none; font-size: 0.75rem;" placeholder="google.com" onkeypress="if(event.key==='Enter') loadBrowserUrl()">
+                                <button class="action-btn" style="width:auto; padding:5px 10px;" onclick="loadBrowserUrl()">GO</button>
+                            </div>
+                            <iframe id="browserFrame" style="flex-grow:1; width:100%; border:none; background:#fff;" sandbox="allow-scripts allow-same-origin allow-forms"></iframe>
+                        </div>
+                    </div>
+
+                    <div class="window-instance" id="win_crypto_mgr">
+                        <div class="window-header-bar">
+                            <div class="window-title">🛡️ Crypto Manager</div>
+                            <button class="win-btn" onclick="closeAppWindow('crypto_mgr')">X</button>
+                        </div>
+                        <div class="window-body" style="padding:20px; text-align:center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                            <div id="vaultContent" style="color:var(--neon-cyan); font-family:monospace; margin-bottom:20px; font-size: 1.2rem;">VAULT LOCKED</div>
+                            <button class="action-btn" onclick="document.getElementById('vaultContent').innerText = 'KEY: 0x8F2A9C3B5E1D'">GENERATE KEY</button>
+                        </div>
+                    </div>
+
+                    <div class="window-instance" id="win_data_stream">
+                        <div class="window-header-bar">
+                            <div class="window-title">📊 Data Stream</div>
+                            <button class="win-btn" onclick="closeAppWindow('data_stream')">X</button>
+                        </div>
+                        <div class="window-body" style="background:#000;">
+                            <canvas id="streamCanvas" style="width:100%; height:100%;"></canvas>
+                        </div>
+                    </div>
+
                     <div class="window-instance" id="win_custom_runtime" style="z-index: 85;">
                         <div class="window-header-bar">
-                            <div class="window-title" id="customWinTitle">🛸 Node Sandbox Runtime</div>
+                            <div class="window-title" id="customWinTitle">🛸 Node Sandbox</div>
                             <button class="win-btn" onclick="closeAppWindow('custom_runtime')">X</button>
                         </div>
                         <div class="window-body" id="customContainer" style="background:#0b0f19;"></div>
@@ -528,26 +369,6 @@
                 </div>
             </div>
         </div>
-<div class="window-instance" id="win_crypto_mgr">
-    <div class="window-header-bar">
-        <div class="window-title">🛡️ Crypto Manager</div>
-        <button class="win-btn" onclick="closeAppWindow('crypto_mgr')">X</button>
-    </div>
-    <div class="window-body" style="padding:20px; text-align:center;">
-        <div id="vaultContent" style="color:var(--neon-cyan); font-family:monospace; margin-bottom:20px;">VAULT LOCKED</div>
-        <button class="action-btn" onclick="document.getElementById('vaultContent').innerText = 'KEY: 0x8F2A9C3B5E1D4F6A'">GENERATE KEY</button>
-    </div>
-</div>
-
-<div class="window-instance" id="win_data_stream">
-    <div class="window-header-bar">
-        <div class="window-title">📊 Data Stream</div>
-        <button class="win-btn" onclick="closeAppWindow('data_stream')">X</button>
-    </div>
-    <div class="window-body" style="background:#000;">
-        <canvas id="streamCanvas" style="width:100%; height:100%;"></canvas>
-    </div>
-</div>
 
         <div class="panel-container">
             <div class="sci-fi-panel">
@@ -568,87 +389,27 @@
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-
     <script>
-    const hudMessages = [
-    "SYSTEM READY",
-    "QUANTUM LINK ACTIVE",
-    "AI CORE ONLINE",
-    "NETWORK SYNCHRONIZED",
-    "VISION MODULE READY",
-    "SECURE CHANNEL ESTABLISHED"
-];
-
-let hudIndex = 0;
-
-function updateHud(message, color = "#00e5ff") {
-    const msg = document.getElementById("hudMessage");
-
-    if (!msg) return;
-
-    msg.style.opacity = "0";
-
-    setTimeout(() => {
-        msg.textContent = message;
-        msg.style.color = color;
-        msg.style.opacity = "1";
-    }, 250);
-}
-
-setInterval(() => {
-    hudIndex++;
-
-    if (hudIndex >= hudMessages.length) {
-        hudIndex = 0;
-    }
-
-    updateHud(hudMessages[hudIndex]);
-}, 4000);
-const orb = document.querySelector(".orb");
-
-setInterval(() => {
-    if (!orb) return;
-
-    orb.animate(
-        [
-            {
-                transform: "translate(-50%,-50%) scale(1)"
-            },
-            {
-                transform: "translate(-50%,-50%) scale(1.4)"
-            },
-            {
-                transform: "translate(-50%,-50%) scale(1)"
-            }
-        ],
-        {
-            duration: 1200,
-            easing: "ease-in-out"
+        // نظام الإشعارات
+        const hudMessages = ["SYSTEM READY", "QUANTUM LINK ACTIVE", "AI CORE ONLINE", "NETWORK SYNCHRONIZED", "VISION MODULE READY", "SECURE CHANNEL ESTABLISHED"];
+        let hudIndex = 0;
+        function updateHud(message, color = "#00e5ff") {
+            const msg = document.getElementById("hudMessage");
+            if (!msg) return;
+            msg.style.opacity = "0";
+            setTimeout(() => { msg.textContent = message; msg.style.color = color; msg.style.opacity = "1"; }, 250);
         }
-    );
-}, 1500);
-        /* ====================================================================
-           1. نظام توثيق التحركات الجانبي التلقائي (Activity Logger)
-           ==================================================================== */
-function logCoreEvent(message, color = "var(--text-main)") {
+        setInterval(() => { hudIndex++; if (hudIndex >= hudMessages.length) { hudIndex = 0; } updateHud(hudMessages[hudIndex]); }, 4000);
 
-    const logger = document.getElementById("liveActivityLogger");
+        // سجل الأحداث
+        function logCoreEvent(message, color = "var(--text-main)") {
+            const logger = document.getElementById("liveActivityLogger");
+            if(logger) { logger.innerHTML += `<p style="color:${color}">> ${message}</p>`; logger.scrollTop = logger.scrollHeight; }
+            const hud = document.getElementById("hudMessage");
+            if(hud) { hud.textContent = message; }
+        }
 
-    if(logger){
-        logger.innerHTML += `<p style="color:${color}">> ${message}</p>`;
-        logger.scrollTop = logger.scrollHeight;
-    }
-
-    const hud = document.getElementById("hudMessage");
-
-    if(hud){
-        hud.textContent = message;
-    }
-}
-        /* ====================================================================
-           2. تهيئة الاتصال بـ Firebase
-           ==================================================================== */
+        // إعداد Firebase (بناءً على طلبك السابق)
         const firebaseConfig = {
             apiKey: "AIzaSyA7Pu0DJOWmdoDYUUVP1J9aqhxh4f3wyfA",
             authDomain: "a0zai-56c3a.firebaseapp.com",
@@ -661,162 +422,107 @@ function logCoreEvent(message, color = "var(--text-main)") {
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database(); 
         const auth = firebase.auth();
-        
-        let currentUserUID = null; 
-        let currentUserEmail = ""; 
-        let globalAppsData = {};
-        let objectDetectorModel = null;
-        let visionStream = null;
+        let currentUserUID = null; let currentUserEmail = ""; let globalAppsData = {};
+        let objectDetectorModel = null; let visionStream = null;
 
-        /* ====================================================================
-           3. التوجيه وتنشيط الهاتف والنوافذ (Navigation Control)
-           ==================================================================== */
+        // نظام التنقل
         function handleNav(menuId) {
             document.querySelectorAll('.nav-menu li').forEach(li => li.classList.remove('active'));
             document.getElementById('nav-' + menuId).classList.add('active');
-            
             const centerConsole = document.getElementById('center-console');
             logCoreEvent(`Navigation changed to node: ${menuId.toUpperCase()}`, "var(--neon-cyan)");
             
-            if (menuId === 'home') {
-                centerConsole.style.display = 'none'; 
-            } else {
+            if (menuId === 'home') { centerConsole.style.display = 'none'; } 
+            else { 
                 centerConsole.style.display = 'flex'; 
                 if (currentUserUID) {
-                    closeAppWindow('cmd_system'); closeAppWindow('global_chat'); 
-                    closeAppWindow('official_ai_bot'); closeAppWindow('custom_runtime'); closeAppWindow('vision_ai_scanner');
-                    
+                    ['cmd_system', 'global_chat', 'official_ai_bot', 'custom_runtime', 'vision_ai_scanner'].forEach(closeAppWindow);
                     if (menuId === 'terminal') openAppWindow('cmd_system');
                     if (menuId === 'network') { openAppWindow('global_chat'); renderChatInterface(); }
                 }
             }
         }
 
+        // النوافذ
         function openAppWindow(id) { 
             document.getElementById(`win_${id}`).classList.add('open'); 
-            logCoreEvent(`Launched window interface: ${id.toUpperCase()}`, "var(--neon-green)");
+            logCoreEvent(`Launched window: ${id.toUpperCase()}`, "var(--neon-green)");
+            if(id === 'data_stream') drawStream();
         }
         function closeAppWindow(id) { 
             document.getElementById(`win_${id}`).classList.remove('open'); 
-            logCoreEvent(`Terminated window interface: ${id.toUpperCase()}`, "var(--neon-magenta)");
+            logCoreEvent(`Terminated window: ${id.toUpperCase()}`, "var(--neon-magenta)");
         }
 
-        /* ====================================================================
-           4. نظام الحماية وتسجيل الدخول (Firebase Auth Protocol)
-           ==================================================================== */
+        // تسجيل الدخول Auth
         function unlockWithOfficialEmail() {
             const email = document.getElementById('loginUser').value.trim();
             const pass = document.getElementById('loginPass').value;
             const feedback = document.getElementById('lockScreenFeedback');
-            
-            if(!email || !pass) { feedback.innerText = "Null entries detected. Access denied."; return; }
-            feedback.innerText = "Decrypting token key... ⏳";
+            if(!email || !pass) { feedback.innerText = "Null entries. Access denied."; return; }
+            feedback.innerText = "Decrypting token... ⏳";
 
             auth.signInWithEmailAndPassword(email, pass).then((u) => {
-                currentUserUID = u.user.uid; 
-                currentUserEmail = email.split('@')[0];
-                
+                currentUserUID = u.user.uid; currentUserEmail = email.split('@')[0];
                 document.getElementById('lockScreen').style.transform = "translateY(-100%)";
                 database.ref(`presence/${currentUserUID}`).set({ username: currentUserEmail, online: true });
-                
-                logCoreEvent(`Authenticated node session: @${currentUserEmail}`, "var(--neon-green)");
-                
-                listenToUserApps(); 
-                setupOfficialAiEngine();
-                preloadCocoSsdModel(); 
-                
-                const activeNav = document.querySelector('.nav-menu li.active').id;
-                if(activeNav === 'nav-terminal') openAppWindow('cmd_system');
-                if(activeNav === 'nav-network') { openAppWindow('global_chat'); renderChatInterface(); }
+                logCoreEvent(`Authenticated: @${currentUserEmail}`, "var(--neon-green)");
+                listenToUserApps(); setupOfficialAiEngine(); preloadCocoSsdModel(); 
             }).catch((err) => { 
                 feedback.innerText = `Token Reject: ${err.message}`; 
-                logCoreEvent(`Authentication failed: ${err.message}`, "var(--neon-magenta)");
+                logCoreEvent(`Auth failed: ${err.message}`, "var(--neon-magenta)");
             });
         }
 
-        /* ====================================================================
-           5. نظام الـ Terminal وتفسير الأوامر
-           ==================================================================== */
+        // الـ Terminal
         function executeTerminalCmd() {
             const input = document.getElementById("cmdLineInput");
             const terminal = document.getElementById("systemTerminal");
             const cmd = input.value.trim().toLowerCase();
             if (cmd === "") return;
-
             terminal.innerHTML += `<div style='color:#fff; margin-top:5px;'>A0Z_OS > ${input.value}</div>`;
-            logCoreEvent(`Terminal command execution: '${cmd}'`);
-
-            if(cmd === 'help') {
-                terminal.innerHTML += `
-                    <div style='color:var(--neon-cyan)'>Available System Protocols:<br>
-                    - help : Displays this interface.<br>
-                    - sysinfo : Pull architecture metrics.<br>
-                    - status : Check Firebase connection integrity.<br>
-                    - matrix : Deploy virtual system matrix stream.<br>
-                    - clear : Clear terminal grid trace.</div>`;
-            } else if (cmd === 'sysinfo') {
-                terminal.innerHTML += `<div style='color:#fff'>Platform: A0Z Core Architecture v2.6<br>Runtime: Quantum V8 Engine<br>Sub-layer: TensorFlow Neural Core active.</div>`;
-            } else if (cmd === 'status') {
-                terminal.innerHTML += `<div style='color:var(--neon-green)'>Firebase Link Status: CONNECTED<br>User token UID: ${currentUserUID}</div>`;
-            } else if (cmd === 'matrix') {
-                terminal.innerHTML += `<div style='color:var(--neon-green)'>01010011 01011001 01010011 01010100 01000101 01001101_OK</div>`;
-            } else if (cmd === 'clear') {
-                terminal.innerHTML = `<div>A0Z Terminal Flushed.</div>`;
-            } else {
-                terminal.innerHTML += `<div style='color:var(--neon-magenta)'>[ERROR] Command '${cmd}' unrecognized by system core.</div>`;
-            }
-
-            input.value = ""; 
-            terminal.scrollTop = terminal.scrollHeight;
+            logCoreEvent(`Cmd: '${cmd}'`);
+            
+            if(cmd === 'help') terminal.innerHTML += `<div style='color:var(--neon-cyan)'>Available:<br>- help, sysinfo, status, matrix, clear</div>`;
+            else if (cmd === 'sysinfo') terminal.innerHTML += `<div style='color:#fff'>Platform: A0Z Core v2.6<br>Runtime: Quantum V8</div>`;
+            else if (cmd === 'status') terminal.innerHTML += `<div style='color:var(--neon-green)'>Firebase: CONNECTED</div>`;
+            else if (cmd === 'clear') terminal.innerHTML = `<div>A0Z Terminal Flushed.</div>`;
+            else terminal.innerHTML += `<div style='color:var(--neon-magenta)'>[ERROR] Unrecognized command.</div>`;
+            
+            input.value = ""; terminal.scrollTop = terminal.scrollHeight;
         }
 
-        /* ====================================================================
-           6. إدارة وبناء التطبيقات المخصصة المحفوظة سحابياً
-           ==================================================================== */
+        // التطبيقات المخصصة
         function listenToUserApps() { 
             if(!currentUserUID) return;
             database.ref('custom_apps/' + currentUserUID).on('value', (s) => { 
-                globalAppsData = s.val() || {}; 
-                updateAppSelectorOptions(); 
-                renderHomeScreen(); 
+                globalAppsData = s.val() || {}; updateAppSelectorOptions(); renderHomeScreen(); 
             }); 
         }
 
         function renderHomeScreen() {
-            const hs = document.getElementById('homeScreen'); 
-            hs.innerHTML = '';
-            
-const systemApps = [
-    { id: 'cmd_system', icon: '&gt;_', name: 'Terminal', bg: '#000', color: 'var(--neon-green)' },
-    { id: 'global_chat', icon: '<i class="fa-solid fa-comments"></i>', name: 'Zulu Chat', bg: 'linear-gradient(135deg, #ffcc00, #ff3366)', color: '#fff' },
-    { id: 'official_ai_bot', icon: '<i class="fa-solid fa-brain"></i>', name: 'AI Core', bg: 'rgba(5, 12, 35, 0.9)', color: 'var(--neon-cyan)' },
-    { id: 'vision_ai_scanner', icon: '<i class="fa-solid fa-eye"></i>', name: 'AI Vision', bg: '#03140a', color: 'var(--neon-green)' },
-    { id: 'crypto_mgr', icon: '<i class="fa-solid fa-shield-halved"></i>', name: 'Crypto Mgr', bg: '#1a1f35', color: 'var(--neon-cyan)' },
-    { id: 'data_stream', icon: '<i class="fa-solid fa-chart-line"></i>', name: 'Data Stream', bg: '#1a1f35', color: 'var(--neon-green)' },
-    { id: 'web_browser', icon: '<i class="fa-solid fa-globe"></i>', name: 'Browser', bg: '#1a1f35', color: 'var(--neon-cyan)' }
-];
-
-            
+            const hs = document.getElementById('homeScreen'); hs.innerHTML = '';
+            const systemApps = [
+                { id: 'cmd_system', icon: '&gt;_', name: 'Terminal', bg: '#000', color: 'var(--neon-green)' },
+                { id: 'global_chat', icon: '<i class="fa-solid fa-comments"></i>', name: 'Zulu Chat', bg: 'linear-gradient(135deg, #ffcc00, #ff3366)', color: '#fff' },
+                { id: 'official_ai_bot', icon: '<i class="fa-solid fa-brain"></i>', name: 'AI Core', bg: 'rgba(5, 12, 35, 0.9)', color: 'var(--neon-cyan)' },
+                { id: 'vision_ai_scanner', icon: '<i class="fa-solid fa-eye"></i>', name: 'AI Vision', bg: '#03140a', color: 'var(--neon-green)' },
+                { id: 'crypto_mgr', icon: '<i class="fa-solid fa-shield-halved"></i>', name: 'Crypto Mgr', bg: '#1a1f35', color: 'var(--neon-cyan)' },
+                { id: 'data_stream', icon: '<i class="fa-solid fa-chart-line"></i>', name: 'Stream', bg: '#1a1f35', color: 'var(--neon-green)' },
+                { id: 'web_browser', icon: '<i class="fa-solid fa-globe"></i>', name: 'Browser', bg: '#1a1f35', color: 'var(--neon-cyan)' }
+            ];
             systemApps.forEach(a => {
                 const item = document.createElement('div'); item.className = 'app-item';
-                item.onclick = () => { 
-                    if(a.id === 'vision_ai_scanner') startVisionAiScanner();
-                    else openAppWindow(a.id); 
-                    if(a.id === 'global_chat') renderChatInterface(); 
-                };
+                item.onclick = () => { if(a.id === 'vision_ai_scanner') startVisionAiScanner(); else openAppWindow(a.id); if(a.id === 'global_chat') renderChatInterface(); };
                 item.innerHTML = `<div class="app-icon" style="background:${a.bg}; color:${a.color};">${a.icon}</div><div class="app-name">${a.name}</div>`;
                 hs.appendChild(item);
             });
-
             Object.keys(globalAppsData).forEach((k) => {
-                const app = globalAppsData[k];
-                const item = document.createElement('div'); item.className = 'app-item';
-                item.onclick = (e) => { if(e.target.classList.contains('delete-app-btn') || e.target.closest('.delete-app-btn')) return; launchCustomApp(k); };
-                item.innerHTML = `
-                    <div class="delete-app-btn" onclick="deleteCustomApp('${k}', '${app.name}')"><i class="fa-solid fa-xmark"></i></div>
-                    <div class="app-icon" style="background: rgba(0, 229, 255, 0.1); border-color: var(--neon-cyan); color:var(--neon-cyan); font-size:1.2rem;"><i class="fa-solid fa-cubes"></i></div>
-                    <div class="app-name">${app.name}</div>
-                `;
+                const app = globalAppsData[k]; const item = document.createElement('div'); item.className = 'app-item';
+                item.onclick = (e) => { if(e.target.closest('.delete-app-btn')) return; launchCustomApp(k); };
+                item.innerHTML = `<div class="delete-app-btn" onclick="deleteCustomApp('${k}', '${app.name}')"><i class="fa-solid fa-xmark"></i></div>
+                    <div class="app-icon" style="background:rgba(0, 229, 255, 0.1); border-color:var(--neon-cyan); color:var(--neon-cyan); font-size:1.2rem;"><i class="fa-solid fa-cubes"></i></div>
+                    <div class="app-name">${app.name}</div>`;
                 hs.appendChild(item);
             });
         }
@@ -824,166 +530,94 @@ const systemApps = [
         function openDeployChoiceBox() { document.getElementById('destinationChoiceOverlay').classList.add('active'); }
         function hideDeployChoiceBox() { document.getElementById('destinationChoiceOverlay').classList.remove('active'); }
         function confirmDeployDestination() { hideDeployChoiceBox(); addNewAppFromPanel(); }
-
+        
         function addNewAppFromPanel() {
             if (!currentUserUID) return;
-            const sel = document.getElementById('appSelector').value;
-            const name = document.getElementById('appNameInput').value.trim();
-            const code = document.getElementById('appCodeInput').value.trim();
-            const terminal = document.getElementById("systemTerminal");
-            
-            if (!name || !code) {
-                terminal.innerHTML += `<div style='color:var(--neon-magenta);'>[ERROR] Integrity Fault: Title & Payload empty!</div>`;
-                return;
-            }
-
+            const sel = document.getElementById('appSelector').value; const name = document.getElementById('appNameInput').value.trim(); const code = document.getElementById('appCodeInput').value.trim();
+            if (!name || !code) return;
             const appId = (sel === 'new') ? 'app_' + Date.now() : sel;
-            
-            database.ref(`custom_apps/${currentUserUID}/${appId}`).set({
-                name: name, code: code, timestamp: Date.now()
-            }).then(() => {
-                terminal.innerHTML += `<div style='color:var(--neon-green);'>[SUCCESS] Node compiled and injected into cluster.</div>`;
+            database.ref(`custom_apps/${currentUserUID}/${appId}`).set({ name: name, code: code, timestamp: Date.now() }).then(() => {
                 logCoreEvent(`Injected app payload: ${name}`, "var(--neon-green)");
-                document.getElementById('appNameInput').value = "";
-                document.getElementById('appCodeInput').value = "";
-                document.getElementById('appSelector').value = "new";
+                document.getElementById('appNameInput').value = ""; document.getElementById('appCodeInput').value = ""; document.getElementById('appSelector').value = "new";
             });
         }
-
+        
         function deleteCustomApp(appId, appName) {
-            if(confirm(`Purge Application: ${appName}?`)) {
-                database.ref(`custom_apps/${currentUserUID}/${appId}`).remove();
-                logCoreEvent(`Purged app from cloud database: ${appName}`, "var(--neon-magenta)");
-            }
+            if(confirm(`Purge Application: ${appName}?`)) { database.ref(`custom_apps/${currentUserUID}/${appId}`).remove(); }
         }
-
+        
         function updateAppSelectorOptions() {
-            const selector = document.getElementById('appSelector'); 
-            selector.innerHTML = '<option value="new">-- Construct New Custom Node --</option>';
-            Object.keys(globalAppsData).forEach((k) => {
-                const opt = document.createElement('option'); opt.value = k; opt.innerText = globalAppsData[k].name; selector.appendChild(opt);
-            });
+            const selector = document.getElementById('appSelector'); selector.innerHTML = '<option value="new">-- Construct New Node --</option>';
+            Object.keys(globalAppsData).forEach((k) => { const opt = document.createElement('option'); opt.value = k; opt.innerText = globalAppsData[k].name; selector.appendChild(opt); });
         }
-
+        
         function loadSelectedAppCode() {
             const id = document.getElementById('appSelector').value;
             if(id === 'new') { document.getElementById('appNameInput').value = ""; document.getElementById('appCodeInput').value = ""; } 
             else { document.getElementById('appNameInput').value = globalAppsData[id].name; document.getElementById('appCodeInput').value = globalAppsData[id].code; }
         }
-
+        
         function launchCustomApp(key) {
             const app = globalAppsData[key]; if (!app) return;
             document.getElementById('customWinTitle').innerText = `🛸 Runtime: ${app.name}`;
-            const container = document.getElementById('customContainer');
-            
-            container.innerHTML = `<iframe sandbox="allow-scripts allow-same-origin" style="width:100%;height:100%;border:none;background:transparent;" srcdoc="
-                <!DOCTYPE html><html><body style='color:#fff; font-family:sans-serif; padding:15px;'>
-                <div id='root'></div><script>
-                try { 
-                    const appFunc = new Function('return (' + ${JSON.stringify(app.code)} + ')')(); 
-                    appFunc(document.getElementById('root')); 
-                } catch(e){ document.body.innerHTML = '<div style=\\'color:red;\\'>Runtime Exception:<br>' + e.message + '</div>'; }
-                <\/script></body></html>"></iframe>`;
+            document.getElementById('customContainer').innerHTML = `<iframe sandbox="allow-scripts allow-same-origin" style="width:100%;height:100%;border:none;background:transparent;" srcdoc="
+                <!DOCTYPE html><html><body style='color:#fff; font-family:sans-serif; padding:15px;'><div id='root'></div><script>
+                try { const appFunc = new Function('return (' + ${JSON.stringify(app.code)} + ')')(); appFunc(document.getElementById('root')); } 
+                catch(e){ document.body.innerHTML = '<div style=\\'color:red;\\'>Runtime Exception:<br>' + e.message + '</div>'; } <\/script></body></html>"></iframe>`;
             openAppWindow('custom_runtime');
         }
 
-        /* ====================================================================
-           7. تشغيل الذكاء الاصطناعي البصري (TensorFlow + Camera)
-           ==================================================================== */
+        // رؤية الذكاء الاصطناعي (AI Vision)
         async function preloadCocoSsdModel() {
-            try {
-                objectDetectorModel = await cocoSsd.load();
-                document.getElementById('visionStatus').innerText = "AI Vision Subsystem Loaded. Feed Ready.";
-                logCoreEvent("COCO-SSD TensorFlow Model initialized.", "var(--neon-green)");
-            } catch (e) {
-                document.getElementById('visionStatus').innerText = "Model configuration failed.";
-            }
+            try { objectDetectorModel = await cocoSsd.load(); document.getElementById('visionStatus').innerText = "AI Vision Ready."; } catch (e) { document.getElementById('visionStatus').innerText = "Model config failed."; }
         }
-
         async function startVisionAiScanner() {
             openAppWindow('vision_ai_scanner');
             const video = document.getElementById('visionVideo');
-            
             if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
                 try {
                     visionStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false });
-                    video.srcObject = visionStream;
-                    document.getElementById('visionStatus').innerText = "Analyzing Live Flux Matrix...";
-                    logCoreEvent("Camera peripheral streaming active.");
-                    
+                    video.srcObject = visionStream; document.getElementById('visionStatus').innerText = "Analyzing Live Flux Matrix...";
                     video.onloadedmetadata = () => { runVisionObjectDetectionLoop(); };
-                } catch (err) {
-                    document.getElementById('visionStatus').innerText = "Camera permission missing.";
-                }
+                } catch (err) { document.getElementById('visionStatus').innerText = "Camera permission missing."; }
             }
         }
-
         async function runVisionObjectDetectionLoop() {
-            const video = document.getElementById('visionVideo');
-            const canvas = document.getElementById('visionCanvas');
-            if(!canvas || !video || !visionStream) return;
-            
-            const ctx = canvas.getContext('2d');
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-
-            if(objectDetectorModel && video.readyState === 4) {
-                const predictions = await objectDetectorModel.detect(video);
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                
-                predictions.forEach(p => {
-                    ctx.strokeStyle = "#00e5ff"; ctx.lineWidth = 3;
-                    ctx.strokeRect(p.bbox[0], p.bbox[1], p.bbox[2], p.bbox[3]);
-                    ctx.fillStyle = "#00e5ff"; ctx.font = "16px monospace";
-                    ctx.fillText(`${p.class.toUpperCase()} [${Math.round(p.score * 100)}%]`, p.bbox[0], p.bbox[1] > 20 ? p.bbox[1] - 8 : 20);
-                });
-            }
-            if(document.getElementById('win_vision_ai_scanner').classList.contains('open')) {
-                requestAnimationFrame(runVisionObjectDetectionLoop);
-            }
+            const video = document.getElementById('visionVideo'); const canvas = document.getElementById('visionCanvas');
+            if(!canvas || !video || !visionStream || !objectDetectorModel || video.readyState !== 4) return;
+            const ctx = canvas.getContext('2d'); canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+            const predictions = await objectDetectorModel.detect(video);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            predictions.forEach(p => {
+                ctx.strokeStyle = "#00e5ff"; ctx.lineWidth = 3; ctx.strokeRect(p.bbox[0], p.bbox[1], p.bbox[2], p.bbox[3]);
+                ctx.fillStyle = "#00e5ff"; ctx.font = "16px monospace"; ctx.fillText(`${p.class.toUpperCase()} [${Math.round(p.score * 100)}%]`, p.bbox[0], p.bbox[1] > 20 ? p.bbox[1] - 8 : 20);
+            });
+            if(document.getElementById('win_vision_ai_scanner').classList.contains('open')) requestAnimationFrame(runVisionObjectDetectionLoop);
         }
+        function stopVisionAiScanner() { closeAppWindow('vision_ai_scanner'); if(visionStream) { visionStream.getTracks().forEach(t => t.stop()); visionStream = null; } }
 
-        function stopVisionAiScanner() {
-            closeAppWindow('vision_ai_scanner');
-            if(visionStream) { visionStream.getTracks().forEach(track => track.stop()); visionStream = null; }
-            logCoreEvent("AI Vision stream offline.", "var(--neon-magenta)");
-        }
-
-        /* ====================================================================
-           8. غرف المحادثة والذكاء الاصطناعي النصي
-           ==================================================================== */
+        // غرف الدردشة العالمية والذكاء الاصطناعي
         function renderChatInterface() {
             const chatContainer = document.getElementById('chatContainer');
             chatContainer.innerHTML = `
                 <div id="zuluChatMessages" style="flex-grow:1; overflow-y:auto; padding:15px; font-size:0.75rem; color:#fff; display:flex; flex-direction:column; gap:8px;">
-                    <div style="color:var(--neon-cyan); text-align:center;">Handshaking with global gateway... ⏳</div>
+                    <div style="color:var(--neon-cyan); text-align:center;">Handshaking with gateway... ⏳</div>
                 </div>
                 <div style="padding:10px; background:#000; display:flex; gap:5px; border-top:1px solid var(--border-color);">
                     <input type="text" id="zuluMsgInput" style="flex-grow:1; padding:10px; border-radius:5px; background:#090e1a; color:#fff; border:1px solid #1a2c4c; outline:none;" placeholder="Transmit packet..." onkeypress="if(event.key==='Enter') sendZuluMessage()">
                     <button class="action-btn" style="width:auto; padding:0 20px;" onclick="sendZuluMessage()">SEND</button>
                 </div>
             `;
-            
             database.ref('global_chat').limitToLast(30).on('value', (snapshot) => {
                 const msgsBox = document.getElementById('zuluChatMessages'); if(!msgsBox) return; msgsBox.innerHTML = '';
                 snapshot.forEach((child) => {
                     const data = child.val(); const isMe = data.sender === currentUserEmail;
-                    msgsBox.innerHTML += `
-                        <div style="align-self: ${isMe ? 'flex-end' : 'flex-start'}; background: ${isMe ? 'var(--neon-magenta)' : '#0a1224'}; padding:10px 14px; border-radius:12px; max-width:85%; border: 1px solid rgba(0,229,255,0.15);">
-                            <div style="font-size:0.6rem; color: var(--neon-cyan); margin-bottom:4px; font-weight:bold;">@${data.sender}</div>
-                            <div style="word-wrap: break-word; font-family:monospace; font-size:0.7rem;">${data.text}</div>
-                        </div>
-                    `;
+                    msgsBox.innerHTML += `<div style="align-self: ${isMe ? 'flex-end' : 'flex-start'}; background: ${isMe ? 'var(--neon-magenta)' : '#0a1224'}; padding:10px 14px; border-radius:12px; max-width:85%; border: 1px solid rgba(0,229,255,0.15);"><div style="font-size:0.6rem; color: var(--neon-cyan); margin-bottom:4px; font-weight:bold;">@${data.sender}</div><div style="word-wrap: break-word; font-family:monospace; font-size:0.7rem;">${data.text}</div></div>`;
                 });
                 msgsBox.scrollTop = msgsBox.scrollHeight;
             });
         }
-
-        window.sendZuluMessage = function() {
-            const input = document.getElementById('zuluMsgInput'); const text = input.value.trim(); if(!text || !currentUserUID) return;
-            database.ref('global_chat').push({ sender: currentUserEmail, text: text, timestamp: Date.now() });
-            input.value = '';
-        }
+        window.sendZuluMessage = function() { const input = document.getElementById('zuluMsgInput'); const text = input.value.trim(); if(!text || !currentUserUID) return; database.ref('global_chat').push({ sender: currentUserEmail, text: text, timestamp: Date.now() }); input.value = ''; }
 
         function setupOfficialAiEngine() {
             const input = document.getElementById('coreAiInput'); const btn = document.getElementById('coreAiSendBtn'); const grid = document.getElementById('coreAiChatGrid');
@@ -991,162 +625,89 @@ const systemApps = [
                 const text = input.value.trim(); if(!text) return;
                 grid.innerHTML += `<div style="align-self:flex-end; background:var(--neon-cyan); color:#000; padding:10px; border-radius:10px; font-weight:bold; font-family:monospace;">${text}</div>`;
                 input.value = ''; grid.scrollTop = grid.scrollHeight;
-                
                 try {
                     const res = await fetch(`https://text.pollinations.ai/${encodeURIComponent(text)}`); const reply = await res.text();
                     grid.innerHTML += `<div style="align-self:flex-start; background:rgba(255,255,255,0.05); padding:10px; border-radius:10px; border:1px solid #1c2e4a; font-family:monospace;">${reply}</div>`;
                     grid.scrollTop = grid.scrollHeight;
-                } catch(e) {
-                    grid.innerHTML += `<div style="align-self:flex-start; color:red;">Matrix Pipeline Disrupted.</div>`;
-                }
+                } catch(e) { grid.innerHTML += `<div style="align-self:flex-start; color:red;">Pipeline Disrupted.</div>`; }
             };
         }
-function drawStream() {
-    const canvas = document.getElementById('streamCanvas');
-    if (!canvas || !document.getElementById('win_data_stream').classList.contains('open')) return;
-    const ctx = canvas.getContext('2d');
-    canvas.width = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
 
-    ctx.strokeStyle = '#11ffbd';
-    ctx.beginPath();
-    for (let i = 0; i < canvas.width; i++) {
-        ctx.lineTo(i, canvas.height / 2 + Math.sin(i * 0.05 + Date.now() * 0.01) * 50);
-    }
-    ctx.stroke();
-    requestAnimationFrame(drawStream);
-}
+        function drawStream() {
+            const canvas = document.getElementById('streamCanvas');
+            if (!canvas || !document.getElementById('win_data_stream').classList.contains('open')) return;
+            const ctx = canvas.getContext('2d'); canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight;
+            ctx.strokeStyle = '#11ffbd'; ctx.beginPath();
+            for (let i = 0; i < canvas.width; i++) { ctx.lineTo(i, canvas.height / 2 + Math.sin(i * 0.05 + Date.now() * 0.01) * 50); }
+            ctx.stroke(); requestAnimationFrame(drawStream);
+        }
 
-// تعديل دالة openAppWindow لتفعيل الرسم عند فتح التطبيق
-const originalOpen = openAppWindow;
-openAppWindow = function(id) {
-    originalOpen(id);
-    if(id === 'data_stream') drawStream();
-};
-
-        /* ====================================================================
-           9. محرك الرسوميات التفاعلي والعدادات التناغمیة المحدثة
-           ==================================================================== */
+        // الساعات واستهلاك الموارد
         setInterval(() => {
             const now = new Date(); 
             document.getElementById('liveClock').innerText = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
             if(document.getElementById('lockDate')) document.getElementById('lockDate').innerText = now.toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long' });
-            
-            // توليد قيم استهلاك عشوائية واقعية
             const c = Math.floor(Math.random() * 35 + 15), m = Math.floor(Math.random() * 20 + 55);
             document.getElementById('cpu-val').innerText = c + '%'; document.getElementById('mem-val').innerText = m + '%';
-            
-            const cpuBar = document.getElementById('cpu-bar');
-            const memBar = document.getElementById('mem-bar');
-            
-            cpuBar.style.width = c + '%'; 
-            memBar.style.width = m + '%';
-
-            // تلوين الأشرطة بشكل ديناميكي تفاعلي إذا تجاوز الحمل المسموح
+            const cpuBar = document.getElementById('cpu-bar'); const memBar = document.getElementById('mem-bar');
+            cpuBar.style.width = c + '%'; memBar.style.width = m + '%';
             if(c > 40) { cpuBar.classList.add('high-load'); } else { cpuBar.classList.remove('high-load'); }
             if(m > 70) { memBar.classList.add('high-load'); } else { memBar.classList.remove('high-load'); }
-
         }, 2000);
-        /* ====================================================================
-           10. المتصفح الكمومي وزر الـ VPN التفاعلي
-           ==================================================================== */
-        let isVpnActive = false; // المتغير الذي يحفظ حالة الـ VPN
 
+        // متصفح الويب والـ VPN
+        let isVpnActive = false;
         function toggleQuantumVPN() {
             isVpnActive = !isVpnActive;
             const btn = document.getElementById('vpnToggleBtn');
-            
             if (isVpnActive) {
-                // تفعيل الشكل السيبراني الآمن (أخضر)
-                btn.innerText = "VPN: ON 🛡️";
-                btn.style.background = "var(--neon-green)";
-                btn.style.color = "#000";
-                btn.style.borderColor = "var(--neon-green)";
-                btn.style.boxShadow = "0 0 12px var(--neon-green)";
-                
-                logCoreEvent("Quantum Tunnel Activated. Traffic encrypted.", "var(--neon-green)");
+                btn.innerText = "VPN: ON"; btn.style.background = "var(--neon-green)"; btn.style.color = "#000"; btn.style.borderColor = "var(--neon-green)";
                 updateHud("VPN TUNNEL ACTIVE", "var(--neon-green)");
             } else {
-                // العودة للشكل غير الآمن (وردي)
-                btn.innerText = "VPN: OFF ⚠️";
-                btn.style.background = "transparent";
-                btn.style.color = "var(--neon-magenta)";
-                btn.style.borderColor = "var(--neon-magenta)";
-                btn.style.boxShadow = "none";
-                
-                logCoreEvent("Quantum Tunnel Deactivated. Connection vulnerable.", "var(--neon-magenta)");
+                btn.innerText = "VPN: OFF"; btn.style.background = "transparent"; btn.style.color = "var(--neon-magenta)"; btn.style.borderColor = "var(--neon-magenta)";
                 updateHud("VPN DISCONNECTED", "var(--neon-magenta)");
             }
         }
-
         function loadBrowserUrl() {
-            let url = document.getElementById('browserUrl').value.trim();
-            if (!url) return;
-            
-            if (!url.startsWith('http://') && !url.startsWith('https://')) {
-                url = 'https://' + url;
-            }
-
+            let url = document.getElementById('browserUrl').value.trim(); if (!url) return;
+            if (!url.startsWith('http://') && !url.startsWith('https://')) url = 'https://' + url;
             const frame = document.getElementById('browserFrame');
-            
-            // تحقق من حالة الـ VPN لتقرير مسار الاتصال
-            if (isVpnActive) {
-                // VPN يعمل: استخدام البروكسي لتخطي الحماية
-                logCoreEvent(`Routing through secure VPN node to: ${url}`, "var(--neon-green)");
-                const proxyApi = 'https://api.allorigins.win/raw?url=';
-                frame.src = proxyApi + encodeURIComponent(url);
-            } else {
-                // VPN مطفأ: اتصال مباشر (لإظهار الحظر)
-                logCoreEvent(`Direct insecure connection to: ${url}`, "var(--neon-magenta)");
-                frame.src = url;
-            }
+            if (isVpnActive) { frame.src = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url); } 
+            else { frame.src = url; }
         }
 
-
+        // Three.js محرك الرسوميات الثلاثي
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.getElementById('canvas-container').appendChild(renderer.domElement);
-
         const pointLight = new THREE.PointLight(0x00e5ff, 2.5, 120); pointLight.position.set(2, 3, 6); scene.add(pointLight);
-
         const particlesGeometry = new THREE.BufferGeometry(); const particlesCount = 900; const posArray = new Float32Array(particlesCount * 3);
         for(let i = 0; i < particlesCount * 3; i++) posArray[i] = (Math.random() - 0.5) * 16; 
         particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
         const particlesMaterial = new THREE.PointsMaterial({ size: 0.025, color: 0x00e5ff, transparent: true, opacity: 0.35 });
         const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial); scene.add(particlesMesh);
-
         camera.position.z = 6.5; let mouseX = 0, mouseY = 0;
         document.addEventListener('mousemove', (e) => { mouseX = (e.clientX / window.innerWidth) * 2 - 1; mouseY = -(e.clientY / window.innerHeight) * 2 + 1; });
-
-        function animate3D() {
-            requestAnimationFrame(animate3D);
-            particlesMesh.rotation.y += 0.0012;
-            particlesMesh.position.x += (mouseX * 0.4 - particlesMesh.position.x) * 0.05;
-            renderer.render(scene, camera);
-        }
+        function animate3D() { requestAnimationFrame(animate3D); particlesMesh.rotation.y += 0.0012; particlesMesh.position.x += (mouseX * 0.4 - particlesMesh.position.x) * 0.05; renderer.render(scene, camera); }
         animate3D();
+        window.addEventListener('resize', () => { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); });
 
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight);
-        });
+        // Particles.js 
         particlesJS("particles-js", {
-    particles: {
-        number: { value:27, density:{ enable:true, value_area:1800 } },
-        color: { value:"#ffffff" },
-        shape: { type:"circle" },
-        opacity: { value:0.7, random:true },
-        size: { value:1.5, random:true },
-        line_linked: { enable:false },
-        move: { enable:true, speed:0.5, random:true, straight:false, out_mode:"out" }
-    },
-    interactivity: {
-        detect_on:"canvas",
-        events:{ onhover:{ enable:false }, onclick:{ enable:false } }
-    },
-    retina_detect:true
-});
+            particles: {
+                number: { value: 35, density: { enable: true, value_area: 1200 } },
+                color: { value: "#00e5ff" },
+                shape: { type: "circle" },
+                opacity: { value: 0.5, random: true },
+                size: { value: 1.5, random: true },
+                line_linked: { enable: true, distance: 150, color: "#00e5ff", opacity: 0.2, width: 1 },
+                move: { enable: true, speed: 1, random: true, straight: false, out_mode: "out" }
+            },
+            interactivity: { detect_on: "canvas", events: { onhover: { enable: false }, onclick: { enable: false } } },
+            retina_detect: true
+        });
     </script>
 </body>
 </html>
