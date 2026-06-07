@@ -386,7 +386,9 @@ function setupOfficialAiEngine() {
     btn.onclick = sendAction;
     input.onkeypress = (e) => { if (e.key === 'Enter') sendAction(); };
 }
-
+window.addEventListener('DOMContentLoaded', () => {
+    setupOfficialAiEngine();
+});
 // ==========================================================================
 // 6. شبكة الـ ZULU NETWORK (الشات العام)
 // ==========================================================================
