@@ -88,6 +88,19 @@
             gap: 10px;
             color: #fff;
         }
+        .clickable-card {
+    text-decoration: none; /* لإزالة الخط الافتراضي تحت الروابط */
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.clickable-card:hover {
+    background: #1c2e4a !important; /* تفتيح الخلفية قليلاً عند التمرير */
+    border-left-color: var(--neon-magenta) !important; /* تغيير لون الحافة لإعطاء تأثير تفاعلي */
+    box-shadow: 0 0 10px rgba(0, 229, 255, 0.1);
+    transform: translateX(5px); /* إزاحة خفيفة لليمين تعطي شعور HUD حقيقي */
+}
+
         .chat-msg { margin-bottom: 8px; padding: 6px 10px; border-radius: 5px; background: rgba(255,255,255,0.05); max-width: 80%; }
         .chat-msg .user { color: var(--neon-cyan); font-weight: bold; font-size: 0.7rem; margin-bottom: 2px;}
     </style>
@@ -640,38 +653,53 @@
             closeAppWindow('vision_ai_scanner'); 
             if(visionStream) { visionStream.getTracks().forEach(t => t.stop()); visionStream = null; } 
         }
-
-        function processIdentityMatch(input) {
-            const file = input.files[0];
-            const resultsDiv = document.getElementById('matchResults');
-            if (!file) return;
-            resultsDiv.innerHTML = `<div style="color:var(--neon-cyan);">[SYSTEM] Uploading binary & indexing metadata...</div>`;
+function processIdentityMatch(input) {
+    const file = input.files[0];
+    const resultsDiv = document.getElementById('matchResults');
+    if (!file) return;
+    resultsDiv.innerHTML = `<div style="color:var(--neon-cyan);">[SYSTEM] Uploading binary & indexing metadata...</div>`;
+    
+    setTimeout(() => {
+        resultsDiv.innerHTML = "Synthesizing deep-web fingerprint indices... 🧠";
+        setTimeout(() => {
+            // هنا نحدد المعرفات العشوائية أو الحقيقية
+            const mockIds = ["a0z_user_180", "Profile_ID_Verified", "specter_x"];
             
-            setTimeout(() => {
-                resultsDiv.innerHTML = "Synthesizing deep-web fingerprint indices... 🧠";
-                setTimeout(() => {
-                    const mockIds = ["A0Z_User_"+Math.floor(Math.random()*1000), "Cyber_Node", "Specter_X"];
-                    resultsDiv.innerHTML = `
-                        <div class="match-card">
-                            <i class="fa-brands fa-linkedin" style="color:#0077b5;"></i> 
-                            LinkedIn: /in/${mockIds[0].toLowerCase()} (Match: 97.4%)
-                        </div>
-                        <div class="match-card">
-                            <i class="fa-brands fa-facebook" style="color:#1877f2;"></i> 
-                            Facebook: Profile ID verified (Match: 91.2%)
-                        </div>
-                        <div class="match-card">
-                            <i class="fa-brands fa-instagram" style="color:#e1306c;"></i> 
-                            Instagram: @${mockIds[2].toLowerCase()} (Match: 84.9%)
-                        </div>
-                        <div style="margin-top:15px; padding:10px; border:1px solid var(--neon-green); color:var(--neon-green); text-align:center;">
-                            CORE IDENTITY ALLOCATION COMPLETED.
-                        </div>
-                    `;
-                    logCoreEvent("Identity Matrix Compiled Successfully.", "var(--neon-green)");
-                }, 2000);
-            }, 1500);
-        }
+            // روابط حقيقية قابلة للضغط باستخدام وسام <a> وتوجيهها لفتح صفحة جديدة target="_blank"
+            resultsDiv.innerHTML = `
+                <a href="https://www.linkedin.com/in/${mockIds[0]}" target="_blank" class="match-card clickable-card">
+                    <i class="fa-brands fa-linkedin" style="color:#0077b5;"></i> 
+                    <div>
+                        <span style="display:block; font-weight:bold;">LinkedIn Profile</span>
+                        <span style="font-size:0.75rem; color:#888;">/in/${mockIds[0]} (Match: 97.4%)</span>
+                    </div>
+                </a>
+                
+                <a href="https://www.facebook.com/search/top?q=${mockIds[1]}" target="_blank" class="match-card clickable-card">
+                    <i class="fa-brands fa-facebook" style="color:#1877f2;"></i> 
+                    <div>
+                        <span style="display:block; font-weight:bold;">Facebook Entity</span>
+                        <span style="font-size:0.75rem; color:#888;">Identity Verified (Match: 91.2%)</span>
+                    </div>
+                </a>
+                
+                <a href="https://www.instagram.com/${mockIds[2]}" target="_blank" class="match-card clickable-card">
+                    <i class="fa-brands fa-instagram" style="color:#e1306c;"></i> 
+                    <div>
+                        <span style="display:block; font-weight:bold;">Instagram Account</span>
+                        <span style="font-size:0.75rem; color:#888;">@${mockIds[2]} (Match: 84.9%)</span>
+                    </div>
+                </a>
+                
+                <div style="margin-top:15px; padding:10px; border:1px solid var(--neon-green); color:var(--neon-green); text-align:center;">
+                    CORE IDENTITY ALLOCATION COMPLETED.
+                </div>
+            `;
+            logCoreEvent("Identity Matrix Compiled Successfully.", "var(--neon-green)");
+        }, 2000);
+    }, 1500);
+}
+
 
         function setupOfficialAiEngine() {
             const input = document.getElementById('coreAiInput'); const btn = document.getElementById('coreAiSendBtn'); const grid = document.getElementById('coreAiChatGrid');
