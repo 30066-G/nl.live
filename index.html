@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A0Z_OS Core v2.6 - High Quality Vision</title>
-    
+    <title>A0Z</title>
+    <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-storage-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-database-compat.js"></script>
@@ -78,6 +78,18 @@
         
         .delete-app-btn { position: absolute; top: -5px; right: 5px; color: var(--neon-magenta); background: #000; border-radius: 50%; width: 20px; height: 20px; font-size: 0.8rem; line-height: 20px; z-index: 5; display: none; }
         .app-item:hover .delete-app-btn { display: block; }
+        .match-card { 
+    background: #111a2e; 
+    padding: 10px; 
+    margin: 8px 0; 
+    border-left: 3px solid var(--neon-cyan); 
+    font-size: 0.9rem; 
+    display: flex; 
+    align-items: center; 
+    gap: 10px;
+    color: #fff;
+}
+
     </style>
 </head>
 <body>
