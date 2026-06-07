@@ -226,7 +226,6 @@
     </div>
 
     <script>
-        // نظام الإشعارات
         const hudMessages = ["SYSTEM READY", "QUANTUM LINK ACTIVE", "AI CORE ONLINE", "NETWORK SYNCHRONIZED", "RADAR MODULE ENHANCED", "SECURE CHANNEL ESTABLISHED"];
         let hudIndex = 0;
         function updateHud(message, color = "#00e5ff") {
@@ -259,7 +258,7 @@
         const storage = firebase.storage();
         let currentUserUID = null; let currentUserEmail = ""; let globalAppsData = {};
         let objectDetectorModel = null; let visionStream = null;
-        let tesseractWorker = null; // معالج قراءة النمر الذكي
+        let tesseractWorker = null;
 
         function handleNav(menuId) {
             document.querySelectorAll('.nav-menu li').forEach(li => li.classList.remove('active'));
@@ -267,7 +266,10 @@
             logCoreEvent(`Navigation: ${menuId.toUpperCase()}`, "var(--neon-cyan)");
             
             if (currentUserUID) {
-                ['cmd_system', 'global_chat', 'official_ai_bot', 'custom_runtime', 'vision_ai_scanner', 'data_stream', 'web_browser'].forEach(closeAppWindow);
+                ['cmd_system', 'global_chat', 'official_ai_bot', 'custom_runtime', 'vision_ai_scanner', 'data_stream', 'web_browser', 'identity_matcher'].forEach(closeAppWindow);
+                if (menuId === 'home') {
+                    renderHomeScreen();
+                }
                 if (menuId === 'terminal') openAppWindow('cmd_system');
                 if (menuId === 'network') { openAppWindow('global_chat'); renderChatInterface(); }
             }
@@ -303,7 +305,7 @@
                 document.getElementById('lockScreen').style.transform = "translateY(-100%)";
                 database.ref(`presence/${currentUserUID}`).set({ username: currentUserEmail, online: true });
                 logCoreEvent(`Authenticated: @${currentUserEmail}`, "var(--neon-green)");
-                listenToUserApps(); setupOfficialAiEngine(); initializeHighQualityVision(); 
+                renderHomeScreen(); listenToUserApps(); setupOfficialAiEngine(); initializeHighQualityVision(); 
             }).catch((err) => { 
                 feedback.innerText = `Rejected: ${err.message}`; 
             });
@@ -333,37 +335,37 @@
             }); 
         }
 
-function renderHomeScreen() {
-    const hs = document.getElementById('homeScreen');
-    hs.innerHTML = '';
-    const systemApps = [
-        { id: 'cmd_system', icon: '&gt;_', name: 'Terminal', bg: '#000', color: 'var(--neon-green)' },
-        { id: 'global_chat', icon: '<i class="fa-solid fa-comments"></i>', name: 'Zulu Chat', bg: 'linear-gradient(135deg, #ffcc00, #ff3366)', color: '#fff' },
-        { id: 'official_ai_bot', icon: '<i class="fa-solid fa-brain"></i>', name: 'AI Core', bg: 'rgba(5, 12, 35, 0.9)', color: 'var(--neon-cyan)' },
-        { id: 'vision_ai_scanner', icon: '<i class="fa-solid fa-eye"></i>', name: 'AI Radar', bg: '#03140a', color: 'var(--neon-green)' },
-        { id: 'data_stream', icon: '<i class="fa-solid fa-chart-line"></i>', name: 'Stream', bg: '#1a1f35', color: 'var(--neon-green)' },
-        { id: 'web_browser', icon: '<i class="fa-solid fa-globe"></i>', name: 'Browser', bg: '#1a1f35', color: 'var(--neon-cyan)' },            
-        { id: 'identity_matcher', icon: '<i class="fa-solid fa-fingerprint"></i>', name: 'ID Matcher', bg: '#1a1f35', color: 'var(--neon-magenta)' }
-    ];
+        function renderHomeScreen() {
+            const hs = document.getElementById('homeScreen');
+            if (!hs) return;
+            hs.innerHTML = '';
+            const systemApps = [
+                { id: 'cmd_system', icon: '&gt;_', name: 'Terminal', bg: '#000', color: 'var(--neon-green)' },
+                { id: 'global_chat', icon: '<i class="fa-solid fa-comments"></i>', name: 'Zulu Chat', bg: 'linear-gradient(135deg, #ffcc00, #ff3366)', color: '#fff' },
+                { id: 'official_ai_bot', icon: '<i class="fa-solid fa-brain"></i>', name: 'AI Core', bg: 'rgba(5, 12, 35, 0.9)', color: 'var(--neon-cyan)' },
+                { id: 'vision_ai_scanner', icon: '<i class="fa-solid fa-eye"></i>', name: 'AI Radar', bg: '#03140a', color: 'var(--neon-green)' },
+                { id: 'data_stream', icon: '<i class="fa-solid fa-chart-line"></i>', name: 'Stream', bg: '#1a1f35', color: 'var(--neon-green)' },
+                { id: 'web_browser', icon: '<i class="fa-solid fa-globe"></i>', name: 'Browser', bg: '#1a1f35', color: 'var(--neon-cyan)' },            
+                { id: 'identity_matcher', icon: '<i class="fa-solid fa-fingerprint"></i>', name: 'ID Matcher', bg: '#1a1f35', color: 'var(--neon-magenta)' }
+            ];
 
-    systemApps.forEach(a => {
-        const item = document.createElement('div');
-        item.className = 'app-item';
-        item.onclick = () => { 
-            if (a.id === 'vision_ai_scanner') {
-                startVisionAiScanner(); 
-            } else {
-                openAppWindow(a.id); 
-            }
-            if (a.id === 'global_chat') {
-                renderChatInterface(); 
-            }
-        };
-        item.innerHTML = `<div class="app-icon" style="background:${a.bg}; color:${a.color};">${a.icon}</div><div class="app-name">${a.name}</div>`;
-        hs.appendChild(item);
-    });
-}
-
+            systemApps.forEach(a => {
+                const item = document.createElement('div');
+                item.className = 'app-item';
+                item.onclick = () => { 
+                    if (a.id === 'vision_ai_scanner') {
+                        startVisionAiScanner(); 
+                    } else {
+                        openAppWindow(a.id); 
+                    }
+                    if (a.id === 'global_chat') {
+                        renderChatInterface(); 
+                    }
+                };
+                item.innerHTML = `<div class="app-icon" style="background:${a.bg}; color:${a.color};">${a.icon}</div><div class="app-name">${a.name}</div>`;
+                hs.appendChild(item);
+            });
+        }
 
         function openDeployChoiceBox() { document.getElementById('destinationChoiceOverlay').style.display = 'flex'; }
         function hideDeployChoiceBox() { document.getElementById('destinationChoiceOverlay').style.display = 'none'; }
@@ -377,24 +379,19 @@ function renderHomeScreen() {
             database.ref(`custom_apps/${currentUserUID}/${appId}`).set({ name: name, code: code, timestamp: Date.now() });
         }
 
-        // ==================== نظام الرادار عالي الجودة وقراءة النمر الذكية ====================
         let lastLoggedCar = { id: null, timestamp: 0 };
         window.simulatedSpeeds = {}; 
-        window.detectedPlates = {}; // سجل لحفظ نمر السيارات المكتشفة منعا لتذبذب النص
+        window.detectedPlates = {}; 
         let isOcrProcessing = false; 
 
         async function initializeHighQualityVision() {
             try {
                 document.getElementById('visionStatus').innerText = "Loading AI Core & OCR Engine...";
-                // 1. تحميل موديل كشف المركبات
                 objectDetectorModel = await cocoSsd.load();
-                
-                // 2. تجهيز معالج فك رموز النمر والأرقام (Tesseract OCR)
                 tesseractWorker = await Tesseract.createWorker('eng');
                 await tesseractWorker.setParameters({
-                    tesseract_char_whitelist: '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', // تصفية لعدم إخراج رموز غريبة
+                    tesseract_char_whitelist: '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ',
                 });
-                
                 document.getElementById('visionStatus').innerText = "HQ Radar System Ready.";
                 logCoreEvent("Radar & OCR Engine Synchronized Successfully.", "var(--neon-green)");
             } catch (e) {
@@ -408,7 +405,6 @@ function renderHomeScreen() {
             const video = document.getElementById('visionVideo');
             if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
                 try {
-                    // طلب أعلى جودة ممكنة من الكاميرا لزيادة دقة الالتقاط
                     visionStream = await navigator.mediaDevices.getUserMedia({ 
                         video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } }, 
                         audio: false 
@@ -429,7 +425,6 @@ function renderHomeScreen() {
             canvas.width = video.videoWidth; 
             canvas.height = video.videoHeight;
             
-            // رفع حساسية الالتقاط (scoreThreshold: 0.4) لالتقاط السيارات البعيدة
             const predictions = await objectDetectorModel.detect(video, {
                 maxNumBoxes: 15,
                 scoreThreshold: 0.4
@@ -443,7 +438,6 @@ function renderHomeScreen() {
                 let extraDataText = "";
 
                 if (isVehicle) {
-                    // 1. توليد سرعة مستقرة للمركبة
                     let objId = p.class + "_" + Math.floor(p.bbox[0] / 80); 
                     if (!window.simulatedSpeeds[objId]) {
                         window.simulatedSpeeds[objId] = Math.floor(Math.random() * 50) + 40; 
@@ -451,7 +445,6 @@ function renderHomeScreen() {
                     let currentSpeed = window.simulatedSpeeds[objId] + (Math.floor(Math.random() * 3) - 1);
                     extraDataText = ` | SPD: ${currentSpeed} KM/H`;
 
-                    // 2. استقطاع النمرة وقراءتها بالذكاء الاصطناعي (OCR) بجودة عالية وبدون إبطاء للنظام
                     if (!window.detectedPlates[objId] && !isOcrProcessing) {
                         window.detectedPlates[objId] = "SCANNING...";
                         processLicensePlateOCR(video, p.bbox, objId);
@@ -462,24 +455,20 @@ function renderHomeScreen() {
                     }
                 }
 
-                // رسم المربع السيبراني الذكي بجودة عالية
                 ctx.strokeStyle = boxColor; 
-                ctx.lineWidth = 4; // زيادة السمك ليصبح واضحاً جداً
+                ctx.lineWidth = 4; 
                 ctx.strokeRect(p.bbox[0], p.bbox[1], p.bbox[2], p.bbox[3]);
                 
-                // إضافة لمسة زوايا الرادار المحترفة
                 ctx.fillStyle = boxColor;
                 ctx.fillRect(p.bbox[0]-2, p.bbox[1]-2, 15, 4);
                 ctx.fillRect(p.bbox[0]-2, p.bbox[1]-2, 4, 15);
 
-                // رسم شريط المعلومات العلوي للمربع بلون داكن واضح
                 const textY = p.bbox[1] > 30 ? p.bbox[1] - 30 : 0;
                 ctx.fillStyle = "rgba(5, 10, 21, 0.85)";
                 ctx.fillRect(p.bbox[0], textY, p.bbox[2] < 200 ? 200 : p.bbox[2], 30);
                 ctx.strokeStyle = boxColor;
                 ctx.strokeRect(p.bbox[0], textY, p.bbox[2] < 200 ? 200 : p.bbox[2], 30);
 
-                // كتابة نص البيانات مصفوفة بشكل واضح جداً للعين
                 ctx.fillStyle = "#ffffff"; 
                 ctx.font = "bold 13px monospace"; 
                 const infoString = `${p.class.toUpperCase()} ${Math.round(p.score * 100)}%${extraDataText}`;
@@ -491,29 +480,20 @@ function renderHomeScreen() {
             }
         }
 
-        // دالة معالجة وقص نمر السيارات وإرسالها للمفسر الذكي
         async function processLicensePlateOCR(video, bbox, objId) {
             isOcrProcessing = true;
             try {
-                // إنشاء كانفاس مؤقت لقص الجزء السفلي من السيارة (حيث تتواجد النمرة عادةً)
                 const tempCanvas = document.createElement('canvas');
                 const tempCtx = tempCanvas.getContext('2d');
-                
-                // نأخذ الـ 40% السفلية من مربع السيارة لتركيز البحث على لوحة الترخيص وتوفير جودة أعلى
                 const cropX = bbox[0];
                 const cropY = bbox[1] + (bbox[3] * 0.5);
                 const cropW = bbox[2];
                 const cropH = bbox[3] * 0.4;
-
                 tempCanvas.width = cropW;
                 tempCanvas.height = cropH;
-                
                 tempCtx.drawImage(video, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH);
-                
-                // تشغيل القارئ فائق الجودة للتكست
                 const { data: { text } } = await tesseractWorker.recognize(tempCanvas);
-                const cleanText = text.replace(/[^A-Z0-9]/g, "").trim(); // تنظيف المخرجات من الشوائب
-                
+                const cleanText = text.replace(/[^A-Z0-9]/g, "").trim();
                 if (cleanText.length > 3) {
                     window.detectedPlates[objId] = cleanText.substring(0, 8);
                     logCoreEvent(`Plate Decoded [${objId}]: ${window.detectedPlates[objId]}`, "var(--neon-green)");
@@ -523,7 +503,6 @@ function renderHomeScreen() {
             } catch (e) {
                 window.detectedPlates[objId] = "ERROR";
             } finally {
-                // إتاحة الفرصة لقراءة سيارة أخرى بعد 1.5 ثانية للحفاظ على معالج المتصفح خفيفاً وسريعاً
                 setTimeout(() => { isOcrProcessing = false; }, 1500);
             }
         }
@@ -532,45 +511,39 @@ function renderHomeScreen() {
             closeAppWindow('vision_ai_scanner'); 
             if(visionStream) { visionStream.getTracks().forEach(t => t.stop()); visionStream = null; } 
         }
-        // ===================================================================================
-// ... (ضعها هنا بعد دالة stopVisionAiScanner وقبل دالة renderChatInterface)
 
-function processIdentityMatch(input) {
-    const file = input.files[0];
-    const resultsDiv = document.getElementById('matchResults');
-    if (!file) return;
-
-    resultsDiv.innerHTML = `<div style="color:var(--neon-cyan);">[SYSTEM] Uploading binary to cloud...</div>`;
-    
-    // تأكد أنك أضفت firebase-storage-compat.js في الـ <head>
-    const storageRef = firebase.storage().ref('identity_matches/' + Date.now());
-    storageRef.put(file).then(() => {
-        resultsDiv.innerHTML = "Processing Digital Footprint...";
-        
-        setTimeout(() => {
-            resultsDiv.innerHTML = `
-                <div class="match-card">
-                    <i class="fa-brands fa-linkedin" style="color:#0077b5;"></i> 
-                    LinkedIn: Profile Match Found (98%)
-                </div>
-                <div class="match-card">
-                    <i class="fa-brands fa-facebook" style="color:#1877f2;"></i> 
-                    Facebook: Identity Verified (92%)
-                </div>
-                <div class="match-card">
-                    <i class="fa-brands fa-instagram" style="color:#e1306c;"></i> 
-                    Instagram: Digital Footprint Detected (85%)
-                </div>
-                <div style="margin-top:15px; padding:10px; border:1px solid var(--neon-green); color:var(--neon-green);">
-                    IDENTITY SYNTHESIS COMPLETE.
-                </div>
-            `;
-            logCoreEvent("Identity Synthesis Complete: 3 Platform Matches", "var(--neon-green)");
-        }, 3000);
-    }).catch(err => {
-        resultsDiv.innerHTML = `<p style="color:var(--neon-magenta);">[ERROR] ${err.message}</p>`;
-    });
-}
+        function processIdentityMatch(input) {
+            const file = input.files[0];
+            const resultsDiv = document.getElementById('matchResults');
+            if (!file) return;
+            resultsDiv.innerHTML = `<div style="color:var(--neon-cyan);">[SYSTEM] Uploading binary to cloud...</div>`;
+            const storageRef = firebase.storage().ref('identity_matches/' + Date.now());
+            storageRef.put(file).then(() => {
+                resultsDiv.innerHTML = "Processing Digital Footprint...";
+                setTimeout(() => {
+                    resultsDiv.innerHTML = `
+                        <div class="match-card">
+                            <i class="fa-brands fa-linkedin" style="color:#0077b5;"></i> 
+                            LinkedIn: Profile Match Found (98%)
+                        </div>
+                        <div class="match-card">
+                            <i class="fa-brands fa-facebook" style="color:#1877f2;"></i> 
+                            Facebook: Identity Verified (92%)
+                        </div>
+                        <div class="match-card">
+                            <i class="fa-brands fa-instagram" style="color:#e1306c;"></i> 
+                            Instagram: Digital Footprint Detected (85%)
+                        </div>
+                        <div style="margin-top:15px; padding:10px; border:1px solid var(--neon-green); color:var(--neon-green);">
+                            IDENTITY SYNTHESIS COMPLETE.
+                        </div>
+                    `;
+                    logCoreEvent("Identity Synthesis Complete: 3 Platform Matches", "var(--neon-green)");
+                }, 3000);
+            }).catch(err => {
+                resultsDiv.innerHTML = `<p style="color:var(--neon-magenta);">[ERROR] ${err.message}</p>`;
+            });
+        }
 
         function renderChatInterface() {
             const chatContainer = document.getElementById('chatContainer');
@@ -606,6 +579,8 @@ function processIdentityMatch(input) {
             ctx.stroke(); requestAnimationFrame(drawStream);
         }
 
+        function updateAppSelectorOptions() {}
+
         setInterval(() => {
             const now = new Date(); 
             document.getElementById('liveClock').innerText = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
@@ -615,7 +590,6 @@ function processIdentityMatch(input) {
             document.getElementById('cpu-bar').style.width = c + '%'; document.getElementById('mem-bar').style.width = m + '%';
         }, 2000);
 
-        // تأثير الكرة السيبرانية ثلاثية الأبعاد
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
