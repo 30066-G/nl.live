@@ -333,24 +333,37 @@
             }); 
         }
 
-        function renderHomeScreen() {
-            const hs = document.getElementById('homeScreen'); hs.innerHTML = '';
-            const systemApps = [
-                { id: 'cmd_system', icon: '&gt;_', name: 'Terminal', bg: '#000', color: 'var(--neon-green)' },
-                { id: 'global_chat', icon: '<i class="fa-solid fa-comments"></i>', name: 'Zulu Chat', bg: 'linear-gradient(135deg, #ffcc00, #ff3366)', color: '#fff' },
-                { id: 'official_ai_bot', icon: '<i class="fa-solid fa-brain"></i>', name: 'AI Core', bg: 'rgba(5, 12, 35, 0.9)', color: 'var(--neon-cyan)' },
-                { id: 'vision_ai_scanner', icon: '<i class="fa-solid fa-eye"></i>', name: 'AI Radar', bg: '#03140a', color: 'var(--neon-green)' },
-                { id: 'data_stream', icon: '<i class="fa-solid fa-chart-line"></i>', name: 'Stream', bg: '#1a1f35', color: 'var(--neon-green)' },
-                { id: 'web_browser', icon: '<i class="fa-solid fa-globe"></i>', name: 'Browser', bg: '#1a1f35', color: 'var(--neon-cyan)' },            
-                { id: 'identity_matcher', icon: '<i class="fa-solid fa-fingerprint"></i>', name: 'ID Matcher', bg: '#1a1f35', color: 'var(--neon-magenta)' }
-            ];
-            systemApps.forEach(a => {
-                const item = document.createElement('div'); item.className = 'app-item';
-                item.onclick = () => { if(a.id === 'vision_ai_scanner') startVisionAiScanner(); else openAppWindow(a.id); if(a.id === 'global_chat') renderChatInterface(); };
-                item.innerHTML = `<div class="app-icon" style="background:${a.bg}; color:${a.color};">${a.icon}</div><div class="app-name">${a.name}</div>`;
-                hs.appendChild(item);
-            });
-        }
+function renderHomeScreen() {
+    const hs = document.getElementById('homeScreen');
+    hs.innerHTML = '';
+    const systemApps = [
+        { id: 'cmd_system', icon: '&gt;_', name: 'Terminal', bg: '#000', color: 'var(--neon-green)' },
+        { id: 'global_chat', icon: '<i class="fa-solid fa-comments"></i>', name: 'Zulu Chat', bg: 'linear-gradient(135deg, #ffcc00, #ff3366)', color: '#fff' },
+        { id: 'official_ai_bot', icon: '<i class="fa-solid fa-brain"></i>', name: 'AI Core', bg: 'rgba(5, 12, 35, 0.9)', color: 'var(--neon-cyan)' },
+        { id: 'vision_ai_scanner', icon: '<i class="fa-solid fa-eye"></i>', name: 'AI Radar', bg: '#03140a', color: 'var(--neon-green)' },
+        { id: 'data_stream', icon: '<i class="fa-solid fa-chart-line"></i>', name: 'Stream', bg: '#1a1f35', color: 'var(--neon-green)' },
+        { id: 'web_browser', icon: '<i class="fa-solid fa-globe"></i>', name: 'Browser', bg: '#1a1f35', color: 'var(--neon-cyan)' },            
+        { id: 'identity_matcher', icon: '<i class="fa-solid fa-fingerprint"></i>', name: 'ID Matcher', bg: '#1a1f35', color: 'var(--neon-magenta)' }
+    ];
+
+    systemApps.forEach(a => {
+        const item = document.createElement('div');
+        item.className = 'app-item';
+        item.onclick = () => { 
+            if (a.id === 'vision_ai_scanner') {
+                startVisionAiScanner(); 
+            } else {
+                openAppWindow(a.id); 
+            }
+            if (a.id === 'global_chat') {
+                renderChatInterface(); 
+            }
+        };
+        item.innerHTML = `<div class="app-icon" style="background:${a.bg}; color:${a.color};">${a.icon}</div><div class="app-name">${a.name}</div>`;
+        hs.appendChild(item);
+    });
+}
+
 
         function openDeployChoiceBox() { document.getElementById('destinationChoiceOverlay').style.display = 'flex'; }
         function hideDeployChoiceBox() { document.getElementById('destinationChoiceOverlay').style.display = 'none'; }
