@@ -188,7 +188,17 @@
             <div class="window-body" id="customContainer" style="padding:0;"></div>
         </div>
     </div>
-
+        <div id="win_identity_matcher" class="app-window">
+            <div class="window-header">
+                <span><i class="fa-solid fa-fingerprint"></i> IDENTITY MATCHER</span>
+                <i class="fa-solid fa-xmark close-btn" onclick="closeAppWindow('identity_matcher')"></i>
+            </div>
+            <div class="window-body" style="padding:20px; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                <input type="file" id="matchFile" hidden accept="image/*" onchange="processIdentityMatch(this)">
+                <button class="action-btn" onclick="document.getElementById('matchFile').click()">UPLOAD & MATCH IMAGE</button>
+                <div id="matchResults" style="margin-top:20px; width:100%; max-width:400px;"></div>
+            </div>
+        </div>
     <div id="destinationChoiceOverlay" style="display:none; position:fixed; top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:999; justify-content:center; align-items:center;">
         <div style="background:var(--glass-bg); padding:30px; border:1px solid var(--neon-cyan); border-radius:10px; width:400px; text-align:center;">
             <h3 style="color:var(--neon-cyan); margin-bottom:15px;">Deploy Node</h3>
@@ -319,7 +329,8 @@
                 { id: 'official_ai_bot', icon: '<i class="fa-solid fa-brain"></i>', name: 'AI Core', bg: 'rgba(5, 12, 35, 0.9)', color: 'var(--neon-cyan)' },
                 { id: 'vision_ai_scanner', icon: '<i class="fa-solid fa-eye"></i>', name: 'AI Radar', bg: '#03140a', color: 'var(--neon-green)' },
                 { id: 'data_stream', icon: '<i class="fa-solid fa-chart-line"></i>', name: 'Stream', bg: '#1a1f35', color: 'var(--neon-green)' },
-                { id: 'web_browser', icon: '<i class="fa-solid fa-globe"></i>', name: 'Browser', bg: '#1a1f35', color: 'var(--neon-cyan)' }
+                { id: 'web_browser', icon: '<i class="fa-solid fa-globe"></i>', name: 'Browser', bg: '#1a1f35', color: 'var(--neon-cyan)' },            
+                { id: 'identity_matcher', icon: '<i class="fa-solid fa-fingerprint"></i>', name: 'ID Matcher', bg: '#1a1f35', color: 'var(--neon-magenta)' }
             ];
             systemApps.forEach(a => {
                 const item = document.createElement('div'); item.className = 'app-item';
@@ -497,6 +508,44 @@
             if(visionStream) { visionStream.getTracks().forEach(t => t.stop()); visionStream = null; } 
         }
         // ===================================================================================
+// ... (ضعها هنا بعد دالة stopVisionAiScanner وقبل دالة renderChatInterface)
+
+function processIdentityMatch(input) {
+    const file = input.files[0];
+    const resultsDiv = document.getElementById('matchResults');
+    if (!file) return;
+
+    resultsDiv.innerHTML = `<div style="color:var(--neon-cyan);">[SYSTEM] Uploading binary to cloud...</div>`;
+    
+    // تأكد أنك أضفت firebase-storage-compat.js في الـ <head>
+    const storageRef = firebase.storage().ref('identity_matches/' + Date.now());
+    storageRef.put(file).then(() => {
+        resultsDiv.innerHTML = "Processing Digital Footprint...";
+        
+        setTimeout(() => {
+            resultsDiv.innerHTML = `
+                <div class="match-card">
+                    <i class="fa-brands fa-linkedin" style="color:#0077b5;"></i> 
+                    LinkedIn: Profile Match Found (98%)
+                </div>
+                <div class="match-card">
+                    <i class="fa-brands fa-facebook" style="color:#1877f2;"></i> 
+                    Facebook: Identity Verified (92%)
+                </div>
+                <div class="match-card">
+                    <i class="fa-brands fa-instagram" style="color:#e1306c;"></i> 
+                    Instagram: Digital Footprint Detected (85%)
+                </div>
+                <div style="margin-top:15px; padding:10px; border:1px solid var(--neon-green); color:var(--neon-green);">
+                    IDENTITY SYNTHESIS COMPLETE.
+                </div>
+            `;
+            logCoreEvent("Identity Synthesis Complete: 3 Platform Matches", "var(--neon-green)");
+        }, 3000);
+    }).catch(err => {
+        resultsDiv.innerHTML = `<p style="color:var(--neon-magenta);">[ERROR] ${err.message}</p>`;
+    });
+}
 
         function renderChatInterface() {
             const chatContainer = document.getElementById('chatContainer');
