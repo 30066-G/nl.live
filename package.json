@@ -1,0 +1,15 @@
+{
+  "name": "a0z-os-core",
+  "version": "1.0.0",
+  "description": "A0Z System HUD OS Core Application",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "A0Z",
+  "license": "ISC",
+  "dependencies": {},
+  "devDependencies": {
+    "electron": "^30.0.0"
+  }
+}
