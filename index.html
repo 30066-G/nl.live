@@ -41,7 +41,7 @@
         /* الواجهة الرئيسية HUD */
         #hudMessage { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); color: var(--neon-cyan); font-weight: bold; font-size: 1.2rem; text-shadow: 0 0 10px var(--neon-cyan); transition: opacity 0.25s; z-index: 100; pointer-events: none;}
         .top-bar { position: fixed; top: 0; width: 100%; height: 60px; background: var(--glass-bg); border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; padding: 0 20px; z-index: 50; }
-        .stats { display: flex; gap: 20px; font-size: 0.8rem; }
+        .stats { display: flex; gap: 20px; font-size: 0.8rem; align-items: center; }
         .stat-bar-container { width: 100px; height: 8px; background: #222; border: 1px solid #444; margin-top: 4px; }
         .stat-bar { height: 100%; background: var(--neon-cyan); transition: width 0.5s; }
         .high-load { background: var(--neon-magenta) !important; }
@@ -53,17 +53,18 @@
 
         /* منطقة العمل الرئيسية */
         #center-console { margin-left: 80px; margin-top: 60px; padding: 20px; height: calc(100vh - 60px); position: relative; }
-        #homeScreen { display: flex; flex-wrap: wrap; gap: 20px; overflow-y: auto; height: 100%; }
+        #homeScreen { display: flex; flex-wrap: wrap; gap: 20px; overflow-y: auto; height: 100%; align-content: flex-start; }
         .app-item { width: 100px; text-align: center; cursor: pointer; position: relative; height: 110px;}
-        .app-icon { width: 70px; height: 70px; margin: 0 auto 10px auto; border-radius: 15px; display: flex; justify-content: center; align-items: center; font-size: 2rem; border: 1px solid rgba(255,255,255,0.1); transition: transform 0.3s; }
-        .app-item:hover .app-icon { transform: scale(1.1); box-shadow: 0 0 15px rgba(255,255,255,0.2); }
+        .app-icon { width: 70px; height: 70px; margin: 0 auto 10px auto; border-radius: 15px; display: flex; justify-content: center; align-items: center; font-size: 2rem; border: 1px solid rgba(255,255,255,0.1); transition: transform 0.3s; background: rgba(0,0,0,0.5); }
+        .app-item:hover .app-icon { transform: scale(1.1); box-shadow: 0 0 15px rgba(255,255,255,0.2); border-color: var(--neon-cyan); color: var(--neon-cyan); }
         .app-name { font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
         /* النوافذ (Windows) */
         .app-window { position: absolute; top: 20px; left: 20px; width: calc(100% - 40px); height: calc(100% - 40px); background: #0a101d; border: 1px solid var(--border-color); box-shadow: 0 0 30px rgba(0,0,0,0.8); display: none; flex-direction: column; z-index: 10; border-radius: 8px; overflow: hidden; }
         .app-window.open { display: flex; }
-        .window-header { background: #111a2e; padding: 10px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); font-weight: bold; color: var(--neon-cyan); }
-        .close-btn { color: var(--neon-magenta); cursor: pointer; font-size: 1.2rem; }
+        .window-header { background: #111a2e; padding: 10px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); font-weight: bold; color: var(--neon-cyan); cursor: move; }
+        .close-btn { color: var(--neon-magenta); cursor: pointer; font-size: 1.2rem; transition: 0.2s; }
+        .close-btn:hover { text-shadow: 0 0 10px var(--neon-magenta); transform: scale(1.2); }
         .window-body { flex-grow: 1; padding: 15px; overflow-y: auto; position: relative; }
 
         /* Terminal Style */
@@ -74,40 +75,17 @@
         /* الذكاء الاصطناعي والكاميرا */
         #visionVideo { display: none; }
         #visionCanvas { width: 100%; height: 100%; object-fit: contain; background: #000; }
-        #liveActivityLogger { position: fixed; bottom: 10px; right: 10px; width: 300px; height: 150px; background: rgba(0,0,0,0.8); border: 1px solid #333; padding: 10px; font-size: 0.7rem; overflow-y: auto; z-index: 100; color: #888; }
+        #liveActivityLogger { position: fixed; bottom: 10px; right: 10px; width: 300px; height: 150px; background: rgba(0,0,0,0.8); border: 1px solid #333; padding: 10px; font-size: 0.7rem; overflow-y: auto; z-index: 100; color: #888; border-radius: 5px; }
         
-        .delete-app-btn { position: absolute; top: -5px; right: 5px; color: var(--neon-magenta); background: #000; border-radius: 50%; width: 20px; height: 20px; font-size: 0.8rem; line-height: 20px; z-index: 5; display: none; }
-        .app-item:hover .delete-app-btn { display: block; }
-        .match-card { 
-            background: #111a2e; 
-            padding: 10px; 
-            margin: 8px 0; 
-            border-left: 3px solid var(--neon-cyan); 
-            font-size: 0.9rem; 
-            display: flex; 
-            align-items: center; 
-            gap: 10px;
-            color: #fff;
-        }
-        .clickable-card {
-    text-decoration: none; /* لإزالة الخط الافتراضي تحت الروابط */
-    cursor: pointer;
-    transition: all 0.25s ease;
-}
-
-.clickable-card:hover {
-    background: #1c2e4a !important; /* تفتيح الخلفية قليلاً عند التمرير */
-    border-left-color: var(--neon-magenta) !important; /* تغيير لون الحافة لإعطاء تأثير تفاعلي */
-    box-shadow: 0 0 10px rgba(0, 229, 255, 0.1);
-    transform: translateX(5px); /* إزاحة خفيفة لليمين تعطي شعور HUD حقيقي */
-}
-
-        .chat-msg { margin-bottom: 8px; padding: 6px 10px; border-radius: 5px; background: rgba(255,255,255,0.05); max-width: 80%; }
-        .chat-msg .user { color: var(--neon-cyan); font-weight: bold; font-size: 0.7rem; margin-bottom: 2px;}
+        .sys-btn { background: transparent; border: 1px solid var(--border-color); color: #fff; padding: 8px 15px; cursor: pointer; transition: 0.3s; border-radius: 4px; }
+        .sys-btn:hover { background: rgba(255,255,255,0.1); }
+        
+        /* تأثيرات النقر */
+        .clickable-card { text-decoration: none; cursor: pointer; transition: all 0.25s ease; }
+        .clickable-card:hover { background: #1c2e4a !important; border-left-color: var(--neon-magenta) !important; box-shadow: 0 0 10px rgba(0, 229, 255, 0.1); transform: translateX(5px); }
     </style>
 </head>
 <body>
-
     <div id="canvas-container"></div>
     <div id="particles-js"></div>
 
@@ -125,7 +103,7 @@
 
     <div class="top-bar">
         <div style="font-weight:bold; color:var(--neon-cyan); font-size:1.2rem;">A0Z // SYS</div>
-        <div id="hudMessage">SYSTEM BOOTING...</div>
+        <div id="hudMessage">SYSTEM STANDBY</div>
         <div class="stats">
             <div>
                 <div>CPU: <span id="cpu-val">0%</span></div>
@@ -142,8 +120,8 @@
     <div class="sidebar">
         <ul class="nav-menu">
             <li id="nav-home" class="active" onclick="handleNav('home')"><i class="fa-solid fa-house"></i></li>
-            <li id="nav-terminal" onclick="handleNav('terminal')"><i class="fa-solid fa-terminal"></i></li>
-            <li id="nav-network" onclick="handleNav('network')"><i class="fa-solid fa-globe"></i></li>
+            <li id="nav-terminal" onclick="openAppWindow('cmd_system')"><i class="fa-solid fa-terminal"></i></li>
+            <li id="nav-network" onclick="openAppWindow('web_browser')"><i class="fa-solid fa-globe"></i></li>
         </ul>
     </div>
 
@@ -152,84 +130,89 @@
     <div id="center-console">
         <div id="homeScreen"></div>
 
-        <div id="win_cmd_system" class="app-window">
+        <div id="win_cmd_system" class="app-window" onmousedown="bringToFront(this)">
             <div class="window-header"><span>>_ TERMINAL</span><i class="fa-solid fa-xmark close-btn" onclick="closeAppWindow('cmd_system')"></i></div>
             <div class="window-body" style="padding:0;">
-                <div id="systemTerminal" style="padding:15px;">A0Z OS Terminal. Type 'help'.<br></div>
-                <div class="terminal-input-container">
-                    <span style="padding:10px; color:var(--neon-green);">root@a0z:~#</span>
-                    <input type="text" id="cmdLineInput" onkeypress="if(event.key==='Enter') executeTerminalCmd()">
+                <div id="systemTerminal" style="padding:15px; height: calc(100% - 50px); overflow-y: auto; font-family: monospace; color: var(--neon-green);">A0Z OS Terminal. Type 'help' for available cyber protocols.<br></div>
+                <div class="terminal-input-container" style="display: flex; background: #050505; border-top: 1px solid #222;">
+                    <span style="padding:10px; color:var(--neon-green); font-family: monospace;">root@a0z:~#</span>
+                    <input type="text" id="cmdLineInput" onkeypress="if(event.key==='Enter') executeTerminalCmd()" style="flex-grow: 1; background: transparent; border: none; color: #fff; outline: none; font-family: monospace; padding: 10px;">
                 </div>
             </div>
         </div>
 
-        <div id="win_global_chat" class="app-window">
-            <div class="window-header"><span><i class="fa-solid fa-comments"></i> ZULU NETWORK</span><i class="fa-solid fa-xmark close-btn" onclick="closeAppWindow('global_chat')"></i></div>
-            <div class="window-body" id="chatContainer" style="padding:0; display:flex; flex-direction:column;"></div>
-        </div>
-
-        <div id="win_official_ai_bot" class="app-window">
-            <div class="window-header"><span><i class="fa-solid fa-brain"></i> AI CORE</span><i class="fa-solid fa-xmark close-btn" onclick="closeAppWindow('official_ai_bot')"></i></div>
-            <div class="window-body" style="display:flex; flex-direction:column; padding:0;">
-                <div id="coreAiChatGrid" style="flex-grow:1; overflow-y:auto; padding:15px; display:flex; flex-direction:column; gap:10px;"></div>
-                <div style="display:flex; border-top:1px solid var(--border-color); background:#000;">
-                    <input type="text" id="coreAiInput" style="flex-grow:1; padding:10px; background:transparent; color:#fff; border:none; outline:none;" placeholder="Query AI Core...">
-                    <button id="coreAiSendBtn" class="action-btn" style="width:auto; margin:0; border:none; border-left:1px solid var(--border-color);">SUBMIT</button>
+        <div id="win_global_chat" class="app-window" onmousedown="bringToFront(this)">
+            <div class="window-header"><span><i class="fa-solid fa-comments"></i> ZULU NETWORK (GLOBAL CHAT)</span><i class="fa-solid fa-xmark close-btn" onclick="closeAppWindow('global_chat')"></i></div>
+            <div class="window-body" style="padding:0; display:flex; flex-direction:column; height: 100%;">
+                <div id="chatContainer" style="flex-grow:1; overflow-y:auto; padding:15px; display:flex; flex-direction:column; gap:8px; background: rgba(0,0,0,0.4);"></div>
+                <div style="display:flex; border-top:1px solid #222; background:#000; padding: 5px;">
+                    <input type="text" id="chatMessageInput" style="flex-grow:1; padding:10px; background:transparent; color:#fff; border:none; outline:none; font-family: monospace;" placeholder="Broadcast encrypted data packet..." onkeypress="if(event.key==='Enter') sendGlobalChatMessage()">
+                    <button class="action-btn" style="width:auto; margin:0; padding: 0 20px;" onclick="sendGlobalChatMessage()">SEND</button>
                 </div>
             </div>
         </div>
 
-        <div id="win_vision_ai_scanner" class="app-window">
+        <div id="win_official_ai_bot" class="app-window" onmousedown="bringToFront(this)">
+            <div class="window-header"><span><i class="fa-solid fa-brain"></i> AI CORE V3.0</span><i class="fa-solid fa-xmark close-btn" onclick="closeAppWindow('official_ai_bot')"></i></div>
+            <div class="window-body" style="display:flex; flex-direction:column; padding:0; height: 100%;">
+                <div id="coreAiChatGrid" style="flex-grow:1; overflow-y:auto; padding:15px; display:flex; flex-direction:column; gap:10px; background: rgba(0,0,0,0.2);"></div>
+                <div style="display:flex; border-top:1px solid var(--border-color); background:#000; padding: 5px;">
+                    <input type="text" id="coreAiInput" style="flex-grow:1; padding:10px; background:transparent; color:#fff; border:none; outline:none; font-family: monospace;" placeholder="Query AI Core mainframe..." onkeypress="if(event.key==='Enter') triggerAiCoreQuery()">
+                    <button id="coreAiSendBtn" class="action-btn" style="width:auto; margin:0; border:none; padding: 0 20px;" onclick="triggerAiCoreQuery()">SUBMIT</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="win_vision_ai_scanner" class="app-window" onmousedown="bringToFront(this)">
             <div class="window-header">
-                <span><i class="fa-solid fa-eye"></i> HIGH-QUALITY RADAR SCANNER - <span id="visionStatus" style="font-size:0.8rem; color:var(--neon-green);">Initializing Matrix...</span></span>
+                <span><i class="fa-solid fa-eye"></i> AI VISION RADAR - <span id="visionStatus" style="font-size:0.8rem; color:var(--neon-green);">Standby Matrix...</span></span>
                 <i class="fa-solid fa-xmark close-btn" onclick="stopVisionAiScanner()"></i>
             </div>
-            <div class="window-body" style="padding:0; position:relative;">
-                <video id="visionVideo" autoplay muted playsinline></video>
-                <canvas id="visionCanvas"></canvas>
+            <div class="window-body" style="padding:0; position:relative; display: flex; justify-content: center; align-items: center; background: #000;">
+                <video id="visionVideo" autoplay muted playsinline style="width:100%; height:100%; object-fit: cover; transform: scaleX(-1);"></video>
+                <canvas id="visionCanvas" style="position:absolute; top:0; left:0; width:100%; height:100%; pointer-events: none;"></canvas>
+                <button onclick="startObjectDetection()" class="sys-btn" style="position: absolute; bottom: 15px; border-color: var(--neon-magenta); color: var(--neon-magenta); background: rgba(0,0,0,0.8);">INITIALIZE OBJECT SCAN</button>
             </div>
         </div>
 
-        <div id="win_web_browser" class="app-window">
+        <div id="win_web_browser" class="app-window" onmousedown="bringToFront(this)">
             <div class="window-header" style="display:flex; gap:10px; align-items:center;">
-                <input type="text" id="browserUrl" style="flex-grow:1; background:#000; color:#fff; border:1px solid #333; padding:5px 10px;" placeholder="Enter URL or Search query" onkeypress="if(event.key==='Enter') loadBrowserUrl()">
+                <input type="text" id="browserUrl" style="flex-grow:1; background:#000; color:#fff; border:1px solid #333; padding:5px 10px; font-family: monospace;" placeholder="Enter URL" onkeypress="if(event.key==='Enter') loadBrowserUrl()">
                 <button class="action-btn" style="margin:0; width:auto; padding:5px 15px;" onclick="loadBrowserUrl()">GO</button>
                 <button id="vpnToggleBtn" class="action-btn" style="margin:0; width:auto; padding:5px 15px; border-color:var(--neon-magenta); color:var(--neon-magenta);" onclick="toggleQuantumVPN()">VPN: OFF</button>
                 <i class="fa-solid fa-xmark close-btn" onclick="closeAppWindow('web_browser')"></i>
             </div>
-            <div class="window-body" style="padding:0;">
+            <div class="window-body" style="padding:0; height: calc(100% - 45px);">
                 <iframe id="browserFrame" style="width:100%; height:100%; border:none; background:#fff;" src="about:blank"></iframe>
             </div>
         </div>
 
-        <div id="win_data_stream" class="app-window">
+        <div id="win_data_stream" class="app-window" onmousedown="bringToFront(this)">
             <div class="window-header"><span><i class="fa-solid fa-chart-line"></i> FLUX STREAM</span><i class="fa-solid fa-xmark close-btn" onclick="closeAppWindow('data_stream')"></i></div>
             <div class="window-body" style="padding:0; overflow:hidden;">
                 <canvas id="streamCanvas" style="width:100%; height:100%;"></canvas>
             </div>
         </div>
 
-        <div id="win_custom_runtime" class="app-window">
+        <div id="win_custom_runtime" class="app-window" onmousedown="bringToFront(this)">
             <div class="window-header"><span id="customWinTitle">🛸 Custom Runtime</span><i class="fa-solid fa-xmark close-btn" onclick="closeAppWindow('custom_runtime')"></i></div>
             <div class="window-body" id="customContainer" style="padding:20px; color:#fff; font-family:monospace;"></div>
         </div>
 
-        <div id="win_identity_matcher" class="app-window">
+        <div id="win_identity_matcher" class="app-window" onmousedown="bringToFront(this)">
             <div class="window-header">
-                <span><i class="fa-solid fa-fingerprint"></i> IDENTITY MATCHER</span>
+                <span><i class="fa-solid fa-fingerprint"></i> IDENTITY MATCHER (BIOMETRIC SCAN)</span>
                 <i class="fa-solid fa-xmark close-btn" onclick="closeAppWindow('identity_matcher')"></i>
             </div>
             
             <div class="window-body" style="padding: 15px; display: flex; flex-direction: column; gap: 15px; overflow-y: auto;">
-                
                 <div class="matcher-controls" style="display: flex; gap: 10px; justify-content: center;">
                     <input type="file" id="faceUpload" accept="image/*" onchange="processIdentityMatch(this)" style="display:none;">
                     <button onclick="document.getElementById('faceUpload').click()" class="sys-btn" style="flex: 1; padding: 10px; cursor: pointer;">
                         <i class="fa-solid fa-upload"></i> UPLOAD IMAGE
                     </button>
-                    
                     <button onclick="startLiveCamera()" class="sys-btn" style="flex: 1; padding: 10px; cursor: pointer; border-color: var(--neon-cyan); color: var(--neon-cyan);">
-                        <i class="fa-solid fa-video"></i> LIVE SCAN
+                        <i class="fa-solid fa-video"></i> LIVE FACIAL SCAN
                     </button>
                 </div>
                 
@@ -241,17 +224,18 @@
                 </div>
 
                 <canvas id="captureCanvas" style="display:none;"></canvas>
-
                 <hr style="border: 0; border-top: 1px dashed #222; margin: 5px 0;">
-
+                
                 <div id="matchResults" style="min-height: 100px; background: rgba(0,0,0,0.3); border: 1px solid #111; border-radius: 4px; padding: 10px; font-family: monospace; font-size: 0.9rem; color: #aaa;">
                     <div style="color: #666; text-align: center; margin-top: 30px;">
                         [ SYSTEM IDLE: AWAITING BIOMETRIC INPUT ]
                     </div>
                 </div>
             </div>
-        </div> 
-    <div id="destinationChoiceOverlay" style="display:none; position:fixed; top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:999; justify-content:center; align-items:center;">
+        </div>
+    </div>
+
+    <div id="destinationChoiceOverlay" style="display:none; position:fixed; top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:9999; justify-content:center; align-items:center;">
         <div style="background:var(--glass-bg); padding:30px; border:1px solid var(--neon-cyan); border-radius:10px; width:420px; text-align:center;">
             <h3 style="color:var(--neon-cyan); margin-bottom:15px;">Deploy Node</h3>
             <select id="appSelector" style="width:100%; padding:10px; background:#000; color:#fff; border:1px solid var(--border-color); margin-bottom:10px;" onchange="loadSelectedAppCode()">
@@ -267,605 +251,534 @@
     </div>
 
     <script>
-        const hudMessages = ["SYSTEM READY", "QUANTUM LINK ACTIVE", "AI CORE ONLINE", "NETWORK SYNCHRONIZED", "RADAR MODULE ENHANCED", "SECURE CHANNEL ESTABLISHED"];
-        let hudIndex = 0;
-        function updateHud(message, color = "#00e5ff") {
-            const msg = document.getElementById("hudMessage");
-            if (!msg) return;
-            msg.style.opacity = "0";
-            setTimeout(() => { msg.textContent = message; msg.style.color = color; msg.style.opacity = "1"; }, 250);
-        }
-        setInterval(() => { hudIndex++; if (hudIndex >= hudMessages.length) { hudIndex = 0; } updateHud(hudMessages[hudIndex]); }, 4000);
+// ==========================================================================
+// 1. نظام إدارة تشغيل النوافذ والـ HUD OS
+// ==========================================================================
+let highestZIndex = 10;
 
-        function logCoreEvent(message, color = "var(--text-main)") {
-            const logger = document.getElementById("liveActivityLogger");
-            if(logger) { logger.innerHTML += `<p style="color:${color}">> ${message}</p>`; logger.scrollTop = logger.scrollHeight; }
-            const hud = document.getElementById("hudMessage");
-            if(hud) { hud.textContent = message; }
-        }
+// تفعيل الواجهة الرئيسية والتطبيقات
+const appsList = [
+    { id: 'cmd_system', name: 'Terminal', icon: 'fa-terminal' },
+    { id: 'global_chat', name: 'Zulu Net', icon: 'fa-comments' },
+    { id: 'official_ai_bot', name: 'AI Core', icon: 'fa-brain' },
+    { id: 'vision_ai_scanner', name: 'Vision Radar', icon: 'fa-eye' },
+    { id: 'web_browser', name: 'Browser', icon: 'fa-globe' },
+    { id: 'data_stream', name: 'Flux Stream', icon: 'fa-chart-line' },
+    { id: 'identity_matcher', name: 'Identity Match', icon: 'fa-fingerprint' }
+];
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyA7Pu0DJOWmdoDYUUVP1J9aqhxh4f3wyfA",
-            authDomain: "a0zai-56c3a.firebaseapp.com",
-            databaseURL: "https://a0zai-56c3a-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "a0zai-56c3a",
-            storageBucket: "a0zai-56c3a.firebasestorage.app",
-            messagingSenderId: "198838438266",
-            appId: "1:198838438266:web:379e782653f014a32a2ec3"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database(); 
-        const auth = firebase.auth();
-        const storage = firebase.storage();
-        let currentUserUID = null; let currentUserEmail = "Guest"; let globalAppsData = {};
-        let objectDetectorModel = null; let visionStream = null;
-        let tesseractWorker = null;
-        let vpnActive = false;
+function renderApps() {
+    const home = document.getElementById('homeScreen');
+    home.innerHTML = '';
+    appsList.forEach(app => {
+        home.innerHTML += `
+        <div class="app-item" onclick="openAppWindow('${app.id}')">
+            <div class="app-icon"><i class="fa-solid ${app.icon}"></i></div>
+            <div class="app-name">${app.name}</div>
+        </div>`;
+    });
+    // إضافة تطبيق Deploy المخصص
+    home.innerHTML += `
+        <div class="app-item" onclick="showDeployChoiceBox()">
+            <div class="app-icon" style="color:var(--neon-magenta); border-color:var(--neon-magenta);"><i class="fa-solid fa-code"></i></div>
+            <div class="app-name">Deploy Node</div>
+        </div>`;
+}
 
-        function handleNav(menuId) {
-            document.querySelectorAll('.nav-menu li').forEach(li => li.classList.remove('active'));
-            document.getElementById('nav-' + menuId).classList.add('active');
-            logCoreEvent(`Navigation: ${menuId.toUpperCase()}`, "var(--neon-cyan)");
-            
-            if (currentUserUID) {
-                ['cmd_system', 'global_chat', 'official_ai_bot', 'custom_runtime', 'vision_ai_scanner', 'data_stream', 'web_browser', 'identity_matcher'].forEach(closeAppWindow);
-                if (menuId === 'home') renderHomeScreen();
-                if (menuId === 'terminal') openAppWindow('cmd_system');
-                if (menuId === 'network') { openAppWindow('global_chat'); renderChatInterface(); }
-            }
-        }
+function openAppWindow(winId) {
+    const win = document.getElementById(`win_${winId}`);
+    if (win) {
+        win.style.display = 'flex';
+        bringToFront(win);
+        logCoreEvent(`Launched system node: ${winId}`, "var(--neon-cyan)");
+    }
+}
 
-        function openAppWindow(id) { 
-            if(!currentUserUID) { logCoreEvent(`[ERROR] Auth required`, "var(--neon-magenta)"); return; }
-            document.getElementById(`win_${id}`).classList.add('open'); 
-            logCoreEvent(`Launched: ${id.toUpperCase()}`, "var(--neon-green)");
-            if(id === 'data_stream') drawStream();
-        }
-        function closeAppWindow(id) { 
-            const el = document.getElementById(`win_${id}`);
-            if(el) el.classList.remove('open'); 
-            logCoreEvent(`Terminated: ${id.toUpperCase()}`, "var(--neon-magenta)");
-        }
+function closeAppWindow(winId) {
+    const win = document.getElementById(`win_${winId}`);
+    if (win) win.style.display = 'none';
+    logCoreEvent(`Terminated system window: ${winId}`, "var(--neon-magenta)");
+}
 
-        function unlockWithOfficialEmail() {
-            const email = document.getElementById('loginUser').value.trim();
-            const pass = document.getElementById('loginPass').value;
-            const feedback = document.getElementById('lockScreenFeedback');
-            
-            if(email === "admin" && pass === "admin") {
-                currentUserUID = "dev_admin_001"; currentUserEmail = "Admin";
-                document.getElementById('lockScreen').style.transform = "translateY(-100%)";
-                logCoreEvent(`Developer Bypass Activated`, "var(--neon-green)");
-                renderHomeScreen(); setupOfficialAiEngine(); initializeHighQualityVision();
-                return;
-            }
+function bringToFront(element) {
+    highestZIndex++;
+    element.style.zIndex = highestZIndex;
+}
 
-            feedback.innerText = "Decrypting token... ⏳";
-            auth.signInWithEmailAndPassword(email, pass).then((u) => {
-                currentUserUID = u.user.uid; currentUserEmail = email.split('@')[0];
-                document.getElementById('lockScreen').style.transform = "translateY(-100%)";
-                database.ref(`presence/${currentUserUID}`).set({ username: currentUserEmail, online: true });
-                logCoreEvent(`Authenticated: @${currentUserEmail}`, "var(--neon-green)");
-                renderHomeScreen(); listenToUserApps(); setupOfficialAiEngine(); initializeHighQualityVision(); 
-            }).catch((err) => { 
-                feedback.innerText = `Rejected: ${err.message}`; 
-            });
-        }
+function handleNav(tab) {
+    logCoreEvent(`Routing system context to target: ${tab.toUpperCase()}`, "var(--neon-cyan)");
+    if(tab === 'home') {
+        const windows = document.querySelectorAll('.app-window');
+        windows.forEach(w => w.style.display = 'none');
+    }
+}
 
-        function executeTerminalCmd() {
-            const input = document.getElementById("cmdLineInput");
-            const terminal = document.getElementById("systemTerminal");
-            const cmd = input.value.trim().toLowerCase();
-            if (cmd === "") return;
-            terminal.innerHTML += `<div style='color:#fff; margin-top:5px;'>A0Z_OS > ${input.value}</div>`;
-            
-            if(cmd === 'help') terminal.innerHTML += `<div style='color:var(--neon-cyan)'>Available: help, sysinfo, status, deploy, clear</div>`;
-            else if (cmd === 'sysinfo') terminal.innerHTML += `<div style='color:#fff'>Platform: A0Z Core v2.6 [HQ Vision Pack]</div>`;
-            else if (cmd === 'status') terminal.innerHTML += `<div style='color:var(--neon-green)'>Firebase: CONNECTED | OCR: READY</div>`;
-            else if (cmd === 'deploy') openDeployChoiceBox();
-            else if (cmd === 'clear') terminal.innerHTML = `<div>A0Z Terminal Flushed.</div>`;
-            else terminal.innerHTML += `<div style='color:var(--neon-magenta)'>[ERROR] Unrecognized command.</div>`;
-            
-            input.value = ""; terminal.scrollTop = terminal.scrollHeight;
-        }
+function logCoreEvent(message, color = "#fff") {
+    const logger = document.getElementById('liveActivityLogger');
+    if (!logger) return;
+    const timestamp = new Date().toLocaleTimeString();
+    const logNode = document.createElement('div');
+    logNode.style.color = color;
+    logNode.style.fontFamily = 'monospace';
+    logNode.style.fontSize = '0.8rem';
+    logNode.innerHTML = `[${timestamp}] ${message}`;
+    logger.appendChild(logNode);
+    logger.scrollTop = logger.scrollHeight;
+}
 
-        function listenToUserApps() { 
-            if(!currentUserUID || currentUserUID === "dev_admin_001") return;
-            database.ref('custom_apps/' + currentUserUID).on('value', (s) => { 
-                globalAppsData = s.val() || {}; 
-                updateAppSelectorOptions(); 
-                renderHomeScreen(); 
-            }); 
-        }
+// محاكاة قفل الشاشة والولوج السريع
+function unlockWithOfficialEmail() {
+    const user = document.getElementById('loginUser').value;
+    const pass = document.getElementById('loginPass').value;
+    const feedback = document.getElementById('lockScreenFeedback');
 
-        function renderHomeScreen() {
-            const hs = document.getElementById('homeScreen');
-            if (!hs) return;
-            hs.innerHTML = '';
-            const systemApps = [
-                { id: 'cmd_system', icon: '&gt;_', name: 'Terminal', bg: '#000', color: 'var(--neon-green)' },
-                { id: 'global_chat', icon: '<i class="fa-solid fa-comments"></i>', name: 'Zulu Chat', bg: 'linear-gradient(135deg, #ffcc00, #ff3366)', color: '#fff' },
-                { id: 'official_ai_bot', icon: '<i class="fa-solid fa-brain"></i>', name: 'AI Core', bg: 'rgba(5, 12, 35, 0.9)', color: 'var(--neon-cyan)' },
-                { id: 'vision_ai_scanner', icon: '<i class="fa-solid fa-eye"></i>', name: 'AI Radar', bg: '#03140a', color: 'var(--neon-green)' },
-                { id: 'data_stream', icon: '<i class="fa-solid fa-chart-line"></i>', name: 'Stream', bg: '#1a1f35', color: 'var(--neon-green)' },
-                { id: 'web_browser', icon: '<i class="fa-solid fa-globe"></i>', name: 'Browser', bg: '#1a1f35', color: 'var(--neon-cyan)' },            
-                { id: 'identity_matcher', icon: '<i class="fa-solid fa-fingerprint"></i>', name: 'ID Matcher', bg: '#1a1f35', color: 'var(--neon-magenta)' }
-            ];
+    if ((user === 'admin' && pass === 'admin') || user.includes('@')) {
+        document.getElementById('lockScreen').style.display = 'none';
+        document.getElementById('hudMessage').innerText = "SYSTEM ONLINE";
+        logCoreEvent("A0Z_OS CORE Matrix Decrypted. Initializing HUD...", "var(--neon-green)");
+        initializeSystemStats();
+        renderApps(); // بناء الواجهة
+    } else {
+        feedback.innerText = "[ACCESS DENIED] INVALID DECRYPTION KEY / IDENTIFIER";
+        logCoreEvent("Security Breach Attempt Stopped.", "var(--neon-magenta)");
+    }
+}
 
-            systemApps.forEach(a => {
-                const item = document.createElement('div');
-                item.className = 'app-item';
-                item.innerHTML = `<div class="app-icon" style="background:${a.bg}; color:${a.color};">${a.icon}</div><div class="app-name">${a.name}</div>`;
-                item.onclick = () => { 
-                    if (a.id === 'vision_ai_scanner') startVisionAiScanner(); 
-                    else if (a.id === 'global_chat') { openAppWindow(a.id); renderChatInterface(); }
-                    else openAppWindow(a.id); 
-                };
-                hs.appendChild(item);
-            });
-
-            // رندر التطبيقات المخصصة المحملة من فايربيس
-            Object.keys(globalAppsData).forEach(appId => {
-                const customApp = globalAppsData[appId];
-                const item = document.createElement('div');
-                item.className = 'app-item';
-                item.innerHTML = `
-                    <div class="delete-app-btn" onclick="event.stopPropagation(); deleteCustomApp('${appId}')">×</div>
-                    <div class="app-icon" style="background:#111a2e; color:var(--neon-cyan); font-size:1.2rem;"><i class="fa-solid fa-cubes"></i></div>
-                    <div class="app-name">${customApp.name}</div>
-                `;
-                item.onclick = () => launchCustomApp(customApp);
-                hs.appendChild(item);
-            });
-        }
-
-        function openDeployChoiceBox() { 
-            document.getElementById('destinationChoiceOverlay').style.display = 'flex'; 
-            updateAppSelectorOptions();
-        }
-        function hideDeployChoiceBox() { document.getElementById('destinationChoiceOverlay').style.display = 'none'; }
-        function confirmDeployDestination() { hideDeployChoiceBox(); addNewAppFromPanel(); }
+function initializeSystemStats() {
+    setInterval(() => {
+        const cpu = Math.floor(Math.random() * 35) + 10;
+        const mem = Math.floor(Math.random() * 20) + 45;
+        if(document.getElementById('cpu-val')) document.getElementById('cpu-val').innerText = cpu + "%";
+        if(document.getElementById('cpu-bar')) document.getElementById('cpu-bar').style.width = cpu + "%";
+        if(document.getElementById('mem-val')) document.getElementById('mem-val').innerText = mem + "%";
+        if(document.getElementById('mem-bar')) document.getElementById('mem-bar').style.width = mem + "%";
         
-        function updateAppSelectorOptions() {
-            const sel = document.getElementById('appSelector');
-            if(!sel) return;
-            sel.innerHTML = '<option value="new">-- Construct New Node --</option>';
-            Object.keys(globalAppsData).forEach(id => {
-                sel.innerHTML += `<option value="${id}">${globalAppsData[id].name}</option>`;
-            });
-        }
+        const now = new Date();
+        if(document.getElementById('liveClock')) document.getElementById('liveClock').innerText = now.toTimeString().substring(0,5);
+    }, 2000);
+}
 
-        function loadSelectedAppCode() {
-            const sel = document.getElementById('appSelector').value;
-            const nameInp = document.getElementById('appNameInput');
-            const codeInp = document.getElementById('appCodeInput');
-            if(sel === 'new') {
-                nameInp.value = ''; codeInp.value = '';
-            } else if(globalAppsData[sel]) {
-                nameInp.value = globalAppsData[sel].name;
-                codeInp.value = globalAppsData[sel].code;
-            }
-        }
-
-        function addNewAppFromPanel() {
-            if (!currentUserUID || currentUserUID === "dev_admin_001") { alert("Action Locked in Bypass mode. Connect using Firebase account."); return; }
-            const sel = document.getElementById('appSelector').value; 
-            const name = document.getElementById('appNameInput').value.trim(); 
-            const code = document.getElementById('appCodeInput').value.trim();
-            if (!name || !code) return;
-            const appId = (sel === 'new') ? 'app_' + Date.now() : sel;
-            database.ref(`custom_apps/${currentUserUID}/${appId}`).set({ name: name, code: code, timestamp: Date.now() }).then(() => {
-                logCoreEvent(`Deployed Custom Node: ${name}`, "var(--neon-green)");
-            });
-        }
-
-        function deleteCustomApp(appId) {
-            if(!currentUserUID || currentUserUID === "dev_admin_001") return;
-            database.ref(`custom_apps/${currentUserUID}/${appId}`).remove().then(() => {
-                logCoreEvent(`Deleted Custom Node.`, "var(--neon-magenta)");
-            });
-        }
-
-        function launchCustomApp(appData) {
-            openAppWindow('custom_runtime');
-            document.getElementById('customWinTitle').innerText = `🛸 Runtime: ${appData.name}`;
-            const container = document.getElementById('customContainer');
-            container.innerHTML = `<div style="color:var(--neon-green);">Executing payload...</div>`;
-            try {
-                // تنفيذ الكود البرمجي بأمان نسبي في سياق الواجهة
-                const dynamicFunction = new Function(appData.code);
-                dynamicFunction();
-            } catch(e) {
-                container.innerHTML = `<p style="color:var(--neon-magenta);">[EXECUTION ERROR] ${e.message}</p>`;
-            }
-        }
-
-        // دالة المتصفح الحقيقي المدعوم بمحرك معالجة
-        function loadBrowserUrl() {
-            const urlInput = document.getElementById('browserUrl').value.trim();
-            const frame = document.getElementById('browserFrame');
-            if(!urlInput) return;
-            
-            let targetUrl = urlInput;
-            if(!urlInput.startsWith('http://') && !urlInput.startsWith('https://')) {
-                if(urlInput.includes('.') && !urlInput.includes(' ')) {
-                    targetUrl = 'https://' + urlInput;
-                } else {
-                    targetUrl = 'https://www.bing.com/search?q=' + encodeURIComponent(urlInput);
-                }
-            }
-            logCoreEvent(`Routing Traffic to: ${targetUrl}`, "var(--neon-cyan)");
-            // استخدام بروكسب مفتوح لتخطي الحماية X-Frame في الـ Iframe للمواقع العامة
-            frame.src = `https://images.weserv.nl/?url=${encodeURIComponent(targetUrl)}` ? targetUrl : targetUrl;
-        }
-
-        // تفعيل الـ VPN الكمي
-        function toggleQuantumVPN() {
-            const btn = document.getElementById('vpnToggleBtn');
-            vpnActive = !vpnActive;
-            if(vpnActive) {
-                btn.innerText = "VPN: SECURE";
-                btn.style.borderColor = "var(--neon-green)";
-                btn.style.color = "var(--neon-green)";
-                logCoreEvent(`Quantum Tunneling Protocol established. IP Masked via Node-${Math.floor(Math.random()*254)}`, "var(--neon-green)");
-            } else {
-                btn.innerText = "VPN: OFF";
-                btn.style.borderColor = "var(--neon-magenta)";
-                btn.style.color = "var(--neon-magenta)";
-                logCoreEvent(`Quantum VPN Disconnected. Clear IP exposed.`, "var(--neon-magenta)");
-            }
-        }
-
-        // تفعيل نظام الـ Global Chat الحقيقي مع Firebase
-        function renderChatInterface() {
-            const chatContainer = document.getElementById('chatContainer');
-            chatContainer.innerHTML = `
-                <div id="zuluChatMessages" style="flex-grow:1; overflow-y:auto; padding:15px; font-size:0.75rem; color:#fff; display:flex; flex-direction:column; gap:8px;"></div>
-                <div style="padding:10px; background:#000; display:flex; gap:5px; border-top:1px solid var(--border-color);">
-                    <input type="text" id="zuluMsgInput" style="flex-grow:1; padding:10px; background:#090e1a; color:#fff; border:1px solid #1a2c4c; outline:none;" placeholder="Transmit packet..." onkeypress="if(event.key==='Enter') sendZuluMessage()">
-                    <button class="action-btn" style="width:auto; padding:0 20px; margin:0;" onclick="sendZuluMessage()">SEND</button>
-                </div>
-            `;
-            
-            // الاستماع للرسائل في الوقت الحقيقي
-            database.ref('zulu_global_chat').limitToLast(40).on('value', (snapshot) => {
-                const msgDiv = document.getElementById('zuluChatMessages');
-                if(!msgDiv) return;
-                msgDiv.innerHTML = '';
-                const data = snapshot.val();
-                if(data) {
-                    Object.keys(data).forEach(key => {
-                        const m = data[key];
-                        msgDiv.innerHTML += `
-                            <div class="chat-msg">
-                                <div class="user">@${m.user} <span style="color:#555; font-size:0.6rem;">(${new Date(m.time).toLocaleTimeString()})</span></div>
-                                <div>${m.text}</div>
-                            </div>
-                        `;
-                    });
-                    msgDiv.scrollTop = msgDiv.scrollHeight;
-                }
-            });
-        }
-
-        function sendZuluMessage() {
-            const input = document.getElementById('zuluMsgInput');
-            if(!input || !input.value.trim()) return;
-            const messagePayload = {
-                user: currentUserEmail,
-                text: input.value.trim(),
-                time: Date.now()
-            };
-            database.ref('zulu_global_chat').push(messagePayload).then(() => {
-                input.value = '';
-            });
-        }
-
-        // بقية دوال الكاميرا والرادار والذكاء الاصطناعي 
-        let lastLoggedCar = { id: null, timestamp: 0 };
-        window.simulatedSpeeds = {}; 
-        window.detectedPlates = {}; 
-        let isOcrProcessing = false; 
-
-        async function initializeHighQualityVision() {
-            try {
-                document.getElementById('visionStatus').innerText = "Loading AI Core & OCR Engine...";
-                objectDetectorModel = await cocoSsd.load();
-                tesseractWorker = await Tesseract.createWorker('eng');
-                await tesseractWorker.setParameters({
-                    tesseract_char_whitelist: '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ',
-                });
-                document.getElementById('visionStatus').innerText = "HQ Radar System Ready.";
-                logCoreEvent("Radar & OCR Engine Synchronized Successfully.", "var(--neon-green)");
-            } catch (e) {
-                document.getElementById('visionStatus').innerText = "Matrix initialization failed.";
-                console.error(e);
-            }
-        }
-
-        async function startVisionAiScanner() {
-            openAppWindow('vision_ai_scanner');
-            const video = document.getElementById('visionVideo');
-            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-                try {
-                    visionStream = await navigator.mediaDevices.getUserMedia({ 
-                        video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } }, 
-                        audio: false 
-                    });
-                    video.srcObject = visionStream;
-                    video.onloadedmetadata = () => { video.play(); runVisionObjectDetectionLoop(); };
-                } catch (err) { 
-                    document.getElementById('visionStatus').innerText = "Camera Access Denied."; 
-                }
-            }
-        }
-
-        async function runVisionObjectDetectionLoop() {
-            const video = document.getElementById('visionVideo'); const canvas = document.getElementById('visionCanvas');
-            if(!canvas || !video || !visionStream || !objectDetectorModel || video.readyState !== 4) return;
-            
-            const ctx = canvas.getContext('2d'); 
-            canvas.width = video.videoWidth; 
-            canvas.height = video.videoHeight;
-            
-            const predictions = await objectDetectorModel.detect(video, {
-                maxNumBoxes: 15,
-                scoreThreshold: 0.4
-            });
-            
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            for (let p of predictions) {
-                const isVehicle = ['car', 'truck', 'bus', 'motorcycle'].includes(p.class);
-                const boxColor = isVehicle ? "var(--neon-green)" : "var(--neon-cyan)";
-                let extraDataText = "";
-
-                if (isVehicle) {
-                    let objId = p.class + "_" + Math.floor(p.bbox[0] / 80); 
-                    if (!window.simulatedSpeeds[objId]) {
-                        window.simulatedSpeeds[objId] = Math.floor(Math.random() * 50) + 40; 
-                    }
-                    let currentSpeed = window.simulatedSpeeds[objId] + (Math.floor(Math.random() * 3) - 1);
-                    extraDataText = ` | SPD: ${currentSpeed} KM/H`;
-
-                    if (!window.detectedPlates[objId] && !isOcrProcessing) {
-                        window.detectedPlates[objId] = "SCANNING...";
-                        processLicensePlateOCR(video, p.bbox, objId);
-                    }
-                    
-                    if(window.detectedPlates[objId] && window.detectedPlates[objId] !== "SCANNING...") {
-                        extraDataText += ` | PLATE: [${window.detectedPlates[objId]}]`;
-                    }
-                }
-
-                ctx.strokeStyle = boxColor; 
-                ctx.lineWidth = 4; 
-                ctx.strokeRect(p.bbox[0], p.bbox[1], p.bbox[2], p.bbox[3]);
-
-                const textY = p.bbox[1] > 30 ? p.bbox[1] - 30 : 0;
-                ctx.fillStyle = "rgba(5, 10, 21, 0.85)";
-                ctx.fillRect(p.bbox[0], textY, p.bbox[2] < 200 ? 200 : p.bbox[2], 30);
-                ctx.fillStyle = "#ffffff"; 
-                ctx.font = "bold 13px monospace"; 
-                ctx.fillText(`${p.class.toUpperCase()} ${Math.round(p.score * 100)}%${extraDataText}`, p.bbox[0] + 8, textY + 20);
-            }
-
-            if(document.getElementById('win_vision_ai_scanner').classList.contains('open')) {
-                requestAnimationFrame(runVisionObjectDetectionLoop);
-            }
-        }
-
-        async function processLicensePlateOCR(video, bbox, objId) {
-            isOcrProcessing = true;
-            try {
-                const tempCanvas = document.createElement('canvas');
-                const tempCtx = tempCanvas.getContext('2d');
-                const cropX = bbox[0]; const cropY = bbox[1] + (bbox[3] * 0.5);
-                const cropW = bbox[2]; const cropH = bbox[3] * 0.4;
-                tempCanvas.width = cropW; tempCanvas.height = cropH;
-                tempCtx.drawImage(video, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH);
-                const { data: { text } } = await tesseractWorker.recognize(tempCanvas);
-                const cleanText = text.replace(/[^A-Z0-9]/g, "").trim();
-                window.detectedPlates[objId] = cleanText.length > 3 ? cleanText.substring(0, 8) : "UNKNOWN";
-            } catch (e) {
-                window.detectedPlates[objId] = "ERROR";
-            } finally {
-                setTimeout(() => { isOcrProcessing = false; }, 1500);
-            }
-        }
-
-        function stopVisionAiScanner() { 
-            closeAppWindow('vision_ai_scanner'); 
-            if(visionStream) { visionStream.getTracks().forEach(t => t.stop()); visionStream = null; } 
-        }
+// ==========================================================================
+// 2. نظام الـ BIOMETRIC IDENTITY MATCHER (التعرف على الوجوه وحفظها)
+// ==========================================================================
+let systemDatabase = []; 
+let agentCounter = 1;
+let isModelsLoaded = false;
 let localStream = null;
 
-// 1. دالة تشغيل الكاميرا الحية للمستخدم
+async function loadFaceModels() {
+    logCoreEvent("Loading AI Biometric Facial Framework...", "var(--neon-cyan)");
+    const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/';
+    try {
+        await faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL);
+        await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
+        await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
+        isModelsLoaded = true;
+        logCoreEvent("AI Biometric Framework Status: OPERATIONAL.", "var(--neon-green)");
+    } catch(e) {
+        logCoreEvent("Failed to download AI models from CDN network.", "var(--neon-magenta)");
+    }
+}
+window.addEventListener('DOMContentLoaded', loadFaceModels);
+
 async function startLiveCamera() {
     const video = document.getElementById('webcam');
     const container = document.getElementById('cameraContainer');
     
-    logCoreEvent("Requesting webcam access protocol...", "var(--neon-cyan)");
-    
+    logCoreEvent("Accessing video capture device...", "var(--neon-cyan)");
     try {
-        // طلب إذن الوصول للكاميرا
-        localStream = await navigator.mediaDevices.getUserMedia({ 
-            video: { width: 640, height: 480, facingMode: "user" } 
-        });
+        localStream = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 } });
         video.srcObject = localStream;
-        container.style.display = "block"; // إظهار نافذة الكاميرا
-        logCoreEvent("Biometric camera stream: ONLINE.", "var(--neon-green)");
+        container.style.display = "block";
+        logCoreEvent("Biometric Camera Node: ONLINE.", "var(--neon-green)");
     } catch (err) {
-        console.error("Camera access denied: ", err);
-        logCoreEvent("Access Denied: Camera hardware locked.", "var(--neon-magenta)");
-        alert("يرجى إعطاء إذن الوصول للكاميرا لتفعيل الماسح الحي.");
+        logCoreEvent("Hardware error: Camera node locked.", "var(--neon-magenta)");
     }
 }
 
-// 2. دالة لقط الصورة الحالية من البث وتحليلها فوراً
 async function captureLiveFace() {
     const video = document.getElementById('webcam');
     const canvas = document.getElementById('captureCanvas');
-    const resultsDiv = document.getElementById('matchResults');
-    
     if (!localStream) return;
 
-    logCoreEvent("Capturing biometric frame...", "var(--neon-cyan)");
-    resultsDiv.innerHTML = `<div style="color:var(--neon-cyan);">[SYSTEM] Freezing frame & analyzing pixels...</div>`;
-
-    // رسم الفريم الحالي من الفيديو داخل الـ Canvas بدقة عالية
+    logCoreEvent("Analyzing frozen biometric frame...", "var(--neon-cyan)");
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     const ctx = canvas.getContext('2d');
-    
-    // عكس الصورة لتكون مرآة طبيعية للمستخدم
     ctx.translate(canvas.width, 0);
     ctx.scale(-1, 1);
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-    // إيقاف الكاميرا بعد اللقط لتوفير طاقة الجهاز والبطارية
     localStream.getTracks().forEach(track => track.stop());
     document.getElementById('cameraContainer').style.display = "none";
 
-    // تحويل الـ Canvas إلى عنصر صورة برمجياً وتمريره لدالة التحليل الذكية
     const dataUrl = canvas.toDataURL('image/jpeg');
     const img = new Image();
     img.src = dataUrl;
-    
-    img.onload = async function() {
-        // هنا نستدعي نفس منطق التحليل الذكي الذي قمنا ببرمجته سابقاً
-        await analyzeCapturedFace(img);
-    };
+    img.onload = async () => { await evaluateBiometricData(img); };
 }
 
-// 3. دالة التحليل المخصصة للكاميرا (نفس منطق الملفات السابق)
-async function analyzeCapturedFace(imageElement) {
-    const resultsDiv = document.getElementById('matchResults');
-    
-    // استخراج البصمة الرياضية للوجه من الصورة الملتقطة
-    const detection = await faceapi.detectSingleFace(imageElement).withFaceLandmarks().withFaceDescriptor();
+async function processIdentityMatch(input) {
+    const file = input.files[0];
+    if (!file || !isModelsLoaded) return;
+    const img = await faceapi.bufferToImage(file);
+    await evaluateBiometricData(img);
+}
 
+async function evaluateBiometricData(imageElement) {
+    const resultsDiv = document.getElementById('matchResults');
+    resultsDiv.innerHTML = `<div style="color:var(--neon-cyan);">[SCANNING] Mapping vector points...</div>`;
+
+    const detection = await faceapi.detectSingleFace(imageElement).withFaceLandmarks().withFaceDescriptor();
     if (!detection) {
-        resultsDiv.innerHTML = `<div style="color:var(--neon-magenta);">[SCAN FAILED] No facial structure found in capture. Try again.</div>`;
-        logCoreEvent("Scan Failed: Face not detected in frame.", "var(--neon-magenta)");
+        resultsDiv.innerHTML = `<div style="color:var(--neon-magenta);">[FAILED] No structural human profile found.</div>`;
         return;
     }
 
-    const uploadedDescriptor = detection.descriptor;
-    let matchedAgent = null;
-    let bestMatchThreshold = 0.6;
+    const currentDescriptor = detection.descriptor;
+    let matchedProfile = null;
+    let threshold = 0.6;
 
-    // المقارنة بقاعدة البيانات المحلية المحفوظة في الميموري
     for (let agent of systemDatabase) {
-        const distance = faceapi.euclideanDistance(uploadedDescriptor, agent.descriptor);
-        if (distance < bestMatchThreshold) {
-            bestMatchThreshold = distance;
-            matchedAgent = agent;
+        const distance = faceapi.euclideanDistance(currentDescriptor, agent.descriptor);
+        if (distance < threshold) {
+            threshold = distance;
+            matchedProfile = agent;
         }
     }
 
-    const matchAccuracy = ((1 - bestMatchThreshold) * 100).toFixed(1);
-
-    if (matchedAgent) {
+    if (matchedProfile) {
+        const acc = ((1 - threshold) * 100).toFixed(1);
         resultsDiv.innerHTML = `
-            <div style="padding:10px; border:1px solid var(--neon-cyan); background: rgba(0, 229, 255, 0.05); margin-bottom:10px;">
-                <span style="color:var(--neon-cyan); font-weight:bold; display:block;">[LIVE TARGET MATCHED]</span>
-                ID: <strong style="color:#fff;">${matchedAgent.id}</strong><br>
-                Database Status: Recognized<br>
-                Symmetry Match: <strong style="color:var(--neon-green);">${matchAccuracy}%</strong>
-            </div>
-        `;
-        logCoreEvent(`Live Match Verified: ${matchedAgent.id}.`, "var(--neon-green)");
+            <div style="border:1px solid var(--neon-cyan); padding:10px; background:rgba(0,229,255,0.05);">
+                <span style="color:var(--neon-cyan); font-weight:bold;">[TARGET DETECTED]</span><br>
+                Database ID: <strong>${matchedProfile.id}</strong><br>
+                Symmetry Match: <strong style="color:var(--neon-green);">${acc}%</strong>
+            </div>`;
+        logCoreEvent(`Profile Match Verified: ${matchedProfile.id}`, "var(--neon-green)");
     } else {
-        const newAgentId = `AGENT_${String(agentCounter).padStart(3, '0')}`;
-        systemDatabase.push({ id: newAgentId, descriptor: uploadedDescriptor });
+        const newId = `AGENT_${String(agentCounter).padStart(3, '0')}`;
+        systemDatabase.push({ id: newId, descriptor: currentDescriptor });
         agentCounter++;
-
         resultsDiv.innerHTML = `
-            <div style="padding:10px; border:1px solid var(--neon-magenta); background: rgba(255, 0, 127, 0.05); margin-bottom:10px;">
-                <span style="color:var(--neon-magenta); font-weight:bold; display:block;">[NEW SUBJECT RECORDED]</span>
-                Assigned ID: <strong style="color:#fff;">${newAgentId}</strong><br>
-                Biometrics: Saved to local runtime database.
-            </div>
-        `;
-        logCoreEvent(`Live Subject Enrolled: ${newAgentId}`, "var(--neon-cyan)");
+            <div style="border:1px solid var(--neon-magenta); padding:10px; background:rgba(255,0,127,0.05);">
+                <span style="color:var(--neon-magenta); font-weight:bold;">[NEW SUITE MEMORY RECORDED]</span><br>
+                Generated Handle: <strong>${newId}</strong><br>
+                Biometrics Status: Cataloged.
+            </div>`;
+        logCoreEvent(`Enrolled New Facial Vector Identity: ${newId}`, "var(--neon-magenta)");
     }
 }
 
-function openInSystemBrowser(url) {
-    // 1. فتح نافذة المتصفح الموجودة في تصميمك
-    openAppWindow('web_browser');
-    
-    // 2. تحديث شريط الرابط داخل المتصفح
-    const urlInput = document.getElementById('browserUrl');
-    if(urlInput) urlInput.value = url;
-    
-    // 3. تمرير الرابط للـ iframe الداخلي ليعرض النتيجة فوراً
-    const frame = document.getElementById('browserFrame');
-    if(frame) frame.src = url;
-    
-    logCoreEvent(`Displaying targets inside system core iframe.`, "var(--neon-cyan)");
+// ==========================================================================
+// 3. رادار مسح الأجسام الذكي (AI VISION OBJECT SCANNER)
+// ==========================================================================
+let visionInterval = null;
+function startObjectDetection() {
+    const status = document.getElementById('visionStatus');
+    const video = document.getElementById('visionVideo');
+    const canvas = document.getElementById('visionCanvas');
+    const ctx = canvas.getContext('2d');
+
+    status.innerText = "Neural Engine Syncing...";
+    status.style.color = "var(--neon-cyan)";
+    logCoreEvent("Initializing Neural Matrix for Object Scanning...", "var(--neon-cyan)");
+
+    navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
+        video.style.display = 'block';
+        video.srcObject = stream;
+        status.innerText = "MATRIX LIVE [AI SCANNING ON]";
+        status.style.color = "var(--neon-green)";
+
+        const items = ['HUMAN INTERFACE', 'CYBER NODE WIRELESS', 'MOBILE SYSTEM', 'GENERIC OBJECT', 'ACCESS TERMINAL'];
+
+        visionInterval = setInterval(() => {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const count = Math.floor(Math.random() * 2) + 1;
+            for(let i=0; i<count; i++) {
+                const x = Math.floor(Math.random() * (canvas.width - 150));
+                const y = Math.floor(Math.random() * (canvas.height - 150));
+                const w = Math.floor(Math.random() * 100) + 80;
+                const h = Math.floor(Math.random() * 100) + 80;
+                const label = items[Math.floor(Math.random() * items.length)];
+
+                ctx.strokeStyle = '#00ff66';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(x, y, w, h);
+                ctx.fillStyle = '#00ff66';
+                ctx.font = '12px monospace';
+                ctx.fillText(`[${label}]: ${(Math.random() * 20 + 80).toFixed(1)}%`, x, y - 5);
+            }
+        }, 800);
+    });
 }
 
+function stopVisionAiScanner() {
+    clearInterval(visionInterval);
+    const video = document.getElementById('visionVideo');
+    if(video.srcObject) {
+        video.srcObject.getTracks().forEach(track => track.stop());
+    }
+    video.style.display = 'none';
+    closeAppWindow('vision_ai_scanner');
+    logCoreEvent("AI Radar Stream Disconnected.", "var(--neon-magenta)");
+}
 
-        function setupOfficialAiEngine() {
-            const input = document.getElementById('coreAiInput'); const btn = document.getElementById('coreAiSendBtn'); const grid = document.getElementById('coreAiChatGrid');
-            btn.onclick = async () => {
-                const text = input.value.trim(); if(!text) return;
-                grid.innerHTML += `<div style="align-self:flex-end; background:var(--neon-cyan); color:#000; padding:10px; border-radius:10px; font-family:monospace;">${text}</div>`;
-                input.value = '';
-                try {
-                    const res = await fetch(`https://text.pollinations.ai/${encodeURIComponent(text)}`); const reply = await res.text();
-                    grid.innerHTML += `<div style="align-self:flex-start; background:rgba(255,255,255,0.05); padding:10px; border-radius:10px; border:1px solid #1c2e4a; font-family:monospace;">${reply}</div>`;
-                } catch(e) { grid.innerHTML += `<div style="align-self:flex-start; color:red;">Pipeline Disrupted.</div>`; }
-                grid.scrollTop = grid.scrollHeight;
-            };
-        }
+// ==========================================================================
+// 4. متصفح الويب (تم استبداله بـ Iframe ليعمل بشكل طبيعي)
+// ==========================================================================
+function loadBrowserUrl() {
+    const urlInput = document.getElementById('browserUrl');
+    const iframe = document.getElementById('browserFrame'); 
+    let url = urlInput.value.trim();
 
-        function drawStream() {
-            const canvas = document.getElementById('streamCanvas');
-            if (!canvas || !document.getElementById('win_data_stream').classList.contains('open')) return;
-            const ctx = canvas.getContext('2d'); canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight;
-            ctx.strokeStyle = '#11ffbd'; ctx.beginPath();
-            for (let i = 0; i < canvas.width; i++) { ctx.lineTo(i, canvas.height / 2 + Math.sin(i * 0.05 + Date.now() * 0.01) * 50); }
-            ctx.stroke(); requestAnimationFrame(drawStream);
-        }
+    if (!url) return;
+    if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+
+    logCoreEvent(`Routing connection to: ${url}`, "var(--neon-cyan)");
+    iframe.src = url; 
+}
+
+function toggleQuantumVPN() {
+    const btn = document.getElementById('vpnToggleBtn');
+    if (btn.innerText.includes('OFF')) {
+        btn.innerText = "VPN: ON";
+        btn.style.borderColor = "var(--neon-green)";
+        btn.style.color = "var(--neon-green)";
+        logCoreEvent("Quantum Routing Encryption: ENABLED.", "var(--neon-green)");
+    } else {
+        btn.innerText = "VPN: OFF";
+        btn.style.borderColor = "var(--neon-magenta)";
+        btn.style.color = "var(--neon-magenta)";
+        logCoreEvent("Quantum Routing Encryption: OFF.", "var(--neon-magenta)");
+    }
+}
+
+// ==========================================================================
+// 5. محرك الـ AI CORE MAINFRAME
+// ==========================================================================
+function triggerAiCoreQuery() {
+    const input = document.getElementById('coreAiInput');
+    const grid = document.getElementById('coreAiChatGrid');
+    const query = input.value.trim();
+    if (!query) return;
+
+    grid.innerHTML += `<div style="align-self: flex-end; background: rgba(0,229,255,0.1); padding: 8px; border: 1px solid var(--neon-cyan); max-width: 80%; font-family: monospace;">> USER: ${query}</div>`;
+    input.value = '';
+
+    logCoreEvent("Querying localized mainframe vectors...", "var(--neon-cyan)");
+
+    setTimeout(() => {
+        grid.innerHTML += `<div style="align-self: flex-start; background: rgba(255,0,127,0.05); padding: 8px; border: 1px solid var(--neon-magenta); max-width: 80%; font-family: monospace; color: #fff;">> AI_CORE: Processed request parameters. Payload telemetry synchronized successfully. Operational matrix stabilized.</div>`;
+        grid.scrollTop = grid.scrollHeight;
+    }, 1000);
+}
+
+// ==========================================================================
+// 6. شبكة الـ ZULU NETWORK (الشات العام)
+// ==========================================================================
+const cyberNicknames = ['Root_Ghost', 'Net_Specter', 'X_Phantom', 'Cipher_00', 'Void_Hacker'];
+function sendGlobalChatMessage() {
+    const input = document.getElementById('chatMessageInput');
+    const container = document.getElementById('chatContainer');
+    const msg = input.value.trim();
+    if (!msg) return;
+
+    container.innerHTML += `<div style="font-family: monospace; font-size: 0.9rem;"><span style="color:var(--neon-green);">[YOU]</span>: ${msg}</div>`;
+    input.value = '';
+    container.scrollTop = container.scrollHeight;
+
+    setTimeout(() => {
+        const ghostUser = cyberNicknames[Math.floor(Math.random() * cyberNicknames.length)];
+        const systemResponses = [
+            "Data packet received, nice node injection.",
+            "Who is probing the sub-net gateway?",
+            "Encrypted stream established on port 9050.",
+            "A0Z system signature detected in server room.",
+            "Ping received. Node sync operational."
+        ];
+        const randomReply = systemResponses[Math.floor(Math.random() * systemResponses.length)];
+        container.innerHTML += `<div style="font-family: monospace; font-size: 0.9rem;"><span style="color:var(--neon-cyan);">[${ghostUser}]</span>: ${randomReply}</div>`;
+        container.scrollTop = container.scrollHeight;
+    }, 1500);
+}
+
+// ==========================================================================
+// 7. نظام الـ TERMINAL CMD EXECUTION
+// ==========================================================================
+function executeTerminalCmd() {
+    const input = document.getElementById('cmdLineInput');
+    const term = document.getElementById('systemTerminal');
+    const cmd = input.value.trim().toLowerCase();
+    if(!cmd) return;
+
+    term.innerHTML += `<br><span style="color:#fff;">root@a0z:~# ${cmd}</span><br>`;
+    
+    if(cmd === 'help') {
+        term.innerHTML += `Available directives:<br> - clear : Flush display cache.<br> - scan network : Run localized ping sweep.<br> - sysinfo : Output hardware architectural map.<br> - tor connect : Initialize encrypted proxy link.`;
+    } else if (cmd === 'clear') {
+        term.innerHTML = "Terminal memory cleared. Awaiting commands...<br>";
+    } else if (cmd === 'sysinfo') {
+        term.innerHTML += `CPU: AMD Quantum Node v3<br>OS: A0Z Cybernetic Kernel build 2026<br>SUBSYSTEM: Web Render Frame Core.`;
+    } else if (cmd === 'scan network') {
+        term.innerHTML += "Sweeping infrastructure... Found 3 active nodes. [PORT 9050 OPEN - ENCRYPTED INTERFACE]";
+    } else {
+        term.innerHTML += `<span style="color:var(--neon-magenta);">[ERROR] Command '${cmd}' unrecognized by shell.</span>`;
+    }
+
+    input.value = '';
+    term.scrollTop = term.scrollHeight;
+}
+
+// ==========================================================================
+// 8. نظام الـ CUSTOM RUNTIME & DEPLOY NODE 
+// ==========================================================================
+let deployedNodesDatabase = {
+    "system_monitor": {
+        name: "Core Monitor",
+        payload: "document.getElementById('customContainer').innerHTML = '<h3 style=\"color:var(--neon-green);\">[MONITOR ACTIVE]</h3><p>Scanning localized data sectors for anomalies... System completely secure.</p>';"
+    }
+};
+
+function showDeployChoiceBox() {
+    const overlay = document.getElementById('destinationChoiceOverlay');
+    const selector = document.getElementById('appSelector');
+    
+    selector.innerHTML = `<option value="new">-- Construct New Node --</option>`;
+    for (let key in deployedNodesDatabase) {
+        selector.innerHTML += `<option value="${key}">${deployedNodesDatabase[key].name}</option>`;
+    }
+    
+    overlay.style.display = 'flex';
+    logCoreEvent("Opened Node Deployment compiler module.", "var(--neon-cyan)");
+}
+
+function hideDeployChoiceBox() {
+    document.getElementById('destinationChoiceOverlay').style.display = 'none';
+}
+
+function loadSelectedAppCode() {
+    const selector = document.getElementById('appSelector');
+    const nameInput = document.getElementById('appNameInput');
+    const codeInput = document.getElementById('appCodeInput');
+    const selectedKey = selector.value;
+
+    if (selectedKey === 'new') {
+        nameInput.value = '';
+        codeInput.value = '';
+    } else {
+        nameInput.value = deployedNodesDatabase[selectedKey].name;
+        codeInput.value = deployedNodesDatabase[selectedKey].payload;
+    }
+}
+
+function confirmDeployDestination() {
+    const name = document.getElementById('appNameInput').value.trim();
+    const payload = document.getElementById('appCodeInput').value.trim();
+    const container = document.getElementById('customContainer');
+    const title = document.getElementById('customWinTitle');
+
+    if (!name || !payload) {
+        alert("Please fill in both Node Name and Payload JS Script.");
+        return;
+    }
+
+    const nodeKey = name.toLowerCase().replace(/\s+/g, '_');
+    deployedNodesDatabase[nodeKey] = { name: name, payload: payload };
+
+    logCoreEvent(`Deploying payload architecture for node: ${name}...`, "var(--neon-cyan)");
+
+    title.innerHTML = `🛸 Runtime Node: ${name.toUpperCase()}`;
+    openAppWindow('custom_runtime');
+    hideDeployChoiceBox();
+
+    try {
+        container.innerHTML = '';
+        const runPayload = new Function(payload);
+        runPayload();
+        logCoreEvent(`Node [${name}] deployed successfully into workspace runtime.`, "var(--neon-green)");
+    } catch (error) {
+        container.innerHTML = `<div style="color:var(--neon-magenta);">[RUNTIME ERROR]<br>${error.message}</div>`;
+        logCoreEvent(`Node Payload Crash: ${error.message}`, "var(--neon-magenta)");
+    }
+}
+
+// ==========================================================================
+// 9. تهيئة بيئة الجرافيكس (Particles.js & Canvas Visualizers)
+// ==========================================================================
+window.addEventListener('load', () => {
+    const lockDate = document.getElementById('lockDate');
+    if (lockDate) {
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        lockDate.innerText = new Date().toLocaleDateString('en-US', options);
+    }
+
+    const canvas = document.getElementById('streamCanvas');
+    if (canvas) {
+        const ctx = canvas.getContext('2d');
+        let width = canvas.width = canvas.parentElement.offsetWidth || window.innerWidth;
+        let height = canvas.height = canvas.parentElement.offsetHeight || 500;
+        
+        const columns = Math.floor(width / 20);
+        const drops = Array(columns).fill(1);
 
         setInterval(() => {
-            const now = new Date(); 
-            document.getElementById('liveClock').innerText = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
-            if(document.getElementById('lockDate')) document.getElementById('lockDate').innerText = now.toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long' });
-            const c = Math.floor(Math.random() * 35 + 15), m = Math.floor(Math.random() * 20 + 55);
-            document.getElementById('cpu-val').innerText = c + '%'; document.getElementById('mem-val').innerText = m + '%';
-            document.getElementById('cpu-bar').style.width = c + '%'; document.getElementById('mem-bar').style.width = m + '%';
-        }, 2000);
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, width, height);
+            ctx.fillStyle = '#00ff66'; 
+            ctx.font = '14px monospace';
 
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.getElementById('canvas-container').appendChild(renderer.domElement);
-        
-        const sphereGeometry = new THREE.SphereGeometry(12, 32, 16);
-        const sphereMaterial = new THREE.MeshBasicMaterial({ color: 0x00e5ff, wireframe: true, transparent: true, opacity: 0.12 });
-        const cyberSphere = new THREE.Mesh(sphereGeometry, sphereMaterial); scene.add(cyberSphere);
+            for (let i = 0; i < drops.length; i++) {
+                const text = String.fromCharCode(Math.floor(Math.random() * 93) + 33);
+                const x = i * 20;
+                const y = drops[i] * 20;
 
-        const ringGeometry = new THREE.RingGeometry(14, 14.2, 64);
-        const ringMaterial = new THREE.MeshBasicMaterial({ color: 0x11ffbd, side: THREE.DoubleSide, transparent: true, opacity: 0.25 });
-        const cyberRing = new THREE.Mesh(ringGeometry, ringMaterial); cyberRing.rotation.x = Math.PI / 2; scene.add(cyberRing);
+                ctx.fillText(text, x, y);
 
-        camera.position.z = 25;
-        function animate3D() { 
-            requestAnimationFrame(animate3D); 
-            cyberSphere.rotation.x += 0.002; cyberSphere.rotation.y += 0.004; cyberRing.rotation.z -= 0.003;
-            renderer.render(scene, camera); 
-        }
-        animate3D();
+                if (y > height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        }, 33);
+    }
+});
 
-        particlesJS("particles-js", {
-            particles: { number: { value: 30, density: { enable: true, value_area: 1200 } }, color: { value: "#00e5ff" }, opacity: { value: 0.4 }, size: { value: 1.5 }, line_linked: { enable: true, distance: 150, color: "#00e5ff", opacity: 0.15, width: 1 }, move: { enable: true, speed: 0.8 } },
-            interactivity: { detect_on: "canvas", events: { onhover: { enable: false } } }, retina_detect: true
-        });
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
+const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+const sphereGeometry = new THREE.SphereGeometry(12, 32, 16);
+const sphereMaterial = new THREE.MeshBasicMaterial({ color: 0x00e5ff, wireframe: true, transparent: true, opacity: 0.12 });
+const cyberSphere = new THREE.Mesh(sphereGeometry, sphereMaterial); scene.add(cyberSphere);
+
+const ringGeometry = new THREE.RingGeometry(14, 14.2, 64);
+const ringMaterial = new THREE.MeshBasicMaterial({ color: 0x11ffbd, side: THREE.DoubleSide, transparent: true, opacity: 0.25 });
+const cyberRing = new THREE.Mesh(ringGeometry, ringMaterial); cyberRing.rotation.x = Math.PI / 2; scene.add(cyberRing);
+
+camera.position.z = 25;
+function animate3D() { 
+    requestAnimationFrame(animate3D); 
+    cyberSphere.rotation.x += 0.002; cyberSphere.rotation.y += 0.004; cyberRing.rotation.z -= 0.003;
+    renderer.render(scene, camera); 
+}
+animate3D();
+
+particlesJS("particles-js", {
+    particles: { number: { value: 30, density: { enable: true, value_area: 1200 } }, color: { value: "#00e5ff" }, opacity: { value: 0.4 }, size: { value: 1.5 }, line_linked: { enable: true, distance: 150, color: "#00e5ff", opacity: 0.15, width: 1 }, move: { enable: true, speed: 0.8 } },
+    interactivity: { detect_on: "canvas", events: { onhover: { enable: false } } }, retina_detect: true
+});
+
+window.addEventListener('resize', () => {
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+});
     </script>
 </body>
 </html>
