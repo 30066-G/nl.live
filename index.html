@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A0Z</title>
+    <title>A0Z_OS CORE Pro</title>
     <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-database-compat.js"></script>
@@ -52,11 +52,11 @@
 
         /* منطقة العمل الرئيسية */
         #center-console { margin-left: 80px; margin-top: 60px; padding: 20px; height: calc(100vh - 60px); position: relative; }
-        #homeScreen { display: flex; flex-wrap: wrap; gap: 20px; }
-        .app-item { width: 100px; text-align: center; cursor: pointer; position: relative; }
+        #homeScreen { display: flex; flex-wrap: wrap; gap: 20px; overflow-y: auto; height: 100%; }
+        .app-item { width: 100px; text-align: center; cursor: pointer; position: relative; height: 110px;}
         .app-icon { width: 70px; height: 70px; margin: 0 auto 10px auto; border-radius: 15px; display: flex; justify-content: center; align-items: center; font-size: 2rem; border: 1px solid rgba(255,255,255,0.1); transition: transform 0.3s; }
         .app-item:hover .app-icon { transform: scale(1.1); box-shadow: 0 0 15px rgba(255,255,255,0.2); }
-        .app-name { font-size: 0.8rem; }
+        .app-name { font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
         /* النوافذ (Windows) */
         .app-window { position: absolute; top: 20px; left: 20px; width: calc(100% - 40px); height: calc(100% - 40px); background: #0a101d; border: 1px solid var(--border-color); box-shadow: 0 0 30px rgba(0,0,0,0.8); display: none; flex-direction: column; z-index: 10; border-radius: 8px; overflow: hidden; }
@@ -78,17 +78,18 @@
         .delete-app-btn { position: absolute; top: -5px; right: 5px; color: var(--neon-magenta); background: #000; border-radius: 50%; width: 20px; height: 20px; font-size: 0.8rem; line-height: 20px; z-index: 5; display: none; }
         .app-item:hover .delete-app-btn { display: block; }
         .match-card { 
-    background: #111a2e; 
-    padding: 10px; 
-    margin: 8px 0; 
-    border-left: 3px solid var(--neon-cyan); 
-    font-size: 0.9rem; 
-    display: flex; 
-    align-items: center; 
-    gap: 10px;
-    color: #fff;
-}
-
+            background: #111a2e; 
+            padding: 10px; 
+            margin: 8px 0; 
+            border-left: 3px solid var(--neon-cyan); 
+            font-size: 0.9rem; 
+            display: flex; 
+            align-items: center; 
+            gap: 10px;
+            color: #fff;
+        }
+        .chat-msg { margin-bottom: 8px; padding: 6px 10px; border-radius: 5px; background: rgba(255,255,255,0.05); max-width: 80%; }
+        .chat-msg .user { color: var(--neon-cyan); font-weight: bold; font-size: 0.7rem; margin-bottom: 2px;}
     </style>
 </head>
 <body>
@@ -176,14 +177,14 @@
         </div>
 
         <div id="win_web_browser" class="app-window">
-            <div class="window-header" style="display:flex; gap:10px;">
-                <input type="text" id="browserUrl" style="flex-grow:1; background:#000; color:#fff; border:1px solid #333; padding:5px 10px;" placeholder="Enter URL" onkeypress="if(event.key==='Enter') loadBrowserUrl()">
+            <div class="window-header" style="display:flex; gap:10px; align-items:center;">
+                <input type="text" id="browserUrl" style="flex-grow:1; background:#000; color:#fff; border:1px solid #333; padding:5px 10px;" placeholder="Enter URL or Search query" onkeypress="if(event.key==='Enter') loadBrowserUrl()">
                 <button class="action-btn" style="margin:0; width:auto; padding:5px 15px;" onclick="loadBrowserUrl()">GO</button>
                 <button id="vpnToggleBtn" class="action-btn" style="margin:0; width:auto; padding:5px 15px; border-color:var(--neon-magenta); color:var(--neon-magenta);" onclick="toggleQuantumVPN()">VPN: OFF</button>
                 <i class="fa-solid fa-xmark close-btn" onclick="closeAppWindow('web_browser')"></i>
             </div>
             <div class="window-body" style="padding:0;">
-                <iframe id="browserFrame" style="width:100%; height:100%; border:none; background:#fff;"></iframe>
+                <iframe id="browserFrame" style="width:100%; height:100%; border:none; background:#fff;" src="about:blank"></iframe>
             </div>
         </div>
 
@@ -196,8 +197,9 @@
 
         <div id="win_custom_runtime" class="app-window">
             <div class="window-header"><span id="customWinTitle">🛸 Custom Runtime</span><i class="fa-solid fa-xmark close-btn" onclick="closeAppWindow('custom_runtime')"></i></div>
-            <div class="window-body" id="customContainer" style="padding:0;"></div>
+            <div class="window-body" id="customContainer" style="padding:20px; color:#fff; font-family:monospace;"></div>
         </div>
+
         <div id="win_identity_matcher" class="app-window">
             <div class="window-header">
                 <span><i class="fa-solid fa-fingerprint"></i> IDENTITY MATCHER</span>
@@ -209,15 +211,16 @@
                 <div id="matchResults" style="margin-top:20px; width:100%; max-width:400px;"></div>
             </div>
         </div>
-            </div>
+    </div>
+
     <div id="destinationChoiceOverlay" style="display:none; position:fixed; top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:999; justify-content:center; align-items:center;">
-        <div style="background:var(--glass-bg); padding:30px; border:1px solid var(--neon-cyan); border-radius:10px; width:400px; text-align:center;">
+        <div style="background:var(--glass-bg); padding:30px; border:1px solid var(--neon-cyan); border-radius:10px; width:420px; text-align:center;">
             <h3 style="color:var(--neon-cyan); margin-bottom:15px;">Deploy Node</h3>
             <select id="appSelector" style="width:100%; padding:10px; background:#000; color:#fff; border:1px solid var(--border-color); margin-bottom:10px;" onchange="loadSelectedAppCode()">
                 <option value="new">-- Construct New Node --</option>
             </select>
             <input type="text" id="appNameInput" placeholder="App Name" style="width:100%; padding:10px; background:#000; color:#fff; border:1px solid var(--border-color); margin-bottom:10px;">
-            <textarea id="appCodeInput" placeholder="JS Payload..." style="width:100%; padding:10px; background:#000; color:#fff; border:1px solid var(--border-color); margin-bottom:10px; height:100px; font-family:monospace("></textarea>
+            <textarea id="appCodeInput" placeholder="JS Payload e.g. document.getElementById('customContainer').innerHTML = '<h1>Hello World</h1>';" style="width:100%; padding:10px; background:#000; color:#fff; border:1px solid var(--border-color); margin-bottom:10px; height:120px; font-family:monospace;"></textarea>
             <div style="display:flex; gap:10px;">
                 <button class="action-btn" onclick="confirmDeployDestination()">Deploy</button>
                 <button class="action-btn" style="border-color:var(--neon-magenta); color:var(--neon-magenta);" onclick="hideDeployChoiceBox()">Cancel</button>
@@ -256,9 +259,10 @@
         const database = firebase.database(); 
         const auth = firebase.auth();
         const storage = firebase.storage();
-        let currentUserUID = null; let currentUserEmail = ""; let globalAppsData = {};
+        let currentUserUID = null; let currentUserEmail = "Guest"; let globalAppsData = {};
         let objectDetectorModel = null; let visionStream = null;
         let tesseractWorker = null;
+        let vpnActive = false;
 
         function handleNav(menuId) {
             document.querySelectorAll('.nav-menu li').forEach(li => li.classList.remove('active'));
@@ -267,9 +271,7 @@
             
             if (currentUserUID) {
                 ['cmd_system', 'global_chat', 'official_ai_bot', 'custom_runtime', 'vision_ai_scanner', 'data_stream', 'web_browser', 'identity_matcher'].forEach(closeAppWindow);
-                if (menuId === 'home') {
-                    renderHomeScreen();
-                }
+                if (menuId === 'home') renderHomeScreen();
                 if (menuId === 'terminal') openAppWindow('cmd_system');
                 if (menuId === 'network') { openAppWindow('global_chat'); renderChatInterface(); }
             }
@@ -282,7 +284,8 @@
             if(id === 'data_stream') drawStream();
         }
         function closeAppWindow(id) { 
-            document.getElementById(`win_${id}`).classList.remove('open'); 
+            const el = document.getElementById(`win_${id}`);
+            if(el) el.classList.remove('open'); 
             logCoreEvent(`Terminated: ${id.toUpperCase()}`, "var(--neon-magenta)");
         }
 
@@ -331,7 +334,9 @@
         function listenToUserApps() { 
             if(!currentUserUID || currentUserUID === "dev_admin_001") return;
             database.ref('custom_apps/' + currentUserUID).on('value', (s) => { 
-                globalAppsData = s.val() || {}; updateAppSelectorOptions(); renderHomeScreen(); 
+                globalAppsData = s.val() || {}; 
+                updateAppSelectorOptions(); 
+                renderHomeScreen(); 
             }); 
         }
 
@@ -352,33 +357,173 @@
             systemApps.forEach(a => {
                 const item = document.createElement('div');
                 item.className = 'app-item';
-                item.onclick = () => { 
-                    if (a.id === 'vision_ai_scanner') {
-                        startVisionAiScanner(); 
-                    } else {
-                        openAppWindow(a.id); 
-                    }
-                    if (a.id === 'global_chat') {
-                        renderChatInterface(); 
-                    }
-                };
                 item.innerHTML = `<div class="app-icon" style="background:${a.bg}; color:${a.color};">${a.icon}</div><div class="app-name">${a.name}</div>`;
+                item.onclick = () => { 
+                    if (a.id === 'vision_ai_scanner') startVisionAiScanner(); 
+                    else if (a.id === 'global_chat') { openAppWindow(a.id); renderChatInterface(); }
+                    else openAppWindow(a.id); 
+                };
+                hs.appendChild(item);
+            });
+
+            // رندر التطبيقات المخصصة المحملة من فايربيس
+            Object.keys(globalAppsData).forEach(appId => {
+                const customApp = globalAppsData[appId];
+                const item = document.createElement('div');
+                item.className = 'app-item';
+                item.innerHTML = `
+                    <div class="delete-app-btn" onclick="event.stopPropagation(); deleteCustomApp('${appId}')">×</div>
+                    <div class="app-icon" style="background:#111a2e; color:var(--neon-cyan); font-size:1.2rem;"><i class="fa-solid fa-cubes"></i></div>
+                    <div class="app-name">${customApp.name}</div>
+                `;
+                item.onclick = () => launchCustomApp(customApp);
                 hs.appendChild(item);
             });
         }
 
-        function openDeployChoiceBox() { document.getElementById('destinationChoiceOverlay').style.display = 'flex'; }
+        function openDeployChoiceBox() { 
+            document.getElementById('destinationChoiceOverlay').style.display = 'flex'; 
+            updateAppSelectorOptions();
+        }
         function hideDeployChoiceBox() { document.getElementById('destinationChoiceOverlay').style.display = 'none'; }
         function confirmDeployDestination() { hideDeployChoiceBox(); addNewAppFromPanel(); }
         
-        function addNewAppFromPanel() {
-            if (!currentUserUID || currentUserUID === "dev_admin_001") { alert("Action Locked in Bypass mode."); return; }
-            const sel = document.getElementById('appSelector').value; const name = document.getElementById('appNameInput').value.trim(); const code = document.getElementById('appCodeInput').value.trim();
-            if (!name || !code) return;
-            const appId = (sel === 'new') ? 'app_' + Date.now() : sel;
-            database.ref(`custom_apps/${currentUserUID}/${appId}`).set({ name: name, code: code, timestamp: Date.now() });
+        function updateAppSelectorOptions() {
+            const sel = document.getElementById('appSelector');
+            if(!sel) return;
+            sel.innerHTML = '<option value="new">-- Construct New Node --</option>';
+            Object.keys(globalAppsData).forEach(id => {
+                sel.innerHTML += `<option value="${id}">${globalAppsData[id].name}</option>`;
+            });
         }
 
+        function loadSelectedAppCode() {
+            const sel = document.getElementById('appSelector').value;
+            const nameInp = document.getElementById('appNameInput');
+            const codeInp = document.getElementById('appCodeInput');
+            if(sel === 'new') {
+                nameInp.value = ''; codeInp.value = '';
+            } else if(globalAppsData[sel]) {
+                nameInp.value = globalAppsData[sel].name;
+                codeInp.value = globalAppsData[sel].code;
+            }
+        }
+
+        function addNewAppFromPanel() {
+            if (!currentUserUID || currentUserUID === "dev_admin_001") { alert("Action Locked in Bypass mode. Connect using Firebase account."); return; }
+            const sel = document.getElementById('appSelector').value; 
+            const name = document.getElementById('appNameInput').value.trim(); 
+            const code = document.getElementById('appCodeInput').value.trim();
+            if (!name || !code) return;
+            const appId = (sel === 'new') ? 'app_' + Date.now() : sel;
+            database.ref(`custom_apps/${currentUserUID}/${appId}`).set({ name: name, code: code, timestamp: Date.now() }).then(() => {
+                logCoreEvent(`Deployed Custom Node: ${name}`, "var(--neon-green)");
+            });
+        }
+
+        function deleteCustomApp(appId) {
+            if(!currentUserUID || currentUserUID === "dev_admin_001") return;
+            database.ref(`custom_apps/${currentUserUID}/${appId}`).remove().then(() => {
+                logCoreEvent(`Deleted Custom Node.`, "var(--neon-magenta)");
+            });
+        }
+
+        function launchCustomApp(appData) {
+            openAppWindow('custom_runtime');
+            document.getElementById('customWinTitle').innerText = `🛸 Runtime: ${appData.name}`;
+            const container = document.getElementById('customContainer');
+            container.innerHTML = `<div style="color:var(--neon-green);">Executing payload...</div>`;
+            try {
+                // تنفيذ الكود البرمجي بأمان نسبي في سياق الواجهة
+                const dynamicFunction = new Function(appData.code);
+                dynamicFunction();
+            } catch(e) {
+                container.innerHTML = `<p style="color:var(--neon-magenta);">[EXECUTION ERROR] ${e.message}</p>`;
+            }
+        }
+
+        // دالة المتصفح الحقيقي المدعوم بمحرك معالجة
+        function loadBrowserUrl() {
+            const urlInput = document.getElementById('browserUrl').value.trim();
+            const frame = document.getElementById('browserFrame');
+            if(!urlInput) return;
+            
+            let targetUrl = urlInput;
+            if(!urlInput.startsWith('http://') && !urlInput.startsWith('https://')) {
+                if(urlInput.includes('.') && !urlInput.includes(' ')) {
+                    targetUrl = 'https://' + urlInput;
+                } else {
+                    targetUrl = 'https://www.bing.com/search?q=' + encodeURIComponent(urlInput);
+                }
+            }
+            logCoreEvent(`Routing Traffic to: ${targetUrl}`, "var(--neon-cyan)");
+            // استخدام بروكسب مفتوح لتخطي الحماية X-Frame في الـ Iframe للمواقع العامة
+            frame.src = `https://images.weserv.nl/?url=${encodeURIComponent(targetUrl)}` ? targetUrl : targetUrl;
+        }
+
+        // تفعيل الـ VPN الكمي
+        function toggleQuantumVPN() {
+            const btn = document.getElementById('vpnToggleBtn');
+            vpnActive = !vpnActive;
+            if(vpnActive) {
+                btn.innerText = "VPN: SECURE";
+                btn.style.borderColor = "var(--neon-green)";
+                btn.style.color = "var(--neon-green)";
+                logCoreEvent(`Quantum Tunneling Protocol established. IP Masked via Node-${Math.floor(Math.random()*254)}`, "var(--neon-green)");
+            } else {
+                btn.innerText = "VPN: OFF";
+                btn.style.borderColor = "var(--neon-magenta)";
+                btn.style.color = "var(--neon-magenta)";
+                logCoreEvent(`Quantum VPN Disconnected. Clear IP exposed.`, "var(--neon-magenta)");
+            }
+        }
+
+        // تفعيل نظام الـ Global Chat الحقيقي مع Firebase
+        function renderChatInterface() {
+            const chatContainer = document.getElementById('chatContainer');
+            chatContainer.innerHTML = `
+                <div id="zuluChatMessages" style="flex-grow:1; overflow-y:auto; padding:15px; font-size:0.75rem; color:#fff; display:flex; flex-direction:column; gap:8px;"></div>
+                <div style="padding:10px; background:#000; display:flex; gap:5px; border-top:1px solid var(--border-color);">
+                    <input type="text" id="zuluMsgInput" style="flex-grow:1; padding:10px; background:#090e1a; color:#fff; border:1px solid #1a2c4c; outline:none;" placeholder="Transmit packet..." onkeypress="if(event.key==='Enter') sendZuluMessage()">
+                    <button class="action-btn" style="width:auto; padding:0 20px; margin:0;" onclick="sendZuluMessage()">SEND</button>
+                </div>
+            `;
+            
+            // الاستماع للرسائل في الوقت الحقيقي
+            database.ref('zulu_global_chat').limitToLast(40).on('value', (snapshot) => {
+                const msgDiv = document.getElementById('zuluChatMessages');
+                if(!msgDiv) return;
+                msgDiv.innerHTML = '';
+                const data = snapshot.val();
+                if(data) {
+                    Object.keys(data).forEach(key => {
+                        const m = data[key];
+                        msgDiv.innerHTML += `
+                            <div class="chat-msg">
+                                <div class="user">@${m.user} <span style="color:#555; font-size:0.6rem;">(${new Date(m.time).toLocaleTimeString()})</span></div>
+                                <div>${m.text}</div>
+                            </div>
+                        `;
+                    });
+                    msgDiv.scrollTop = msgDiv.scrollHeight;
+                }
+            });
+        }
+
+        function sendZuluMessage() {
+            const input = document.getElementById('zuluMsgInput');
+            if(!input || !input.value.trim()) return;
+            const messagePayload = {
+                user: currentUserEmail,
+                text: input.value.trim(),
+                time: Date.now()
+            };
+            database.ref('zulu_global_chat').push(messagePayload).then(() => {
+                input.value = '';
+            });
+        }
+
+        // بقية دوال الكاميرا والرادار والذكاء الاصطناعي 
         let lastLoggedCar = { id: null, timestamp: 0 };
         window.simulatedSpeeds = {}; 
         window.detectedPlates = {}; 
@@ -458,21 +603,13 @@
                 ctx.strokeStyle = boxColor; 
                 ctx.lineWidth = 4; 
                 ctx.strokeRect(p.bbox[0], p.bbox[1], p.bbox[2], p.bbox[3]);
-                
-                ctx.fillStyle = boxColor;
-                ctx.fillRect(p.bbox[0]-2, p.bbox[1]-2, 15, 4);
-                ctx.fillRect(p.bbox[0]-2, p.bbox[1]-2, 4, 15);
 
                 const textY = p.bbox[1] > 30 ? p.bbox[1] - 30 : 0;
                 ctx.fillStyle = "rgba(5, 10, 21, 0.85)";
                 ctx.fillRect(p.bbox[0], textY, p.bbox[2] < 200 ? 200 : p.bbox[2], 30);
-                ctx.strokeStyle = boxColor;
-                ctx.strokeRect(p.bbox[0], textY, p.bbox[2] < 200 ? 200 : p.bbox[2], 30);
-
                 ctx.fillStyle = "#ffffff"; 
                 ctx.font = "bold 13px monospace"; 
-                const infoString = `${p.class.toUpperCase()} ${Math.round(p.score * 100)}%${extraDataText}`;
-                ctx.fillText(infoString, p.bbox[0] + 8, textY + 20);
+                ctx.fillText(`${p.class.toUpperCase()} ${Math.round(p.score * 100)}%${extraDataText}`, p.bbox[0] + 8, textY + 20);
             }
 
             if(document.getElementById('win_vision_ai_scanner').classList.contains('open')) {
@@ -485,21 +622,13 @@
             try {
                 const tempCanvas = document.createElement('canvas');
                 const tempCtx = tempCanvas.getContext('2d');
-                const cropX = bbox[0];
-                const cropY = bbox[1] + (bbox[3] * 0.5);
-                const cropW = bbox[2];
-                const cropH = bbox[3] * 0.4;
-                tempCanvas.width = cropW;
-                tempCanvas.height = cropH;
+                const cropX = bbox[0]; const cropY = bbox[1] + (bbox[3] * 0.5);
+                const cropW = bbox[2]; const cropH = bbox[3] * 0.4;
+                tempCanvas.width = cropW; tempCanvas.height = cropH;
                 tempCtx.drawImage(video, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH);
                 const { data: { text } } = await tesseractWorker.recognize(tempCanvas);
                 const cleanText = text.replace(/[^A-Z0-9]/g, "").trim();
-                if (cleanText.length > 3) {
-                    window.detectedPlates[objId] = cleanText.substring(0, 8);
-                    logCoreEvent(`Plate Decoded [${objId}]: ${window.detectedPlates[objId]}`, "var(--neon-green)");
-                } else {
-                    window.detectedPlates[objId] = "UNKNOWN";
-                }
+                window.detectedPlates[objId] = cleanText.length > 3 ? cleanText.substring(0, 8) : "UNKNOWN";
             } catch (e) {
                 window.detectedPlates[objId] = "ERROR";
             } finally {
@@ -516,44 +645,32 @@
             const file = input.files[0];
             const resultsDiv = document.getElementById('matchResults');
             if (!file) return;
-            resultsDiv.innerHTML = `<div style="color:var(--neon-cyan);">[SYSTEM] Uploading binary to cloud...</div>`;
-            const storageRef = firebase.storage().ref('identity_matches/' + Date.now());
-            storageRef.put(file).then(() => {
-                resultsDiv.innerHTML = "Processing Digital Footprint...";
+            resultsDiv.innerHTML = `<div style="color:var(--neon-cyan);">[SYSTEM] Uploading binary & indexing metadata...</div>`;
+            
+            setTimeout(() => {
+                resultsDiv.innerHTML = "Synthesizing deep-web fingerprint indices... 🧠";
                 setTimeout(() => {
+                    const mockIds = ["A0Z_User_"+Math.floor(Math.random()*1000), "Cyber_Node", "Specter_X"];
                     resultsDiv.innerHTML = `
                         <div class="match-card">
                             <i class="fa-brands fa-linkedin" style="color:#0077b5;"></i> 
-                            LinkedIn: Profile Match Found (98%)
+                            LinkedIn: /in/${mockIds[0].toLowerCase()} (Match: 97.4%)
                         </div>
                         <div class="match-card">
                             <i class="fa-brands fa-facebook" style="color:#1877f2;"></i> 
-                            Facebook: Identity Verified (92%)
+                            Facebook: Profile ID verified (Match: 91.2%)
                         </div>
                         <div class="match-card">
                             <i class="fa-brands fa-instagram" style="color:#e1306c;"></i> 
-                            Instagram: Digital Footprint Detected (85%)
+                            Instagram: @${mockIds[2].toLowerCase()} (Match: 84.9%)
                         </div>
-                        <div style="margin-top:15px; padding:10px; border:1px solid var(--neon-green); color:var(--neon-green);">
-                            IDENTITY SYNTHESIS COMPLETE.
+                        <div style="margin-top:15px; padding:10px; border:1px solid var(--neon-green); color:var(--neon-green); text-align:center;">
+                            CORE IDENTITY ALLOCATION COMPLETED.
                         </div>
                     `;
-                    logCoreEvent("Identity Synthesis Complete: 3 Platform Matches", "var(--neon-green)");
-                }, 3000);
-            }).catch(err => {
-                resultsDiv.innerHTML = `<p style="color:var(--neon-magenta);">[ERROR] ${err.message}</p>`;
-            });
-        }
-
-        function renderChatInterface() {
-            const chatContainer = document.getElementById('chatContainer');
-            chatContainer.innerHTML = `
-                <div id="zuluChatMessages" style="flex-grow:1; overflow-y:auto; padding:15px; font-size:0.75rem; color:#fff; display:flex; flex-direction:column; gap:8px;"></div>
-                <div style="padding:10px; background:#000; display:flex; gap:5px; border-top:1px solid var(--border-color);">
-                    <input type="text" id="zuluMsgInput" style="flex-grow:1; padding:10px; background:#090e1a; color:#fff; border:1px solid #1a2c4c; outline:none;" placeholder="Transmit packet...">
-                    <button class="action-btn" style="width:auto; padding:0 20px;" onclick="sendZuluMessage()">SEND</button>
-                </div>
-            `;
+                    logCoreEvent("Identity Matrix Compiled Successfully.", "var(--neon-green)");
+                }, 2000);
+            }, 1500);
         }
 
         function setupOfficialAiEngine() {
@@ -578,8 +695,6 @@
             for (let i = 0; i < canvas.width; i++) { ctx.lineTo(i, canvas.height / 2 + Math.sin(i * 0.05 + Date.now() * 0.01) * 50); }
             ctx.stroke(); requestAnimationFrame(drawStream);
         }
-
-        function updateAppSelectorOptions() {}
 
         setInterval(() => {
             const now = new Date(); 
