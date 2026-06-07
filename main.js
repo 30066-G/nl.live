@@ -218,50 +218,72 @@ async function evaluateBiometricData(imageElement) {
 // 3. رادار مسح الأجسام الذكي (AI VISION OBJECT SCANNER)
 // ==========================================================================
 let visionInterval = null;
-function startObjectDetection() {
+let model = null; // تعريف المتغير لتخزين نموذج الذكاء الاصطناعي
+
+async function startObjectDetection() {
     const status = document.getElementById('visionStatus');
     const video = document.getElementById('visionVideo');
     const canvas = document.getElementById('visionCanvas');
     const ctx = canvas.getContext('2d');
 
-    status.innerText = "Neural Engine Syncing...";
+    status.innerText = "LOADING NEURAL ENGINE...";
     status.style.color = "var(--neon-cyan)";
     logCoreEvent("Initializing Neural Matrix for Object Scanning...", "var(--neon-cyan)");
 
-    navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
-        video.style.display = 'block';
+    // تحميل النموذج إذا لم يكن محملاً
+    if (!model) {
+        model = await cocoSsd.load();
+    }
+
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
         video.srcObject = stream;
+        video.style.display = 'block';
+        
         status.innerText = "MATRIX LIVE [AI SCANNING ON]";
         status.style.color = "var(--neon-green)";
 
-        const items = ['HUMAN INTERFACE', 'CYBER NODE WIRELESS', 'MOBILE SYSTEM', 'GENERIC OBJECT', 'ACCESS TERMINAL'];
+        // استخدام requestAnimationFrame بدلاً من setInterval لضمان السلاسة
+        const detectFrame = async () => {
+            if (video.paused || video.ended) return;
 
-        visionInterval = setInterval(() => {
+            // كشف العناصر
+            const predictions = await model.detect(video);
+            
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            const count = Math.floor(Math.random() * 2) + 1;
-            for(let i=0; i<count; i++) {
-                const x = Math.floor(Math.random() * (canvas.width - 150));
-                const y = Math.floor(Math.random() * (canvas.height - 150));
-                const w = Math.floor(Math.random() * 100) + 80;
-                const h = Math.floor(Math.random() * 100) + 80;
-                const label = items[Math.floor(Math.random() * items.length)];
-
+            predictions.forEach(prediction => {
+                const [x, y, width, height] = prediction.bbox;
+                
+                // رسم المربع المستقبلي
                 ctx.strokeStyle = '#00ff66';
-                ctx.lineWidth = 2;
-                ctx.strokeRect(x, y, w, h);
+                ctx.lineWidth = 3;
+                ctx.strokeRect(x, y, width, height);
+                
+                // إظهار اسم العنصر المكتشف
                 ctx.fillStyle = '#00ff66';
-                ctx.font = '12px monospace';
-                ctx.fillText(`[${label}]: ${(Math.random() * 20 + 80).toFixed(1)}%`, x, y - 5);
-            }
-        }, 800);
-    });
+                ctx.font = '14px monospace';
+                ctx.fillText(
+                    `${prediction.class.toUpperCase()} ${(prediction.score * 100).toFixed(0)}%`, 
+                    x, y > 15 ? y - 5 : 15
+                );
+            });
+
+            visionInterval = requestAnimationFrame(detectFrame);
+        };
+
+        video.onloadedmetadata = () => { detectFrame(); };
+
+    } catch (err) {
+        status.innerText = "HARDWARE ACCESS DENIED";
+        logCoreEvent("Hardware error: Camera node locked.", "var(--neon-magenta)");
+    }
 }
 
 function stopVisionAiScanner() {
-    clearInterval(visionInterval);
+    cancelAnimationFrame(visionInterval); // إيقاف إطار العمل
     const video = document.getElementById('visionVideo');
     if(video.srcObject) {
         video.srcObject.getTracks().forEach(track => track.stop());
