@@ -326,42 +326,65 @@ function toggleQuantumVPN() {
 // ==========================================================================
 // 5. محرك الـ AI CORE MAINFRAME
 // ==========================================================================
-window.triggerAiCoreQuery = function() {
-    const input = document.getElementById('coreAiInput');
+function setupOfficialAiEngine() {
     const grid = document.getElementById('coreAiChatGrid');
-    const query = input.value.trim().toLowerCase(); // تحويل النص لـ lowercase للتعرف عليه بسهولة
-    
-    if (!query) return;
+    const input = document.getElementById('coreAiInput');
+    const btn = document.getElementById('coreAiSendBtn');
+    const typing = document.getElementById('coreAiTyping');
 
-    // 1. إضافة رسالة المستخدم للدردشة
-    grid.innerHTML += `<div style="align-self: flex-end; background: rgba(0,229,255,0.1); padding: 8px; border: 1px solid var(--neon-cyan); max-width: 80%; font-family: monospace; margin-bottom:5px;">> USER: ${input.value}</div>`;
-    input.value = '';
-    grid.scrollTop = grid.scrollHeight;
-
-    // 2. إظهار حالة المعالجة (تأثير "تفكير" النظام)
-    logCoreEvent("Analyzing query vectors...", "var(--neon-cyan)");
-
-    setTimeout(() => {
-        let aiResponse = "";
-
-        // 3. ذكاء النظام (تحليل الكلمات المفتاحية)
-        if (query.includes("hello") || query.includes("hi")) {
-            aiResponse = "System online. Identification verified. How can I assist with the A0Z framework?";
-        } else if (query.includes("security") || query.includes("hack")) {
-            aiResponse = "WARNING: Unauthorized intrusion detected in query. Perimeter firewalls are active.";
-        } else if (query.includes("system") || query.includes("status")) {
-            aiResponse = "All nodes are synchronized. CPU at 18%, Memory stable. Mainframe is fully operational.";
-        } else if (query.includes("vision") || query.includes("radar")) {
-            aiResponse = "Vision Radar is currently tracking neural signatures in the local environment.";
-        } else {
-            aiResponse = "Data processed. Operational matrix stabilized. Payload telemetry synchronized successfully.";
-        }
-
-        grid.innerHTML += `<div style="align-self: flex-start; background: rgba(255,0,127,0.05); padding: 8px; border: 1px solid var(--neon-magenta); max-width: 80%; font-family: monospace; color: #fff; margin-bottom:5px;">> AI_CORE: ${aiResponse}</div>`;
+    function appendCoreMsg(sender, text) {
+        const box = document.createElement('div');
+        const isMe = sender === 'user';
+        box.style.alignSelf = isMe ? 'flex-end' : 'flex-start';
+        box.style.background = isMe ? 'linear-gradient(135deg, #00f2fe, #4facfe)' : 'rgba(255,255,255,0.08)';
+        box.style.color = isMe ? '#000' : '#fff';
+        box.style.padding = '10px 14px';
+        box.style.borderRadius = isMe ? '12px 12px 0 12px' : '12px 12px 12px 0';
+        box.style.maxWidth = '85%';
+        box.style.margin = '5px';
+        box.style.wordBreak = 'break-word';
+        box.innerText = text;
+        grid.appendChild(box);
         grid.scrollTop = grid.scrollHeight;
-        
-        logCoreEvent("Query processed successfully.", "var(--neon-green)");
-    }, 1200);
+    }
+
+    async function askCoreAi(promptText) {
+        typing.style.display = 'block';
+        try {
+            // تعليمات النظام: التركيز فقط على المحادثة
+            const SYSTEM_PROMPT = `You are A0Z AI, a helpful, futuristic, and professional system assistant. Engage in a natural, friendly conversation with the user.`;
+            const finalPrompt = `${SYSTEM_PROMPT}\n\nUSER: ${promptText}`;
+            
+            const res = await fetch(`https://text.pollinations.ai/${encodeURIComponent(finalPrompt)}`);
+            let responseText = await res.text();
+            
+            typing.style.display = 'none';
+
+            if (!responseText || responseText.trim().length === 0) {
+                appendCoreMsg('bot', "System: Neural response empty.");
+                return;
+            }
+
+            // عرض الرد مباشرة بدون أي معالجة إضافية
+            appendCoreMsg('bot', responseText.trim());
+
+        } catch (e) {
+            typing.style.display = 'none';
+            appendCoreMsg('bot', "❌ AI cloud connection failed.");
+            console.error(e);
+        }
+    }
+
+    function sendAction() {
+        const txt = input.value.trim();
+        if (!txt) return;
+        appendCoreMsg('user', txt);
+        input.value = '';
+        askCoreAi(txt);
+    }
+
+    btn.onclick = sendAction;
+    input.onkeypress = (e) => { if (e.key === 'Enter') sendAction(); };
 }
 
 // ==========================================================================
