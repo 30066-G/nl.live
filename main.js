@@ -326,21 +326,42 @@ function toggleQuantumVPN() {
 // ==========================================================================
 // 5. محرك الـ AI CORE MAINFRAME
 // ==========================================================================
-function triggerAiCoreQuery() {
+window.triggerAiCoreQuery = function() {
     const input = document.getElementById('coreAiInput');
     const grid = document.getElementById('coreAiChatGrid');
-    const query = input.value.trim();
+    const query = input.value.trim().toLowerCase(); // تحويل النص لـ lowercase للتعرف عليه بسهولة
+    
     if (!query) return;
 
-    grid.innerHTML += `<div style="align-self: flex-end; background: rgba(0,229,255,0.1); padding: 8px; border: 1px solid var(--neon-cyan); max-width: 80%; font-family: monospace;">> USER: ${query}</div>`;
+    // 1. إضافة رسالة المستخدم للدردشة
+    grid.innerHTML += `<div style="align-self: flex-end; background: rgba(0,229,255,0.1); padding: 8px; border: 1px solid var(--neon-cyan); max-width: 80%; font-family: monospace; margin-bottom:5px;">> USER: ${input.value}</div>`;
     input.value = '';
+    grid.scrollTop = grid.scrollHeight;
 
-    logCoreEvent("Querying localized mainframe vectors...", "var(--neon-cyan)");
+    // 2. إظهار حالة المعالجة (تأثير "تفكير" النظام)
+    logCoreEvent("Analyzing query vectors...", "var(--neon-cyan)");
 
     setTimeout(() => {
-        grid.innerHTML += `<div style="align-self: flex-start; background: rgba(255,0,127,0.05); padding: 8px; border: 1px solid var(--neon-magenta); max-width: 80%; font-family: monospace; color: #fff;">> AI_CORE: Processed request parameters. Payload telemetry synchronized successfully. Operational matrix stabilized.</div>`;
+        let aiResponse = "";
+
+        // 3. ذكاء النظام (تحليل الكلمات المفتاحية)
+        if (query.includes("hello") || query.includes("hi")) {
+            aiResponse = "System online. Identification verified. How can I assist with the A0Z framework?";
+        } else if (query.includes("security") || query.includes("hack")) {
+            aiResponse = "WARNING: Unauthorized intrusion detected in query. Perimeter firewalls are active.";
+        } else if (query.includes("system") || query.includes("status")) {
+            aiResponse = "All nodes are synchronized. CPU at 18%, Memory stable. Mainframe is fully operational.";
+        } else if (query.includes("vision") || query.includes("radar")) {
+            aiResponse = "Vision Radar is currently tracking neural signatures in the local environment.";
+        } else {
+            aiResponse = "Data processed. Operational matrix stabilized. Payload telemetry synchronized successfully.";
+        }
+
+        grid.innerHTML += `<div style="align-self: flex-start; background: rgba(255,0,127,0.05); padding: 8px; border: 1px solid var(--neon-magenta); max-width: 80%; font-family: monospace; color: #fff; margin-bottom:5px;">> AI_CORE: ${aiResponse}</div>`;
         grid.scrollTop = grid.scrollHeight;
-    }, 1000);
+        
+        logCoreEvent("Query processed successfully.", "var(--neon-green)");
+    }, 1200);
 }
 
 // ==========================================================================
