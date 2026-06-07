@@ -257,6 +257,7 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database(); 
         const auth = firebase.auth();
+        const storage = firebase.storage();
         let currentUserUID = null; let currentUserEmail = ""; let globalAppsData = {};
         let objectDetectorModel = null; let visionStream = null;
         let tesseractWorker = null; // معالج قراءة النمر الذكي
