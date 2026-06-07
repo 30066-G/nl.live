@@ -653,51 +653,79 @@
             closeAppWindow('vision_ai_scanner'); 
             if(visionStream) { visionStream.getTracks().forEach(t => t.stop()); visionStream = null; } 
         }
-function processIdentityMatch(input) {
+        function processIdentityMatch(input) {
     const file = input.files[0];
     const resultsDiv = document.getElementById('matchResults');
     if (!file) return;
-    resultsDiv.innerHTML = `<div style="color:var(--neon-cyan);">[SYSTEM] Uploading binary & indexing metadata...</div>`;
+
+    // استخراج اسم حقيقي من ملف الصورة
+    const seed = file.name.length + file.size;
+    const cleanName = file.name.split('.')[0].replace(/[^a-zA-Z0-9]/g, " ").trim();
+    const targetQuery = cleanName ? cleanName : "User_" + Math.floor(seed % 999);
+
+    resultsDiv.innerHTML = `<div style="color:var(--neon-cyan);">[SYSTEM] Extracting Face Vectors...</div>`;
     
     setTimeout(() => {
-        resultsDiv.innerHTML = "Synthesizing deep-web fingerprint indices... 🧠";
+        resultsDiv.innerHTML = `<div style="color:var(--neon-green);">[ANALYSIS] Indexing Social Footprint...</div>`;
+        
         setTimeout(() => {
-            // هنا نحدد المعرفات العشوائية أو الحقيقية
-            const mockIds = ["a0z_user_180", "Profile_ID_Verified", "specter_x"];
-            
-            // روابط حقيقية قابلة للضغط باستخدام وسام <a> وتوجيهها لفتح صفحة جديدة target="_blank"
+            // توليد روابط بحث مخصصة لكل منصة عبر محرك بحث يسمح بالـ iframe
+            const linkedinSearch = `https://www.bing.com/search?q=site:linkedin.com/in/+${encodeURIComponent(targetQuery)}`;
+            const facebookSearch = `https://www.bing.com/search?q=site:facebook.com/+${encodeURIComponent(targetQuery)}`;
+            const instagramSearch = `https://www.bing.com/search?q=site:instagram.com/+${encodeURIComponent(targetQuery)}`;
+
             resultsDiv.innerHTML = `
-                <a href="https://www.linkedin.com/in/${mockIds[0]}" target="_blank" class="match-card clickable-card">
+                <div style="margin-bottom: 15px; color: #888; font-size: 0.8rem;">
+                    Target Identified: <strong style="color:var(--neon-cyan);">${targetQuery}</strong>.<br>Click any platform to view intelligence data inside A0Z Browser:
+                </div>
+
+                <div onclick="openInSystemBrowser('${linkedinSearch}')" class="match-card clickable-card">
                     <i class="fa-brands fa-linkedin" style="color:#0077b5;"></i> 
                     <div>
-                        <span style="display:block; font-weight:bold;">LinkedIn Profile</span>
-                        <span style="font-size:0.75rem; color:#888;">/in/${mockIds[0]} (Match: 97.4%)</span>
+                        <span style="display:block; font-weight:bold;">LinkedIn Database</span>
+                        <span style="font-size:0.75rem; color:var(--neon-cyan);">Click to Preview Node</span>
                     </div>
-                </a>
+                </div>
                 
-                <a href="https://www.facebook.com/search/top?q=${mockIds[1]}" target="_blank" class="match-card clickable-card">
+                <div onclick="openInSystemBrowser('${facebookSearch}')" class="match-card clickable-card">
                     <i class="fa-brands fa-facebook" style="color:#1877f2;"></i> 
                     <div>
-                        <span style="display:block; font-weight:bold;">Facebook Entity</span>
-                        <span style="font-size:0.75rem; color:#888;">Identity Verified (Match: 91.2%)</span>
+                        <span style="display:block; font-weight:bold;">Facebook Graph Matrix</span>
+                        <span style="font-size:0.75rem; color:var(--neon-cyan);">Click to Preview Node</span>
                     </div>
-                </a>
+                </div>
                 
-                <a href="https://www.instagram.com/${mockIds[2]}" target="_blank" class="match-card clickable-card">
+                <div onclick="openInSystemBrowser('${instagramSearch}')" class="match-card clickable-card">
                     <i class="fa-brands fa-instagram" style="color:#e1306c;"></i> 
                     <div>
-                        <span style="display:block; font-weight:bold;">Instagram Account</span>
-                        <span style="font-size:0.75rem; color:#888;">@${mockIds[2]} (Match: 84.9%)</span>
+                        <span style="display:block; font-weight:bold;">Instagram Endpoint</span>
+                        <span style="font-size:0.75rem; color:var(--neon-cyan);">Click to Preview Node</span>
                     </div>
-                </a>
+                </div>
                 
-                <div style="margin-top:15px; padding:10px; border:1px solid var(--neon-green); color:var(--neon-green); text-align:center;">
-                    CORE IDENTITY ALLOCATION COMPLETED.
+                <div style="margin-top:15px; padding:10px; border:1px solid var(--neon-green); color:var(--neon-green); text-align:center; font-size:0.8rem;">
+                    [INTELLIGENCE FEED READY]
                 </div>
             `;
-            logCoreEvent("Identity Matrix Compiled Successfully.", "var(--neon-green)");
-        }, 2000);
-    }, 1500);
+            logCoreEvent(`Social targets loaded for: ${targetQuery}`, "var(--neon-green)");
+        }, 1500);
+    }, 1000);
+}
+
+// دالة وسيطة لربط نتائج البحث بتطبيق المتصفح الداخلي الخاص بك
+function openInSystemBrowser(url) {
+    // 1. فتح نافذة المتصفح الموجودة في تصميمك
+    openAppWindow('web_browser');
+    
+    // 2. تحديث شريط الرابط داخل المتصفح
+    const urlInput = document.getElementById('browserUrl');
+    if(urlInput) urlInput.value = url;
+    
+    // 3. تمرير الرابط للـ iframe الداخلي ليعرض النتيجة فوراً
+    const frame = document.getElementById('browserFrame');
+    if(frame) frame.src = url;
+    
+    logCoreEvent(`Displaying targets inside system core iframe.`, "var(--neon-cyan)");
 }
 
 
