@@ -4,6 +4,7 @@ import {
     stopVisionAiScanner
 } from "./modules/visionScanner.js";
 import {
+    initIdentityMatcher,
     loadFaceModels,
     startLiveCamera,
     captureLiveFace,
@@ -17,6 +18,7 @@ const logger = new Logger();
 const windows = new WindowManager();
 const registry = new AppRegistry();
 initVisionScanner(logger, windows);
+initIdentityMatcher(logger);
 registry.register({
     id: "cmd_system",
     name: "Terminal",
