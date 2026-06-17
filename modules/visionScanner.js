@@ -1,6 +1,11 @@
-let visionInterval = null;
-let model = null; // تعريف المتغير لتخزين نموذج الذكاء الاصطناعي
+// visionScanner.js
+let logger = null;
+let windows = null;
 
+function initVisionScanner(loggerInstance, windowManager) {
+    logger = loggerInstance;
+    windows = windowManager;
+}
 async function startObjectDetection() {
     const status = document.getElementById('visionStatus');
     const video = document.getElementById('visionVideo');
@@ -74,6 +79,7 @@ function stopVisionAiScanner() {
     logCoreEvent("AI Radar Stream Disconnected.", "var(--neon-magenta)");
 }
 export {
+    initVisionScanner,
     startObjectDetection,
     stopVisionAiScanner
 };
