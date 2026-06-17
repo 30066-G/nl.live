@@ -1,3 +1,6 @@
+import { Logger } from "./logger.js";
+const logger = new Logger();
+
 let highestZIndex = 10;
 
 // تفعيل الواجهة الرئيسية والتطبيقات
@@ -58,16 +61,7 @@ function handleNav(tab) {
 }
 
 function logCoreEvent(message, color = "#fff") {
-    const logger = document.getElementById('liveActivityLogger');
-    if (!logger) return;
-    const timestamp = new Date().toLocaleTimeString();
-    const logNode = document.createElement('div');
-    logNode.style.color = color;
-    logNode.style.fontFamily = 'monospace';
-    logNode.style.fontSize = '0.8rem';
-    logNode.innerHTML = `[${timestamp}] ${message}`;
-    logger.appendChild(logNode);
-    logger.scrollTop = logger.scrollHeight;
+    logger.log(message, color);
 }
 
 // محاكاة قفل الشاشة والولوج السريع
