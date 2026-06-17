@@ -1,4 +1,8 @@
 import {
+    startObjectDetection,
+    stopVisionAiScanner
+} from "./modules/visionScanner.js";
+import {
     loadFaceModels,
     startLiveCamera,
     captureLiveFace,
