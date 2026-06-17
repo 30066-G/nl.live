@@ -1,5 +1,8 @@
 import { Logger } from "./logger.js";
+import { WindowManager } from "./windowManager.js";
+
 const logger = new Logger();
+const windows = new WindowManager();
 
 let highestZIndex = 10;
 
@@ -33,23 +36,15 @@ function renderApps() {
 }
 
 function openAppWindow(winId) {
-    const win = document.getElementById(`win_${winId}`);
-    if (win) {
-        win.style.display = 'flex';
-        bringToFront(win);
-        logCoreEvent(`Launched system node: ${winId}`, "var(--neon-cyan)");
-    }
+    windows.open(winId);
 }
 
 function closeAppWindow(winId) {
-    const win = document.getElementById(`win_${winId}`);
-    if (win) win.style.display = 'none';
-    logCoreEvent(`Terminated system window: ${winId}`, "var(--neon-magenta)");
+    windows.close(winId);
 }
 
 function bringToFront(element) {
-    highestZIndex++;
-    element.style.zIndex = highestZIndex;
+    windows.focus(element);
 }
 
 function handleNav(tab) {
