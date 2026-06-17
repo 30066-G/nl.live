@@ -1,4 +1,5 @@
 import {
+    initVisionScanner,
     startObjectDetection,
     stopVisionAiScanner
 } from "./modules/visionScanner.js";
@@ -15,6 +16,7 @@ import { AppRegistry } from "./appRegistry.js";
 const logger = new Logger();
 const windows = new WindowManager();
 const registry = new AppRegistry();
+initVisionScanner(logger, windows);
 registry.register({
     id: "cmd_system",
     name: "Terminal",
