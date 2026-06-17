@@ -10,6 +10,16 @@ import {
     captureLiveFace,
     processIdentityMatch
 } from "./modules/identityMatcher.js";
+import {
+    initSystemController,
+    startVision,
+    stopVision,
+    initIdentity,
+    runIdentityCapture,
+    openApp,
+    closeApp
+} from "./modules/coreSystemController.js";
+
 import { Logger } from "./logger.js";
 import { WindowManager } from "./windowManager.js";
 import { AppRegistry } from "./appRegistry.js";
@@ -19,6 +29,8 @@ const windows = new WindowManager();
 const registry = new AppRegistry();
 initVisionScanner(logger, windows);
 initIdentityMatcher(logger);
+
+initSystemController(logger, windows);
 registry.register({
     id: "cmd_system",
     name: "Terminal",
