@@ -1,26 +1,59 @@
 import { Logger } from "./logger.js";
 import { WindowManager } from "./windowManager.js";
+import { AppRegistry } from "./appRegistry.js";
 
 const logger = new Logger();
 const windows = new WindowManager();
+const registry = new AppRegistry();
+registry.register({
+    id: "cmd_system",
+    name: "Terminal",
+    icon: "fa-terminal"
+});
+
+registry.register({
+    id: "global_chat",
+    name: "Zulu Net",
+    icon: "fa-comments"
+});
+
+registry.register({
+    id: "official_ai_bot",
+    name: "AI Core",
+    icon: "fa-brain"
+});
+
+registry.register({
+    id: "vision_ai_scanner",
+    name: "Vision Radar",
+    icon: "fa-eye"
+});
+
+registry.register({
+    id: "web_browser",
+    name: "Browser",
+    icon: "fa-globe"
+});
+
+registry.register({
+    id: "data_stream",
+    name: "Flux Stream",
+    icon: "fa-chart-line"
+});
+
+registry.register({
+    id: "identity_matcher",
+    name: "Identity Match",
+    icon: "fa-fingerprint"
+});
 
 let highestZIndex = 10;
 
 // تفعيل الواجهة الرئيسية والتطبيقات
-const appsList = [
-    { id: 'cmd_system', name: 'Terminal', icon: 'fa-terminal' },
-    { id: 'global_chat', name: 'Zulu Net', icon: 'fa-comments' },
-    { id: 'official_ai_bot', name: 'AI Core', icon: 'fa-brain' },
-    { id: 'vision_ai_scanner', name: 'Vision Radar', icon: 'fa-eye' },
-    { id: 'web_browser', name: 'Browser', icon: 'fa-globe' },
-    { id: 'data_stream', name: 'Flux Stream', icon: 'fa-chart-line' },
-    { id: 'identity_matcher', name: 'Identity Match', icon: 'fa-fingerprint' }
-];
-
 function renderApps() {
     const home = document.getElementById('homeScreen');
     home.innerHTML = '';
-    appsList.forEach(app => {
+    registry.getAll().forEach(app => {
         home.innerHTML += `
         <div class="app-item" onclick="openAppWindow('${app.id}')">
             <div class="app-icon"><i class="fa-solid ${app.icon}"></i></div>
